@@ -9,7 +9,6 @@ const url = 'https://careers.emich.edu/jobs/search';
   await page.goto(url);
 
   const btnConsentId = 'button#consent_agree';
-  const btnConsent = await page.$(btnConsentId);
 
   try {
     await page.waitForSelector(btnConsentId, { timeout: 5000 });
@@ -21,11 +20,27 @@ const url = 'https://careers.emich.edu/jobs/search';
 
   const href1 =
     'https://careers.emich.edu/jobs/plumber-maintenance-ypsilanti-michigan-united-states-e830fd00-51f9-4cc1-b179-be4ab262c50b';
+
   const anchorTextContent1 = await page.evaluate((href) => {
     return document.querySelector(`a[href='${href}']`).textContent;
   }, href1);
 
   console.log(anchorTextContent1);
+
+  const jobTitleId = 'link_job_title';
+
+  const jobListings = await page.evaluate((jobTitleId) => {
+    const jobs = document.querySelectorAll(`a[id^='${jobTitleId}']`);
+    const jobsTextContent = [];
+
+    jobs.forEach((job) => {
+      jobsTextContent.push(job.textContent);
+    });
+
+    return jobsTextContent;
+  }, jobTitleId);
+
+  console.log(jobListings);
 
   const anchorClick1 = await page.evaluate((href1) => {
     const anchor = document.querySelector(`a[href='${href1}']`);
