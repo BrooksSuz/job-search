@@ -1,8 +1,10 @@
 import puppeteer from 'puppeteer';
 
 const url = 'https://careers.emich.edu/jobs/search';
+const url = 'https://careers.emich.edu/jobs/search';
 
 (async () => {
+  const browser = await puppeteer.launch();
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
 
