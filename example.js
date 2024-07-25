@@ -2,14 +2,18 @@ import puppeteer from 'puppeteer';
 
 const url = 'https://careers.emich.edu/jobs/search';
 
+// Database information
 const wantedJobTitles = ['Plumber/Maintenance', 'Inst Research'];
+const jobTitleId = 'link_job_title';
 
 (async () => {
+  // Browser navigation
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
 
   await page.goto(url);
 
+  // Check for the "consent" button
   const btnConsentId = 'button#consent_agree';
 
   try {
@@ -20,8 +24,7 @@ const wantedJobTitles = ['Plumber/Maintenance', 'Inst Research'];
     console.log('Consent button not found or timed out.');
   }
 
-  const jobTitleId = 'link_job_title';
-
+  // Get the wanted job listings
   const jobListings = await page.evaluate(
     (jobTitleId, wantedJobTitles) => {
       const jobs = document.querySelectorAll(`a[id^='${jobTitleId}']`);
