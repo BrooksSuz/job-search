@@ -2,6 +2,8 @@ import puppeteer from 'puppeteer';
 
 const url = 'https://careers.emich.edu/jobs/search';
 
+const wantedJobTitles = ['Plumber/Maintenance', 'Inst Research'];
+
 (async () => {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
@@ -20,16 +22,28 @@ const url = 'https://careers.emich.edu/jobs/search';
 
   const jobTitleId = 'link_job_title';
 
-  const jobListings = await page.evaluate((jobTitleId) => {
-    const jobs = document.querySelectorAll(`a[id^='${jobTitleId}']`);
-    const jobsTextContent = [];
+  const jobListings = await page.evaluate(
+    (jobTitleId, wantedJobTitles) => {
+      const jobs = document.querySelectorAll(`a[id^='${jobTitleId}']`);
+      const jobsTextContent = [];
 
-    jobs.forEach((job) => {
-      jobsTextContent.push(job.textContent);
-    });
+      jobs.forEach((job) => {
+        if (
+          wantedJobTitles.some(
+            (wanted) =>
+              job.textContent.includes(wanted) ||
+              wanted.includes(job.textContent)
+          )
+        ) {
+          jobsTextContent.push(job.textContent);
+        }
+      });
 
-    return jobsTextContent;
-  }, jobTitleId);
+      return jobsTextContent;
+    },
+    jobTitleId,
+    wantedJobTitles
+  );
 
   console.log(jobListings);
 
