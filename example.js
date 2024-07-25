@@ -1,8 +1,7 @@
 import puppeteer from 'puppeteer';
 
-const url = 'https://careers.emich.edu/jobs/search';
-
 // Database information
+const url = 'https://careers.emich.edu/jobs/search';
 const wantedJobTitles = ['Plumber/Maintenance', 'Inst Research'];
 const jobTitleId = 'link_job_title';
 
