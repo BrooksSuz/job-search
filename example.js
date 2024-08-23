@@ -3,7 +3,7 @@ import puppeteer from 'puppeteer';
 // Database information
 const url = 'https://careers.emich.edu/jobs/search';
 const btnConsentId = 'consent_agree';
-const arrJobTextContent = ['Plumber/Maintenance', 'Research'];
+const arrSearchTerms = ['Plumber/Maintenance', 'Research'];
 const aJobTitleId = 'link_job_title';
 const inputSearchId = 'search_control_query_0_0';
 const btnSearchId = 'search_control_button_0_0';
@@ -31,7 +31,7 @@ const btnSearchId = 'search_control_button_0_0';
   const btnSearch = `#${btnSearchId}`;
   const aJobTitle = `#${aJobTitleId}`;
 
-  // TODO: CONSTRUCT THE FOLLOWING CODE TO BE USED IN A for...of LOOP (you're iterating over arrJobTextContent)
+  // TODO: CONSTRUCT THE FOLLOWING CODE TO BE USED IN A for...of LOOP (you're iterating over arrSearchTerms)
 
   // Search for job listings
   /*   const jobsSearchedFor = await page.evaluate(
@@ -62,14 +62,17 @@ const btnSearchId = 'search_control_button_0_0';
 
     // If some of either string includes the other
     if (
-      arrJobTextContent.some(
-        (strDesiredJob) =>
-          aJobTextContent.includes(strDesiredJob) ||
-          strDesiredJob.includes(aJobTextContent)
+      arrSearchTerms.some(
+        (strSearchTerm) =>
+          aJobTextContent.includes(strSearchTerm) ||
+          strSearchTerm.includes(aJobTextContent)
       )
     ) {
-      // Push the anchor's text content into the array
-      desiredJobsTextContent.push(aJobTextContent);
+      // Get the anchor's href attribute
+      const aJobHref = await page.evaluate((el) => el.href, aJob);
+
+      // Push the anchor's text content and href value into the array
+      desiredJobsTextContent.push(`${aJobTextContent}: ${aJobHref}`);
     }
   }
 
