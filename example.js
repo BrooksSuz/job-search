@@ -127,6 +127,9 @@ const umichJobSearchConfig = {
 
 // Example usage of scrapeJobs function with different configurations
 (async () => {
-  await scrapeJobs(emichJobSearchConfig);
-  await scrapeJobs(umichJobSearchConfig);
+  const arrUserSelections = [emichJobSearchConfig, umichJobSearchConfig];
+
+  arrUserSelections.forEach(async (selection) => {
+    await scrapeJobs(selection);
+  });
 })();
