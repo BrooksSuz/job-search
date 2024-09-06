@@ -17,8 +17,13 @@ async function scrapeJobs({
 
   // Click the consent button if it exists and is defined in the config
   if (btnConsentSelector) {
-    await page.click(btnConsentSelector);
-    console.log('Consent button clicked.');
+    try {
+      await page.waitForSelector(btnConsentSelector);
+      await page.click(btnConsentSelector);
+      console.log('Consent button clicked.');
+    } catch (err) {
+      console.log('btnConsentSelector not found');
+    }
   }
 
   const arrDesiredJobs = []; // Array to store job titles and links that match the search terms
