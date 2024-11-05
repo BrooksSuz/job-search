@@ -7,6 +7,7 @@ async function scrapeJobs({
   jobTitleSelector,
   nextPageSelector,
   nextPageDisabledClass,
+  errMessage,
 }) {
   // Launch a new browser instance
   const browser = await puppeteer.launch();
@@ -128,8 +129,6 @@ async function scrapeJobs({
         return;
       }
 
-      console.log(btnNextPage);
-
       // Otherwise, click and wait for the next page to load
       console.log('Navigating to the next page...\n');
       await Promise.all([
@@ -144,9 +143,6 @@ async function scrapeJobs({
         previousUrl
       );
     } catch (err) {
-      const errMessage =
-        "Waiting for selector `a[title='Go to next page']` failed: Waiting failed: 10000ms exceeded";
-
       if (err.message.includes(errMessage)) {
         console.log('Next page button not found. Assuming last page reached.');
         hasMorePages = false; // Exit loop if button is not found
@@ -191,11 +187,22 @@ const umichJobSearchConfig = {
   jobTitleSelector: 'table.cols-5 td.views-field-title > a',
   nextPageSelector: "a[title='Go to next page']",
   nextPageDisabledClass: 'disabled',
+  errMessage:
+    "Waiting for selector `a[title='Go to next page']` failed: Waiting failed: 10000ms exceeded",
+};
+
+const uToledoSearchConfig = {
+  url: 'https://careers.utoledo.edu/cw/en-us/listing/',
+  btnConsentSelector: null,
+  searchTerms: ['web'],
+  jobTitleSelector: 'div.job_resultslist h4 > a.job-link',
+  nextPageSelector: "a[title='More Jobs']",
+  nextPageDisabledClass: null,
 };
 
 // Example usage of scrapeJobs function with different configurations
 (async () => {
-  const arrUserSelections = [];
+  const arrUserSelections = [umichJobSearchConfig];
 
   for (const selection of arrUserSelections) {
     await scrapeJobs(selection);
