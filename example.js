@@ -112,9 +112,6 @@ async function scrapeJobs({
           return {
             isDisabled:
               hasDisabledClass || hasDisabledAttribute || isDisabledProp,
-            hasDisabledClass,
-            hasDisabledAttribute,
-            isDisabledProp,
             noHref,
           };
         },
@@ -130,6 +127,8 @@ async function scrapeJobs({
         hasMorePages = false;
         return;
       }
+
+      console.log(btnNextPage);
 
       // Otherwise, click and wait for the next page to load
       console.log('Navigating to the next page...\n');
@@ -179,7 +178,7 @@ async function scrapeJobs({
 const emichJobSearchConfig = {
   url: 'https://careers.emich.edu/jobs/search',
   btnConsentSelector: 'button#consent_agree',
-  searchTerms: ['Visiting Faculty'],
+  searchTerms: ['web'],
   jobTitleSelector: 'a[id^="link_job_title"]',
   nextPageSelector: 'li.next_page > a',
   nextPageDisabledClass: 'disabled',
@@ -188,7 +187,7 @@ const emichJobSearchConfig = {
 const umichJobSearchConfig = {
   url: 'https://careers.umich.edu/browse-jobs/positions/F',
   btnConsentSelector: null, // Assuming there's no consent button
-  searchTerms: ['Administrative Specialist', 'Patient Care Tech Associate'],
+  searchTerms: ['web'],
   jobTitleSelector: 'table.cols-5 td.views-field-title > a',
   nextPageSelector: "a[title='Go to next page']",
   nextPageDisabledClass: 'disabled',
@@ -196,7 +195,7 @@ const umichJobSearchConfig = {
 
 // Example usage of scrapeJobs function with different configurations
 (async () => {
-  const arrUserSelections = [emichJobSearchConfig, umichJobSearchConfig];
+  const arrUserSelections = [];
 
   for (const selection of arrUserSelections) {
     await scrapeJobs(selection);
