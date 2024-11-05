@@ -83,13 +83,7 @@ async function scrapeJobs({
       }
 
       // Check if the button is disabled via class or attribute
-      const {
-        isDisabled,
-        hasDisabledClass,
-        hasDisabledAttribute,
-        isDisabledProp,
-        noHref,
-      } = await page.evaluate(
+      const { isDisabled, noHref } = await page.evaluate(
         (el, disabledClass) => {
           if (!el) {
             console.warn('Element is null or undefined');
@@ -127,13 +121,6 @@ async function scrapeJobs({
         btnNextPage,
         nextPageDisabledClass
       );
-
-      // Log the results for debugging
-      console.log(`isDisabled: ${isDisabled}`);
-      console.log(`hasDisabledClass: ${hasDisabledClass}`);
-      console.log(`hasDisabledAttribute: ${hasDisabledAttribute}`);
-      console.log(`isDisabledProp: ${isDisabledProp}`);
-      console.log(`noHref: ${noHref}`);
 
       // Stop pagination if the button is disabled or lacks an href
       if (isDisabled || noHref) {
