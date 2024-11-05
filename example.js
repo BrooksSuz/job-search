@@ -70,90 +70,105 @@ async function scrapeJobs({
   const clickNextPage = async () => {
     const previousUrl = page.url();
 
-    // Locate the next page button
-    const btnNextPage = await page.waitForSelector(nextPageSelector, {
-      timeout: 10000,
-    });
+    try {
+      // Locate the next page button
+      const btnNextPage = await page.waitForSelector(nextPageSelector, {
+        timeout: 10000,
+      });
 
-    if (!btnNextPage) {
-      console.log('Next page button not found.');
-      hasMorePages = false;
-      return;
-    }
+      if (!btnNextPage) {
+        console.log('Next page button not found.');
+        hasMorePages = false;
+        return;
+      }
 
-    // Check if the button is disabled via class or attribute
-    const {
-      isDisabled,
-      hasDisabledClass,
-      hasDisabledAttribute,
-      isDisabledProp,
-      noHref,
-    } = await page.evaluate(
-      (el, disabledClass) => {
-        if (!el) {
-          console.warn('Element is null or undefined');
+      // Check if the button is disabled via class or attribute
+      const {
+        isDisabled,
+        hasDisabledClass,
+        hasDisabledAttribute,
+        isDisabledProp,
+        noHref,
+      } = await page.evaluate(
+        (el, disabledClass) => {
+          if (!el) {
+            console.warn('Element is null or undefined');
+            return {
+              isDisabled: true,
+              hasDisabledClass: false,
+              hasDisabledAttribute: false,
+              isDisabledProp: false,
+              noHref: true, // Treat it as missing href if element is null
+            };
+          }
+
+          const hasDisabledClass = el.classList.contains(disabledClass);
+          const hasDisabledAttribute = el.hasAttribute('disabled');
+          const isDisabledProp =
+            el.tagName.toLowerCase() !== 'a' && el.disabled !== undefined
+              ? el.disabled
+              : false;
+
+          // Ensure noHref accounts for null, empty, or undefined href attributes
+          const noHref =
+            !el.hasAttribute('href') ||
+            el.getAttribute('href') === null ||
+            el.getAttribute('href').trim() === '';
+
           return {
-            isDisabled: true,
-            hasDisabledClass: false,
-            hasDisabledAttribute: false,
-            isDisabledProp: false,
-            noHref: true, // Treat it as missing href if element is null
+            isDisabled:
+              hasDisabledClass || hasDisabledAttribute || isDisabledProp,
+            hasDisabledClass,
+            hasDisabledAttribute,
+            isDisabledProp,
+            noHref,
           };
-        }
+        },
+        btnNextPage,
+        nextPageDisabledClass
+      );
 
-        const hasDisabledClass = el.classList.contains(disabledClass);
-        const hasDisabledAttribute = el.hasAttribute('disabled');
-        const isDisabledProp =
-          el.tagName.toLowerCase() !== 'a' && el.disabled !== undefined
-            ? el.disabled
-            : false;
+      // Log the results for debugging
+      console.log(`isDisabled: ${isDisabled}`);
+      console.log(`hasDisabledClass: ${hasDisabledClass}`);
+      console.log(`hasDisabledAttribute: ${hasDisabledAttribute}`);
+      console.log(`isDisabledProp: ${isDisabledProp}`);
+      console.log(`noHref: ${noHref}`);
 
-        // Ensure noHref accounts for null, empty, or undefined href attributes
-        const noHref =
-          !el.hasAttribute('href') ||
-          el.getAttribute('href') === null ||
-          el.getAttribute('href').trim() === '';
+      // Stop pagination if the button is disabled or lacks an href
+      if (isDisabled || noHref) {
+        console.log(
+          'Next page button is disabled or has no href. Exiting loop.'
+        );
+        hasMorePages = false;
+        return;
+      }
 
-        return {
-          isDisabled:
-            hasDisabledClass || hasDisabledAttribute || isDisabledProp,
-          hasDisabledClass,
-          hasDisabledAttribute,
-          isDisabledProp,
-          noHref,
-        };
-      },
-      btnNextPage,
-      nextPageDisabledClass
-    );
+      // Otherwise, click and wait for the next page to load
+      console.log('Navigating to the next page...\n');
+      await Promise.all([
+        btnNextPage.click(),
+        page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 20000 }),
+      ]);
 
-    // Log the results for debugging
-    console.log(`isDisabled: ${isDisabled}`);
-    console.log(`hasDisabledClass: ${hasDisabledClass}`);
-    console.log(`hasDisabledAttribute: ${hasDisabledAttribute}`);
-    console.log(`isDisabledProp: ${isDisabledProp}`);
-    console.log(`noHref: ${noHref}`);
+      // Ensure that the URL has changed
+      await page.waitForFunction(
+        (prevUrl) => window.location.href !== prevUrl,
+        {},
+        previousUrl
+      );
+    } catch (err) {
+      const errMessage =
+        "Waiting for selector `a[title='Go to next page']` failed: Waiting failed: 10000ms exceeded";
 
-    // Stop pagination if the button is disabled or lacks an href
-    if (isDisabled || noHref) {
-      console.log('Next page button is disabled or has no href. Exiting loop.');
-      hasMorePages = false;
-      return;
+      if (err.message.includes(errMessage)) {
+        console.log('Next page button not found. Assuming last page reached.');
+        hasMorePages = false; // Exit loop if button is not found
+      } else {
+        console.error('Error clicking next page:', err);
+        hasMorePages = false; // Handle other errors as well
+      }
     }
-
-    // Otherwise, click and wait for the next page to load
-    console.log('Navigating to the next page...\n');
-    await Promise.all([
-      btnNextPage.click(),
-      page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 20000 }),
-    ]);
-
-    // Ensure that the URL has changed
-    await page.waitForFunction(
-      (prevUrl) => window.location.href !== prevUrl,
-      {},
-      previousUrl
-    );
   };
 
   try {
@@ -194,7 +209,7 @@ const umichJobSearchConfig = {
 
 // Example usage of scrapeJobs function with different configurations
 (async () => {
-  const arrUserSelections = [umichJobSearchConfig];
+  const arrUserSelections = [emichJobSearchConfig, umichJobSearchConfig];
 
   for (const selection of arrUserSelections) {
     await scrapeJobs(selection);
