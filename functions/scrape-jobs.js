@@ -1,6 +1,7 @@
 import puppeteer from 'puppeteer';
+import clickConsent from './click-consent.js';
 
-async function scrapeJobs({
+const scrapeJobs = async ({
   url,
   btnConsentSelector,
   searchTerms,
@@ -9,7 +10,7 @@ async function scrapeJobs({
   nextPageDisabledClass,
   errMessage,
   uniName,
-}) {
+}) => {
   // Launch a new browser instance
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
@@ -22,11 +23,9 @@ async function scrapeJobs({
 
   // Click the consent button if it exists and is defined in the config
   try {
-    await page.waitForSelector(btnConsentSelector, { timeout: 30000 });
-    await page.click(btnConsentSelector);
-    console.log('Consent button clicked.');
+    clickConsent(page, btnConsentSelector);
   } catch (err) {
-    console.log('Consent button not found');
+    console.log(`Consent button not found: ${err}`);
   }
 
   // Function to process and scrape job listings on the current page
@@ -166,19 +165,9 @@ async function scrapeJobs({
 
   // Close the browser when done
   await browser.close();
-}
+};
 
 // Example configurations
-const eMichJobSearchConfig = {
-  url: 'https://careers.emich.edu/jobs/search',
-  btnConsentSelector: 'button#consent_agree',
-  searchTerms: ['web'],
-  jobTitleSelector: 'a[id^="link_job_title"]',
-  nextPageSelector: 'li.next_page > a',
-  nextPageDisabledClass: 'disabled',
-  errMessage: null,
-  uniName: 'Eastern Michigan',
-};
 
 const uMichJobSearchConfig = {
   url: 'https://careers.umich.edu/browse-jobs/positions/F',
@@ -204,14 +193,12 @@ const uToledoSearchConfig = {
 };
 
 // Example usage of scrapeJobs function with different configurations
-(async () => {
-  const arrUserSelections = [
-    eMichJobSearchConfig,
-    uMichJobSearchConfig,
-    uToledoSearchConfig,
-  ];
+/* (async () => {
+  const arrUserSelections = [eMichJobSearchConfig];
 
   for (const selection of arrUserSelections) {
     await scrapeJobs(selection);
   }
-})();
+})(); */
+
+export default scrapeJobs;
