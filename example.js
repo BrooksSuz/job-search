@@ -8,6 +8,7 @@ async function scrapeJobs({
   nextPageSelector,
   nextPageDisabledClass,
   errMessage,
+  uniName,
 }) {
   // Launch a new browser instance
   const browser = await puppeteer.launch();
@@ -130,11 +131,8 @@ async function scrapeJobs({
       }
 
       // Otherwise, click and wait for the next page to load
-      console.log('Navigating to the next page...\n');
-      await Promise.all([
-        btnNextPage.click(),
-        page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 20000 }),
-      ]);
+      console.log(`Navigating ${uniName}...\n`);
+      await Promise.all([btnNextPage.click(), page.waitForNavigation()]);
 
       // Ensure that the URL has changed
       await page.waitForFunction(
@@ -171,16 +169,18 @@ async function scrapeJobs({
 }
 
 // Example configurations
-const emichJobSearchConfig = {
+const eMichJobSearchConfig = {
   url: 'https://careers.emich.edu/jobs/search',
   btnConsentSelector: 'button#consent_agree',
   searchTerms: ['web'],
   jobTitleSelector: 'a[id^="link_job_title"]',
   nextPageSelector: 'li.next_page > a',
   nextPageDisabledClass: 'disabled',
+  errMessage: null,
+  uniName: 'Eastern Michigan',
 };
 
-const umichJobSearchConfig = {
+const uMichJobSearchConfig = {
   url: 'https://careers.umich.edu/browse-jobs/positions/F',
   btnConsentSelector: null, // Assuming there's no consent button
   searchTerms: ['web'],
@@ -189,6 +189,7 @@ const umichJobSearchConfig = {
   nextPageDisabledClass: 'disabled',
   errMessage:
     "Waiting for selector `a[title='Go to next page']` failed: Waiting failed: 10000ms exceeded",
+  uniName: 'University of Michigan',
 };
 
 const uToledoSearchConfig = {
@@ -196,13 +197,19 @@ const uToledoSearchConfig = {
   btnConsentSelector: null,
   searchTerms: ['web'],
   jobTitleSelector: 'div.job_resultslist h4 > a.job-link',
-  nextPageSelector: "a[title='More Jobs']",
+  nextPageSelector: "#recent-jobs a[title='More Jobs']",
   nextPageDisabledClass: null,
+  errMessage: null,
+  uniName: 'University of Toledo',
 };
 
 // Example usage of scrapeJobs function with different configurations
 (async () => {
-  const arrUserSelections = [umichJobSearchConfig];
+  const arrUserSelections = [
+    eMichJobSearchConfig,
+    uMichJobSearchConfig,
+    uToledoSearchConfig,
+  ];
 
   for (const selection of arrUserSelections) {
     await scrapeJobs(selection);
