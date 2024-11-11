@@ -5,12 +5,13 @@ import configs from './job-search-configs.js';
 const runScrapingTasks = async () => {
   const browser = await puppeteer.launch();
 
-  for (const config of configs) {
+  const scrapingTasks = configs.map(async (config) => {
     const { urlInfo, selectors, settings } = config;
     const { baseUrl } = urlInfo;
     const { consentButton, jobTitleLink, nextPageLink } = selectors;
     const { searchTerms, nextPageDisabledClass, errMessage, uniName } =
       settings;
+
     const page = await browser.newPage();
     await page.goto(baseUrl, { waitUntil: 'networkidle0' });
 
@@ -26,7 +27,9 @@ const runScrapingTasks = async () => {
     );
 
     await page.close();
-  }
+  });
+
+  await Promise.all(scrapingTasks);
 
   await browser.close();
 };
