@@ -1,49 +1,6 @@
-// Click the consent button if it exists and is defined in the config
-const clickConsent = async (page, btnConsentSelector) => {
-  await page.waitForSelector(btnConsentSelector, { timeout: 30000 });
-  await page.click(btnConsentSelector);
-  console.log('Consent button clicked.');
-};
-
-const processJobListings = async (page, jobTitleSelector, searchTerms) => {
-  // Get all job elements matching the provided job title selector
-  const jobElements = await page.$$(jobTitleSelector);
-
-  // Collect matched jobs
-  const matchedJobs = await Promise.all(
-    jobElements.map(async (jobElement) => {
-      const jobData = await page.evaluate(
-        (el) => ({
-          textContent: el.textContent,
-          href: el.href,
-        }),
-        jobElement
-      );
-      const lowerCaseJobText = jobData.textContent.toLowerCase();
-
-      if (
-        searchTerms.some(
-          (term) =>
-            lowerCaseJobText.includes(term.toLowerCase()) ||
-            term.toLowerCase().includes(lowerCaseJobText)
-        )
-      ) {
-        const preferredCaseJobText = jobData.textContent
-          .toLowerCase()
-          .replace(/\b\w/g, (char) => char.toUpperCase());
-
-        return `${preferredCaseJobText.trim()}: ${jobData.href}`;
-      }
-    })
-  );
-
-  return matchedJobs.filter((job) => job !== undefined); // Filter out undefined entries
-};
-
-// Function to handle pagination by clicking the "Next Page" button
 const clickNextPage = async (
   page,
-  nextPageSelector,
+  nextPageLink,
   nextPageDisabledClass,
   uniName,
   errMessage
@@ -51,13 +8,13 @@ const clickNextPage = async (
   const previousUrl = page.url();
 
   try {
-    const btnNextPage = await page.waitForSelector(nextPageSelector, {
+    const btnNextPage = await page.waitForSelector(nextPageLink, {
       timeout: 10000,
     });
 
     if (!btnNextPage) {
       console.log('Next page button not found.');
-      return false; // No more pages
+      return false;
     }
 
     const { isDisabled, noHref } = await page.evaluate(
@@ -87,7 +44,7 @@ const clickNextPage = async (
 
     if (isDisabled || noHref) {
       console.log('Next page button is disabled or has no href. Exiting loop.');
-      return false; // No more pages
+      return false;
     }
 
     console.log(`Navigating ${uniName}...\n`);
@@ -102,45 +59,98 @@ const clickNextPage = async (
       previousUrl
     );
 
-    return true; // Indicating there might be more pages
+    return true;
   } catch (err) {
     if (err.message.includes(errMessage)) {
       console.log('Next page button not found. Assuming last page reached.');
-      return false; // No more pages
+      return false;
     } else {
       console.error('Error clicking next page:', err);
-      return false; // Error, so assume no more pages
+      return false;
     }
   }
 };
 
-// Recursively calls paginate if there are more pages
-const paginate = async (page, config) => {
-  const { nextPageSelector, nextPageDisabledClass, uniName, errMessage } =
-    config;
+const navigate = async (
+  page,
+  nextPageLink,
+  nextPageDisabledClass,
+  uniName,
+  errMessage
+) => {
   const hasNextPage = await clickNextPage(
     page,
-    nextPageSelector,
+    nextPageLink,
     nextPageDisabledClass,
     uniName,
     errMessage
   );
 
   if (hasNextPage) {
-    await paginate(page, config); // Recursively call paginate if there's another page
+    await navigate(
+      page,
+      nextPageLink,
+      nextPageDisabledClass,
+      uniName,
+      errMessage
+    );
   }
 };
 
-const scrapeJobs = async (page, config) => {
-  const { url, btnConsentSelector, searchTerms, jobTitleSelector } = config;
+const processJobListings = async (page, jobTitleLink, searchTerms) => {
+  const jobElements = await page.$$(jobTitleLink);
 
-  await page.goto(url, { waitUntil: 'networkidle0' });
+  const matchedJobs = await Promise.all(
+    jobElements.map(async (jobElement) => {
+      const jobData = await page.evaluate(
+        (el) => ({
+          textContent: el.textContent,
+          href: el.href,
+        }),
+        jobElement
+      );
+      const lowerCaseJobText = jobData.textContent.toLowerCase();
 
+      if (
+        searchTerms.some(
+          (term) =>
+            lowerCaseJobText.includes(term.toLowerCase()) ||
+            term.toLowerCase().includes(lowerCaseJobText)
+        )
+      ) {
+        const preferredCaseJobText = jobData.textContent
+          .toLowerCase()
+          .replace(/\b\w/g, (char) => char.toUpperCase());
+
+        return `${preferredCaseJobText.trim()}: ${jobData.href}`;
+      }
+    })
+  );
+
+  return matchedJobs.filter((job) => job !== undefined);
+};
+
+const clickConsent = async (page, consentButton) => {
+  await page.waitForSelector(consentButton, { timeout: 30000 });
+  await page.click(consentButton);
+  console.log('Consent button clicked.');
+};
+
+const scrapeJobs = async (
+  page,
+  consentButton,
+  jobTitleLink,
+  nextPageLink,
+  searchTerms,
+  nextPageDisabledClass,
+  errMessage,
+  uniName
+) => {
   const arrDesiredJobs = [];
 
-  if (btnConsentSelector) {
+  if (consentButton) {
     try {
-      await clickConsent(page, btnConsentSelector);
+      await clickConsent(page, consentButton);
     } catch (err) {
       console.log(`\nError with function clickConsent\n${err}`);
     }
@@ -149,17 +159,23 @@ const scrapeJobs = async (page, config) => {
   try {
     const desiredJobs = await processJobListings(
       page,
-      jobTitleSelector,
+      jobTitleLink,
       searchTerms
     );
 
-    arrDesiredJobs.push(...desiredJobs); // Spread array of jobs into main array
+    arrDesiredJobs.push(...desiredJobs);
   } catch (err) {
     console.log(`\nError with function processJobListings\n${err}`);
   }
 
   try {
-    await paginate(page, config); // Handle navigating and calling processJobListings
+    await navigate(
+      page,
+      nextPageLink,
+      nextPageDisabledClass,
+      uniName,
+      errMessage
+    );
   } catch (err) {
     console.log(`\nError with function paginate\n${err}`);
   }
