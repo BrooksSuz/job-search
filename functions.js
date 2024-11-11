@@ -87,13 +87,26 @@ const navigate = async (
   );
 
   if (hasNextPage) {
-    await navigate(
-      page,
-      nextPageLink,
-      nextPageDisabledClass,
-      uniName,
-      errMessage
-    );
+    try {
+      await navigate(
+        page,
+        nextPageLink,
+        nextPageDisabledClass,
+        uniName,
+        errMessage
+      );
+    } catch (err) {
+      console.log(`\nError with function navigate\n${err}`);
+    }
+  }
+};
+
+const getDesiredJobs = async (page, jobTitleLink, searchTerms) => {
+  try {
+    return await processJobListings(page, jobTitleLink, searchTerms);
+  } catch (err) {
+    console.log(`\nError with function processJobListings\n${err}`);
+    return [];
   }
 };
 
@@ -130,10 +143,15 @@ const processJobListings = async (page, jobTitleLink, searchTerms) => {
   return matchedJobs.filter((job) => job !== undefined);
 };
 
-const clickConsent = async (page, consentButton) => {
-  await page.waitForSelector(consentButton, { timeout: 30000 });
-  await page.click(consentButton);
-  console.log('Consent button clicked.');
+const checkConsent = async (page, consentButton) => {
+  if (consentButton) {
+    try {
+      await page.waitForSelector(consentButton, { timeout: 30000 });
+      await page.click(consentButton);
+    } catch (err) {
+      console.log(`\nError with function clickConsent\n${err}`);
+    }
+  }
 };
 
 const scrapeJobs = async (
@@ -146,40 +164,15 @@ const scrapeJobs = async (
   errMessage,
   uniName
 ) => {
-  const arrDesiredJobs = [];
-
-  if (consentButton) {
-    try {
-      await clickConsent(page, consentButton);
-    } catch (err) {
-      console.log(`\nError with function clickConsent\n${err}`);
-    }
-  }
-
-  try {
-    const desiredJobs = await processJobListings(
-      page,
-      jobTitleLink,
-      searchTerms
-    );
-
-    arrDesiredJobs.push(...desiredJobs);
-  } catch (err) {
-    console.log(`\nError with function processJobListings\n${err}`);
-  }
-
-  try {
-    await navigate(
-      page,
-      nextPageLink,
-      nextPageDisabledClass,
-      uniName,
-      errMessage
-    );
-  } catch (err) {
-    console.log(`\nError with function paginate\n${err}`);
-  }
-
+  await checkConsent(page, consentButton);
+  const arrDesiredJobs = getDesiredJobs(page, jobTitleLink, searchTerms);
+  await navigate(
+    page,
+    nextPageLink,
+    nextPageDisabledClass,
+    uniName,
+    errMessage
+  );
   console.log(arrDesiredJobs);
 };
 

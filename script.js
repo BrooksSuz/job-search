@@ -30,7 +30,6 @@ const runScrapingTasks = async () => {
   });
 
   await Promise.all(scrapingTasks);
-
   await browser.close();
 };
 
