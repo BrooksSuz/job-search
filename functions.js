@@ -1,5 +1,3 @@
-import puppeteer from 'puppeteer';
-
 // Click the consent button if it exists and is defined in the config
 const clickConsent = async (page, btnConsentSelector) => {
   await page.waitForSelector(btnConsentSelector, { timeout: 30000 });
@@ -14,12 +12,14 @@ const processJobListings = async (page, jobTitleSelector, searchTerms) => {
   // Collect matched jobs
   const matchedJobs = await Promise.all(
     jobElements.map(async (jobElement) => {
-      const jobTextContent = await page.evaluate(
-        (el) => el.textContent,
+      const jobData = await page.evaluate(
+        (el) => ({
+          textContent: el.textContent,
+          href: el.href,
+        }),
         jobElement
       );
-
-      const lowerCaseJobText = jobTextContent.toLowerCase();
+      const lowerCaseJobText = jobData.textContent.toLowerCase();
 
       if (
         searchTerms.some(
@@ -28,13 +28,11 @@ const processJobListings = async (page, jobTitleSelector, searchTerms) => {
             term.toLowerCase().includes(lowerCaseJobText)
         )
       ) {
-        const jobHref = await page.evaluate((el) => el.href, jobElement);
-
-        const preferredCaseJobText = jobTextContent
+        const preferredCaseJobText = jobData.textContent
           .toLowerCase()
           .replace(/\b\w/g, (char) => char.toUpperCase());
 
-        return `${preferredCaseJobText.trim()}: ${jobHref}`;
+        return `${preferredCaseJobText.trim()}: ${jobData.href}`;
       }
     })
   );
@@ -118,12 +116,14 @@ const clickNextPage = async (
 
 // Recursively calls paginate if there are more pages
 const paginate = async (page, config) => {
+  const { nextPageSelector, nextPageDisabledClass, uniName, errMessage } =
+    config;
   const hasNextPage = await clickNextPage(
     page,
-    config.nextPageSelector,
-    config.nextPageDisabledClass,
-    config.uniName,
-    config.errMessage
+    nextPageSelector,
+    nextPageDisabledClass,
+    uniName,
+    errMessage
   );
 
   if (hasNextPage) {
@@ -131,11 +131,9 @@ const paginate = async (page, config) => {
   }
 };
 
-const scrapeJobs = async (config) => {
+const scrapeJobs = async (page, config) => {
   const { url, btnConsentSelector, searchTerms, jobTitleSelector } = config;
 
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
   await page.goto(url, { waitUntil: 'networkidle0' });
 
   const arrDesiredJobs = [];
@@ -167,8 +165,6 @@ const scrapeJobs = async (config) => {
   }
 
   console.log(arrDesiredJobs);
-
-  await browser.close();
 };
 
 export default scrapeJobs;
