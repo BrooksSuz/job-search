@@ -1,8 +1,13 @@
-async function processJobListings(page, jobTitleLink, searchTerms) {
-  const jobElements = await page.$$(jobTitleLink);
-  const filteredJobs = await filterJobs(page, jobElements, searchTerms);
+async function getFilteredJobs(page, jobTitleLink, searchTerms) {
+  try {
+    const jobElements = await page.$$(jobTitleLink);
+    const filteredJobs = await filterJobs(page, jobElements, searchTerms);
 
-  return filteredJobs;
+    return filteredJobs;
+  } catch (err) {
+    console.log(`\nError with function getFilteredJobs:\n${err}`);
+    return [];
+  }
 }
 
 const createDataObject = async (page, jobElement) => {
@@ -42,13 +47,13 @@ const filterJobs = async (page, jobElements, searchTerms) => {
         findMatch(jobData.textContent, term)
       );
 
-      if (isMatch) {
-        return `${formatJobText(jobData.textContent)}: ${jobData.href}`;
-      }
+      if (isMatch)
+        return { [formatJobText(jobData.textContent)]: jobData.href };
+      //return `${formatJobText(jobData.textContent)}: ${jobData.href}`;
     })
   );
 
   return jobs.filter((job) => job !== undefined);
 };
 
-export default processJobListings;
+export default getFilteredJobs;

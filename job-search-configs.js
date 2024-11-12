@@ -25,7 +25,7 @@ const uMich = {
     nextPageLink: "a[title='Go to next page']",
   },
   settings: {
-    searchTerms: ['research laboratory tech assoc'],
+    searchTerms: ['assistant director'],
     nextPageDisabledClass: 'disabled',
     errMessage:
       "Waiting for selector `a[title='Go to next page']` failed: Waiting failed: 10000ms exceeded",
