@@ -1,3 +1,30 @@
+import checkConsent from './nested/check-consent.js';
+import processJobListings from './nested/process-job-listings.js';
+
+async function scrapeJobs(
+  page,
+  consentButton,
+  jobTitleLink,
+  nextPageLink,
+  searchTerms,
+  nextPageDisabledClass,
+  errMessage,
+  uniName
+) {
+  await checkConsent(page, consentButton);
+  const arrDesiredJobs = await getDesiredJobs(page, jobTitleLink, searchTerms);
+  await navigate(
+    page,
+    nextPageLink,
+    nextPageDisabledClass,
+    uniName,
+    errMessage
+  );
+
+  // TODO: Make this return the array and log it in the main script
+  console.log(arrDesiredJobs);
+}
+
 const clickNextPage = async (
   page,
   nextPageLink,
@@ -65,7 +92,7 @@ const clickNextPage = async (
       console.log('Next page button not found. Assuming last page reached.');
       return false;
     } else {
-      console.error('Error clicking next page:', err);
+      console.log(`\nError clicking next page:\n${err}`);
       return false;
     }
   }
@@ -96,7 +123,7 @@ const navigate = async (
         errMessage
       );
     } catch (err) {
-      console.log(`\nError with function navigate\n${err}`);
+      console.log(`\nError with function navigate:\n${err}`);
     }
   }
 };
@@ -105,75 +132,9 @@ const getDesiredJobs = async (page, jobTitleLink, searchTerms) => {
   try {
     return await processJobListings(page, jobTitleLink, searchTerms);
   } catch (err) {
-    console.log(`\nError with function processJobListings\n${err}`);
+    console.log(`\nError with function processJobListings:\n${err}`);
     return [];
   }
-};
-
-const processJobListings = async (page, jobTitleLink, searchTerms) => {
-  const jobElements = await page.$$(jobTitleLink);
-
-  const matchedJobs = await Promise.all(
-    jobElements.map(async (jobElement) => {
-      const jobData = await page.evaluate(
-        (el) => ({
-          textContent: el.textContent,
-          href: el.href,
-        }),
-        jobElement
-      );
-      const lowerCaseJobText = jobData.textContent.toLowerCase();
-
-      if (
-        searchTerms.some(
-          (term) =>
-            lowerCaseJobText.includes(term.toLowerCase()) ||
-            term.toLowerCase().includes(lowerCaseJobText)
-        )
-      ) {
-        const preferredCaseJobText = jobData.textContent
-          .toLowerCase()
-          .replace(/\b\w/g, (char) => char.toUpperCase());
-
-        return `${preferredCaseJobText.trim()}: ${jobData.href}`;
-      }
-    })
-  );
-
-  return matchedJobs.filter((job) => job !== undefined);
-};
-
-const checkConsent = async (page, consentButton) => {
-  if (consentButton) {
-    try {
-      await page.waitForSelector(consentButton, { timeout: 30000 });
-      await page.click(consentButton);
-    } catch (err) {
-      console.log(`\nError with function clickConsent\n${err}`);
-    }
-  }
-};
-
-const scrapeJobs = async (
-  page,
-  consentButton,
-  jobTitleLink,
-  nextPageLink,
-  searchTerms,
-  nextPageDisabledClass,
-  errMessage,
-  uniName
-) => {
-  await checkConsent(page, consentButton);
-  const arrDesiredJobs = getDesiredJobs(page, jobTitleLink, searchTerms);
-  await navigate(
-    page,
-    nextPageLink,
-    nextPageDisabledClass,
-    uniName,
-    errMessage
-  );
-  console.log(arrDesiredJobs);
 };
 
 export default scrapeJobs;
