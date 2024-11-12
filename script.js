@@ -1,5 +1,5 @@
 import puppeteer from 'puppeteer';
-import scrapeJobs from './functions.js';
+import scrapeJobs from './scrape-jobs.js';
 import configs from './job-search-configs.js';
 
 const runScrapingTasks = async () => {
