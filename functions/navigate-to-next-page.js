@@ -47,7 +47,7 @@ const clickNavigationElement = async (
 
   if (isDisabled || noHref) {
     console.log(
-      'Next page button is disabled or has no href. Terminating current clickNavigationElement function.'
+      '\nNext page button is disabled or has no href. Terminating current clickNavigationElement function.'
     );
     return false;
   }
@@ -70,25 +70,27 @@ const waitForNextPageButton = async (page, nextPageLink, timeout = 5000) => {
   try {
     return await page.waitForSelector(nextPageLink, { timeout });
   } catch {
-    console.log('Next page button not found.');
+    console.log('\nNext page button not found.');
     return null;
   }
 };
 
-const checkButtonState = async (button, disabledClass) => {
-  return await button.evaluate((el, disabledClass) => {
-    if (!el) return { isDisabled: true, noHref: true };
+const checkButtonState = async (btnNextPage, nextPageDisabledClass) => {
+  return await btnNextPage.evaluate((button, disabledClass) => {
+    if (!button) return { isDisabled: true, noHref: true };
 
-    const hasDisabledClass = el.classList.contains(disabledClass);
-    const hasDisabledAttribute = el.hasAttribute('disabled');
-    const isDisabledProp = el.tagName.toLowerCase() !== 'a' && el.disabled;
-    const noHref = !el.hasAttribute('href') || !el.getAttribute('href').trim();
+    const hasDisabledClass = button.classList.contains(disabledClass);
+    const hasDisabledAttribute = button.hasAttribute('disabled');
+    const isDisabledProp =
+      button.tagName.toLowerCase() !== 'a' && button.disabled;
+    const noHref =
+      !button.hasAttribute('href') || !button.getAttribute('href').trim();
 
     return {
       isDisabled: hasDisabledClass || hasDisabledAttribute || isDisabledProp,
       noHref,
     };
-  }, disabledClass);
+  }, nextPageDisabledClass);
 };
 
 const clickAndNavigate = async (
@@ -98,7 +100,6 @@ const clickAndNavigate = async (
   uniName,
   timeout = 5000
 ) => {
-  console.log(`Navigating ${uniName}...\n`);
   await Promise.all([btnNextPage.click(), page.waitForNavigation({ timeout })]);
   await page.waitForFunction(
     (prevUrl) => window.location.href !== prevUrl,

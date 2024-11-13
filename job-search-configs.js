@@ -50,6 +50,6 @@ const uToledo = {
   },
 };
 
-const configs = [eMich];
+const configs = [eMich, uMich];
 
 export default configs;
