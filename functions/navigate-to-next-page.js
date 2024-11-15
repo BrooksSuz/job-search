@@ -2,14 +2,12 @@ async function navigateToNextPage(
   page,
   nextPageLink,
   nextPageDisabledClass,
-  uniName,
   errMessage
 ) {
   const hasNextPage = await clickNavigationElement(
     page,
     nextPageLink,
     nextPageDisabledClass,
-    uniName,
     errMessage
   );
 
@@ -19,7 +17,6 @@ async function navigateToNextPage(
         page,
         nextPageLink,
         nextPageDisabledClass,
-        uniName,
         errMessage
       );
     } catch (err) {
@@ -32,7 +29,6 @@ const clickNavigationElement = async (
   page,
   nextPageLink,
   nextPageDisabledClass,
-  uniName,
   errMessage
 ) => {
   const previousUrl = page.url();
@@ -53,7 +49,7 @@ const clickNavigationElement = async (
   }
 
   try {
-    await clickAndNavigate(btnNextPage, page, previousUrl, uniName);
+    await clickAndNavigate(btnNextPage, page, previousUrl);
     return true;
   } catch (err) {
     const isExpectedError = err.message.includes(errMessage);
@@ -97,7 +93,6 @@ const clickAndNavigate = async (
   btnNextPage,
   page,
   previousUrl,
-  uniName,
   timeout = 5000
 ) => {
   await Promise.all([btnNextPage.click(), page.waitForNavigation({ timeout })]);

@@ -25,10 +25,12 @@ const uMich = {
     nextPageLink: "a[title='Go to next page']",
   },
   settings: {
-    searchTerms: ['assistant director'],
+    searchTerms: [
+      'director, susan b. meister child health evaluation & research center',
+    ],
     nextPageDisabledClass: 'disabled',
     errMessage:
-      "Waiting for selector `a[title='Go to next page']` failed: Waiting failed: 10000ms exceeded",
+      "Waiting for selector `a[title='Go to next page']` failed: Waiting failed: 5000ms exceeded",
     uniName: 'University of Michigan',
   },
 };
@@ -43,13 +45,13 @@ const uToledo = {
     nextPageLink: "#recent-jobs a[title='More Jobs']",
   },
   settings: {
-    searchTerms: ['web'],
+    searchTerms: ['staff technologist'],
     nextPageDisabledClass: null,
-    errMessage: null,
+    errMessage: 'Navigation timeout of 5000 ms exceeded',
     uniName: 'University of Toledo',
   },
 };
 
-const configs = [eMich, uMich];
+const configs = [uMich];
 
 export default configs;
