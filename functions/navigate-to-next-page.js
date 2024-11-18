@@ -95,6 +95,9 @@ const clickAndNavigate = async (
   previousUrl,
   timeout = 5000
 ) => {
+  // TODO: THIS THE CULPRIT FOR UT'S ISSUE (DUHHHH)
+  // MAKE THIS MODAL BASED UPON WHETHER WE WANT THE PAGE TO WAIT FOR EITHER NAVIGATION (waitForNavigation)
+  // OR FOR IDLE (waitForNetworkIdle)
   await Promise.all([btnNextPage.click(), page.waitForNavigation({ timeout })]);
   await page.waitForFunction(
     (prevUrl) => window.location.href !== prevUrl,

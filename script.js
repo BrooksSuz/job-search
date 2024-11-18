@@ -8,7 +8,7 @@ import configs from './job-search-configs.js';
 // Utoledo doesn't navigate at all :,(
 
 async function runScrapingTasks() {
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({ headless: false });
 
   for (const config of configs) {
     const arrDesiredJobs = [];

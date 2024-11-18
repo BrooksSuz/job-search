@@ -40,10 +40,12 @@ const uToledo = {
   selectors: {
     consentButton: null,
     jobTitleLink: 'div.job_resultslist h4 > a.job-link',
-    nextPageLink: "#recent-jobs a[title='More Jobs']",
+    nextPageLink: "#recent-jobs a[title='More Jobs']:nth-of-type(1)",
   },
   settings: {
-    searchTerms: ['staff technologist'],
+    searchTerms: [
+      'assistant professor, department of medicine, endocrinology - 492990',
+    ],
     nextPageDisabledClass: null,
     errMessage: 'Navigation timeout of 5000 ms exceeded',
     uniName: 'University of Toledo',
