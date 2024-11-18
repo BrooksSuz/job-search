@@ -31,6 +31,11 @@ async function scrapeJobs(
     errMessage
   );
 
+  // Get the jobs on the final page
+  arrFilteredJobs.push(
+    ...(await getFilteredJobs(page, jobTitleLink, searchTerms))
+  );
+
   return arrFilteredJobs;
 }
 

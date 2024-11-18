@@ -5,12 +5,10 @@ import configs from './job-search-configs.js';
 // TODO: You were having issues trying to make this run in parallel.
 // Figure out how to do this.
 
-// TODO: U Mich doesn't grab things from the final page. Fix this.
-
 // Utoledo doesn't navigate at all :,(
 
 async function runScrapingTasks() {
-  const browser = await puppeteer.launch({ headless: false });
+  const browser = await puppeteer.launch();
 
   for (const config of configs) {
     const arrDesiredJobs = [];
@@ -37,13 +35,13 @@ async function runScrapingTasks() {
 
       arrDesiredJobs.forEach((job) => console.log('\x1b[32m%s\x1b[0m', job));
     } catch (err) {
-      console.log(`\nError with config ${settings.uniName}:\n${err}`);
+      console.log(`\nError with config ${config.settings.uniName}:\n${err}`);
     } finally {
-      // await page.close();
+      await page.close();
     }
   }
 
-  // await browser.close();
+  await browser.close();
 }
 
 const showSpinner = () => {

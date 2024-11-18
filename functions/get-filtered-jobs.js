@@ -49,7 +49,6 @@ const filterJobs = async (page, jobElements, searchTerms) => {
 
       if (isMatch)
         return { [formatJobText(jobData.textContent)]: jobData.href };
-      //return `${formatJobText(jobData.textContent)}: ${jobData.href}`;
     })
   );
 

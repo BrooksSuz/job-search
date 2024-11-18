@@ -8,7 +8,7 @@ const eMich = {
     nextPageLink: 'li.next_page > a',
   },
   settings: {
-    searchTerms: ['part-time lecturer'],
+    searchTerms: ['visiting faculty'],
     nextPageDisabledClass: 'disabled',
     errMessage: null,
     uniName: 'Eastern Michigan',
@@ -25,9 +25,7 @@ const uMich = {
     nextPageLink: "a[title='Go to next page']",
   },
   settings: {
-    searchTerms: [
-      'director, susan b. meister child health evaluation & research center',
-    ],
+    searchTerms: ['research lab specialist inter'],
     nextPageDisabledClass: 'disabled',
     errMessage:
       "Waiting for selector `a[title='Go to next page']` failed: Waiting failed: 5000ms exceeded",
