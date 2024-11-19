@@ -2,41 +2,40 @@ import checkConsent from './check-consent.js';
 import getFilteredJobs from './get-filtered-jobs.js';
 import navigateToNextPage from './navigate-to-next-page.js';
 
-async function scrapeJobs(
-  page,
-  consentButton,
-  jobTitleLink,
-  nextPageLink,
-  searchTerms,
-  nextPageDisabledClass,
-  errMessage,
-  uniName
-) {
-  // Check for a required consent button
-  await checkConsent(page, consentButton);
+async function scrapeJobs(page, ...args) {
+	const [
+		consentButton,
+		jobTitleLink,
+		nextPageLink,
+		searchTerms,
+		nextPageDisabledClass,
+		errMessage,
+	] = args;
 
-  // Create an array with jobs matching provided search terms
-  const arrFilteredJobs = await getFilteredJobs(
-    page,
-    jobTitleLink,
-    searchTerms
-  );
+	// Check for a required consent button
+	await checkConsent(page, consentButton);
 
-  // Recursively navigate each page
-  await navigateToNextPage(
-    page,
-    nextPageLink,
-    nextPageDisabledClass,
-    uniName,
-    errMessage
-  );
+	// Create an array with jobs matching provided search terms
+	const arrFilteredJobs = await getFilteredJobs(
+		page,
+		jobTitleLink,
+		searchTerms
+	);
 
-  // Get the jobs on the final page
-  arrFilteredJobs.push(
-    ...(await getFilteredJobs(page, jobTitleLink, searchTerms))
-  );
+	// Recursively navigate each page
+	await navigateToNextPage(
+		page,
+		nextPageLink,
+		nextPageDisabledClass,
+		errMessage
+	);
 
-  return arrFilteredJobs;
+	// Get the jobs on the final page
+	arrFilteredJobs.push(
+		...(await getFilteredJobs(page, jobTitleLink, searchTerms))
+	);
+
+	return arrFilteredJobs;
 }
 
 export default scrapeJobs;
