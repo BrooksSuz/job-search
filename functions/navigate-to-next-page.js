@@ -51,7 +51,7 @@ const clickNavigationElement = async (
 
   if (isDisabled || noHref) {
     console.log(
-      '\nNext page button is disabled or has no href.\nTerminating current clickNavigationElement function.'
+      '\nNext page button is disabled or has no href.\nAssuming last page reached.'
     );
     return false;
   }

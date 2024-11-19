@@ -1,4 +1,4 @@
-const eMich = {
+const em = {
   baseUrl: 'https://careers.emich.edu/jobs/search',
   uniName: 'Eastern Michigan',
   canWaitForNavigation: true,
@@ -7,10 +7,9 @@ const eMich = {
   jobTitleLink: 'a[id^="link_job_title"]',
   nextPageDisabledClass: 'disabled',
   nextPageLink: 'li.next_page > a',
-  searchTerms: ['visiting faculty'],
 };
 
-const uMich = {
+const um = {
   baseUrl: 'https://careers.umich.edu/browse-jobs/positions/F',
   uniName: 'University of Michigan',
   canWaitForNavigation: true,
@@ -20,10 +19,9 @@ const uMich = {
   jobTitleLink: 'table.cols-5 td.views-field-title > a',
   nextPageDisabledClass: 'disabled',
   nextPageLink: "a[title='Go to next page']",
-  searchTerms: ['research fellow'],
 };
 
-const uToledo = {
+const ut = {
   baseUrl: 'https://careers.utoledo.edu/cw/en-us/listing/',
   uniName: 'University of Toledo',
   canWaitForNavigation: false,
@@ -32,11 +30,19 @@ const uToledo = {
   jobTitleLink: 'div.job_resultslist h4 > a.job-link',
   nextPageDisabledClass: null,
   nextPageLink: "#recent-jobs a[title='More Jobs']:nth-of-type(1)",
-  searchTerms: [
-    'Assistant Professor - Department of Orthopaedic Surgery - Orthopedic Trauma Surgery - 494263',
-  ],
 };
 
-const configs = [uMich];
+const bg = {
+  baseUrl: 'https://www.schooljobs.com/careers/bgsu',
+  uniName: 'Bowling Green State University',
+  canWaitForNavigation: false,
+  consentButton: null,
+  errMessage: null,
+  jobTitleLink: '.job-listing-container .item-details-link',
+  nextPageDisabledClass: null,
+  nextPageLink: '.pagination-container a[aria-label="Go to Next Page"]',
+};
+
+const configs = [bg];
 
 export default configs;
