@@ -5,7 +5,7 @@ async function getFilteredJobs(page, jobTitleLink, searchTerms) {
 
     return filteredJobs;
   } catch (err) {
-    console.log(`\nError with function getFilteredJobs:\n${err}`);
+    console.error('\nError with function getFilteredJobs:\n', err);
     return [];
   }
 }
