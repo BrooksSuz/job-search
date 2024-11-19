@@ -2,15 +2,15 @@ import checkConsent from './check-consent.js';
 import getFilteredJobs from './get-filtered-jobs.js';
 import navigateToNextPage from './navigate-to-next-page.js';
 
-async function scrapeJobs(page, configPairs) {
+async function scrapeJobs(page, searchTerms, configPairs) {
   const {
     canWaitForNavigation,
     consentButton,
     errMessage,
+    isAnchor,
     jobTitleLink,
     nextPageDisabledClass,
     nextPageLink,
-    searchTerms,
   } = configPairs;
 
   // Check for a required consent button
@@ -28,6 +28,7 @@ async function scrapeJobs(page, configPairs) {
     page,
     canWaitForNavigation,
     errMessage,
+    isAnchor,
     nextPageDisabledClass,
     nextPageLink
   );

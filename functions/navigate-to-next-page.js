@@ -2,6 +2,7 @@ async function navigateToNextPage(
   page,
   canWaitForNavigation,
   errMessage,
+  isAnchor,
   nextPageDisabledClass,
   nextPageLink
 ) {
@@ -9,6 +10,7 @@ async function navigateToNextPage(
     page,
     canWaitForNavigation,
     errMessage,
+    isAnchor,
     nextPageDisabledClass,
     nextPageLink
   );
@@ -19,6 +21,7 @@ async function navigateToNextPage(
         page,
         canWaitForNavigation,
         errMessage,
+        isAnchor,
         nextPageDisabledClass,
         nextPageLink
       );
@@ -32,6 +35,7 @@ const clickNavigationElement = async (
   page,
   canWaitForNavigation,
   errMessage,
+  isAnchor,
   nextPageDisabledClass,
   nextPageLink
 ) => {
@@ -49,11 +53,13 @@ const clickNavigationElement = async (
     nextPageDisabledClass
   );
 
-  if (isDisabled || noHref) {
-    console.log(
-      '\nNext page button is disabled or has no href.\nAssuming last page reached.'
-    );
-    return false;
+  if (isAnchor) {
+    if (isDisabled || noHref) {
+      console.log(
+        '\nNext page button is disabled or has no href.\nAssuming last page reached.'
+      );
+      return false;
+    }
   }
 
   try {

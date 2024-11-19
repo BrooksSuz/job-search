@@ -4,6 +4,7 @@ const em = {
   canWaitForNavigation: true,
   consentButton: 'button#consent_agree',
   errMessage: null,
+  isAnchor: true,
   jobTitleLink: 'a[id^="link_job_title"]',
   nextPageDisabledClass: 'disabled',
   nextPageLink: 'li.next_page > a',
@@ -14,8 +15,8 @@ const um = {
   uniName: 'University of Michigan',
   canWaitForNavigation: true,
   consentButton: null,
-  errMessage:
-    "Waiting for selector `a[title='Go to next page']` failed: Waiting failed: 5000ms exceeded",
+  errMessage: "Waiting for selector `a[title='Go to next page']`",
+  isAnchor: true,
   jobTitleLink: 'table.cols-5 td.views-field-title > a',
   nextPageDisabledClass: 'disabled',
   nextPageLink: "a[title='Go to next page']",
@@ -27,6 +28,7 @@ const ut = {
   canWaitForNavigation: false,
   consentButton: null,
   errMessage: 'Node is either not clickable or not an Element',
+  isAnchor: true,
   jobTitleLink: 'div.job_resultslist h4 > a.job-link',
   nextPageDisabledClass: null,
   nextPageLink: "#recent-jobs a[title='More Jobs']:nth-of-type(1)",
@@ -38,11 +40,25 @@ const bg = {
   canWaitForNavigation: false,
   consentButton: null,
   errMessage: null,
+  isAnchor: true,
   jobTitleLink: '.job-listing-container .item-details-link',
   nextPageDisabledClass: null,
   nextPageLink: '.pagination-container a[aria-label="Go to Next Page"]',
 };
 
-const configs = [bg];
+const owens = {
+  baseUrl: 'https://owens.wd1.myworkdayjobs.com/OCC',
+  uniName: 'Owens Community College',
+  canWaitForNavigation: false,
+  consentButton: null,
+  errMessage: 'Waiting for selector `button[aria-label="next"]`',
+  isAnchor: false,
+  jobTitleLink:
+    'section[data-automation-id="jobResults"] a[data-automation-id="jobTitle"]',
+  nextPageDisabledClass: null,
+  nextPageLink: 'button[aria-label="next"]',
+};
+
+const configs = [em];
 
 export default configs;

@@ -5,7 +5,7 @@ import configs from './job-search-configs.js';
 // TODO: You were having issues trying to make this run in parallel.
 // Figure out how to do this.
 
-async function runScrapingTasks() {
+async function runScrapingTasks(searchTerms = ['assis']) {
   const browser = await puppeteer.launch();
 
   for (const config of configs) {
@@ -17,7 +17,7 @@ async function runScrapingTasks() {
       const stopSpinner = showSpinner();
       await page.goto(baseUrl, { waitUntil: 'networkidle0' });
 
-      const arrScrapedJobs = await scrapeJobs(page, configPairs);
+      const arrScrapedJobs = await scrapeJobs(page, searchTerms, configPairs);
 
       stopSpinner();
       console.log('\x1b[35m%s\x1b[0m', `\nRESULTS FOR ${uniName}:`);
