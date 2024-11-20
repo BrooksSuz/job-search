@@ -2,40 +2,69 @@ import puppeteer from 'puppeteer';
 import scrapeJobs from './functions/scrape-jobs.js';
 import configs from './job-search-configs.js';
 
-// TODO: You were having issues trying to make this run in parallel.
-// Figure out how to do this.
+async function newFunc(searchTerms = ['assis']) {
+  const parallelConfigs = [];
+  const sequentialConfigs = [];
 
-async function runScrapingTasks(searchTerms = ['assis']) {
-  const browser = await puppeteer.launch();
-
-  for (const config of configs) {
-    const arrDesiredJobs = [];
-    const page = await browser.newPage();
-    try {
-      const { baseUrl, uniName, ...configPairs } = config;
-
-      const stopSpinner = showSpinner();
-      await page.goto(baseUrl, { waitUntil: 'networkidle0' });
-
-      const arrScrapedJobs = await scrapeJobs(page, searchTerms, configPairs);
-
-      stopSpinner();
-      console.log('\x1b[35m%s\x1b[0m', `\nRESULTS FOR ${uniName}:`);
-
-      arrScrapedJobs.forEach((objScrapedJob) => {
-        const [[strKey, strValue]] = Object.entries(objScrapedJob);
-        arrDesiredJobs.push(`\n${strKey}:\n${strValue}`);
-      });
-
-      arrDesiredJobs.forEach((job) => console.log('\x1b[32m%s\x1b[0m', job));
-    } catch (err) {
-      console.error(`\nError with config ${config.uniName}:\n`, err);
-    } finally {
-      await page.close();
+  // Separate configs into parallel and sequential
+  configs.forEach((config) => {
+    if (config.canRunParallel) {
+      parallelConfigs.push(config);
+    } else {
+      sequentialConfigs.push(config);
     }
+  });
+
+  // Run parallel tasks
+  try {
+    const stopSpinner = showSpinner();
+    await Promise.all(
+      parallelConfigs.map(async (config) => {
+        const browser = await puppeteer.launch();
+        try {
+          await runScrapingTasks(config, browser);
+        } finally {
+          await browser.close();
+        }
+      })
+    );
+    stopSpinner();
+  } catch (err) {
+    console.error('Error in parallel tasks:', err);
   }
 
-  await browser.close();
+  // Run sequential tasks
+  for (const config of sequentialConfigs) {
+    const browser = await puppeteer.launch();
+    try {
+      await runScrapingTasks(config, browser);
+    } catch (err) {
+      console.error(`Error in sequential task for config: ${config.url}`, err);
+    } finally {
+      await browser.close();
+    }
+  }
+}
+
+async function runScrapingTasks(config, browser, searchTerms = ['assis']) {
+  const arrDesiredJobs = [];
+  const page = await browser.newPage();
+
+  try {
+    const { baseUrl, uniName, ...configPairs } = config;
+    await page.goto(baseUrl, { waitUntil: 'networkidle0' });
+    const arrScrapedJobs = await scrapeJobs(page, searchTerms, configPairs);
+    console.log('\x1b[35m%s\x1b[0m', `\nRESULTS FOR ${uniName}:`);
+
+    arrScrapedJobs.forEach((objScrapedJob) => {
+      const [[strKey, strValue]] = Object.entries(objScrapedJob);
+      arrDesiredJobs.push(`\n${strKey}:\n${strValue}`);
+    });
+
+    arrDesiredJobs.forEach((job) => console.log('\x1b[32m%s\x1b[0m', job));
+  } catch (err) {
+    console.error(`\nError with config ${config.uniName}:\n`, err);
+  }
 }
 
 const showSpinner = () => {
@@ -50,4 +79,4 @@ const showSpinner = () => {
   return () => clearInterval(spinnerInterval);
 };
 
-runScrapingTasks();
+newFunc();

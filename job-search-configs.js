@@ -1,6 +1,7 @@
 const em = {
   baseUrl: 'https://careers.emich.edu/jobs/search',
   uniName: 'Eastern Michigan',
+  canRunParallel: true,
   canWaitForNavigation: true,
   consentButton: 'button#consent_agree',
   errMessage: null,
@@ -13,6 +14,7 @@ const em = {
 const um = {
   baseUrl: 'https://careers.umich.edu/browse-jobs/positions/F',
   uniName: 'University of Michigan',
+  canRunParallel: true,
   canWaitForNavigation: true,
   consentButton: null,
   errMessage: "Waiting for selector `a[title='Go to next page']`",
@@ -25,6 +27,7 @@ const um = {
 const ut = {
   baseUrl: 'https://careers.utoledo.edu/cw/en-us/listing/',
   uniName: 'University of Toledo',
+  canRunParallel: false,
   canWaitForNavigation: false,
   consentButton: null,
   errMessage: 'Node is either not clickable or not an Element',
@@ -37,6 +40,7 @@ const ut = {
 const bg = {
   baseUrl: 'https://www.schooljobs.com/careers/bgsu',
   uniName: 'Bowling Green State University',
+  canRunParallel: false,
   canWaitForNavigation: false,
   consentButton: null,
   errMessage: null,
@@ -50,6 +54,7 @@ const owens = {
   baseUrl: 'https://owens.wd1.myworkdayjobs.com/OCC',
   uniName: 'Owens Community College',
   canWaitForNavigation: false,
+  canRunParallel: true,
   consentButton: null,
   errMessage: 'Waiting for selector `button[aria-label="next"]`',
   isAnchor: false,
@@ -59,6 +64,6 @@ const owens = {
   nextPageLink: 'button[aria-label="next"]',
 };
 
-const configs = [em];
+const configs = [em, um, ut, bg, owens];
 
 export default configs;
