@@ -22,7 +22,7 @@ async function newFunc(searchTerms = ['assis']) {
       parallelConfigs.map(async (config) => {
         const browser = await puppeteer.launch();
         try {
-          await runScrapingTasks(config, browser);
+          await runScrapingTasks(config, browser, searchTerms);
         } finally {
           await browser.close();
         }
@@ -37,7 +37,7 @@ async function newFunc(searchTerms = ['assis']) {
   for (const config of sequentialConfigs) {
     const browser = await puppeteer.launch();
     try {
-      await runScrapingTasks(config, browser);
+      await runScrapingTasks(config, browser, searchTerms);
     } catch (err) {
       console.error(`Error in sequential task for config: ${config.url}`, err);
     } finally {
@@ -46,7 +46,7 @@ async function newFunc(searchTerms = ['assis']) {
   }
 }
 
-async function runScrapingTasks(config, browser, searchTerms = ['assis']) {
+async function runScrapingTasks(config, browser, searchTerm) {
   const arrDesiredJobs = [];
   const page = await browser.newPage();
 
