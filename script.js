@@ -3,80 +3,80 @@ import scrapeJobs from './functions/scrape-jobs.js';
 import configs from './job-search-configs.js';
 
 async function newFunc(searchTerms = ['assis']) {
-  const parallelConfigs = [];
-  const sequentialConfigs = [];
+	const parallelConfigs = [];
+	const sequentialConfigs = [];
 
-  // Separate configs into parallel and sequential
-  configs.forEach((config) => {
-    if (config.canRunParallel) {
-      parallelConfigs.push(config);
-    } else {
-      sequentialConfigs.push(config);
-    }
-  });
+	// Separate configs into parallel and sequential
+	configs.forEach((config) => {
+		if (config.canRunParallel) {
+			parallelConfigs.push(config);
+		} else {
+			sequentialConfigs.push(config);
+		}
+	});
 
-  // Run parallel tasks
-  try {
-    const stopSpinner = showSpinner();
-    await Promise.all(
-      parallelConfigs.map(async (config) => {
-        const browser = await puppeteer.launch();
-        try {
-          await runScrapingTasks(config, browser);
-        } finally {
-          await browser.close();
-        }
-      })
-    );
-    stopSpinner();
-  } catch (err) {
-    console.error('Error in parallel tasks:', err);
-  }
+	// Run parallel tasks
+	try {
+		const stopSpinner = showSpinner();
+		await Promise.all(
+			parallelConfigs.map(async (config) => {
+				const browser = await puppeteer.launch();
+				try {
+					await runScrapingTasks(config, browser, searchTerms);
+				} finally {
+					await browser.close();
+				}
+			})
+		);
+		stopSpinner();
+	} catch (err) {
+		console.error('Error in parallel tasks:', err);
+	}
 
-  // Run sequential tasks
-  for (const config of sequentialConfigs) {
-    const browser = await puppeteer.launch();
-    try {
-      await runScrapingTasks(config, browser);
-    } catch (err) {
-      console.error(`Error in sequential task for config: ${config.url}`, err);
-    } finally {
-      await browser.close();
-    }
-  }
+	// Run sequential tasks
+	for (const config of sequentialConfigs) {
+		const browser = await puppeteer.launch();
+		try {
+			await runScrapingTasks(config, browser, searchTerms);
+		} catch (err) {
+			console.error(`Error in sequential task for config: ${config.url}`, err);
+		} finally {
+			await browser.close();
+		}
+	}
 }
 
-async function runScrapingTasks(config, browser, searchTerms = ['assis']) {
-  const arrDesiredJobs = [];
-  const page = await browser.newPage();
+async function runScrapingTasks(config, browser, searchTerms) {
+	const arrDesiredJobs = [];
+	const page = await browser.newPage();
 
-  try {
-    const { baseUrl, uniName, ...configPairs } = config;
-    await page.goto(baseUrl, { waitUntil: 'networkidle0' });
-    const arrScrapedJobs = await scrapeJobs(page, searchTerms, configPairs);
-    console.log('\x1b[35m%s\x1b[0m', `\nRESULTS FOR ${uniName}:`);
+	try {
+		const { baseUrl, uniName, ...configPairs } = config;
+		await page.goto(baseUrl, { waitUntil: 'networkidle0' });
+		const arrScrapedJobs = await scrapeJobs(page, searchTerms, configPairs);
+		console.log('\x1b[35m%s\x1b[0m', `\nRESULTS FOR ${uniName}:`);
 
-    arrScrapedJobs.forEach((objScrapedJob) => {
-      const [[strKey, strValue]] = Object.entries(objScrapedJob);
-      arrDesiredJobs.push(`\n${strKey}:\n${strValue}`);
-    });
+		arrScrapedJobs.forEach((objScrapedJob) => {
+			const [[strKey, strValue]] = Object.entries(objScrapedJob);
+			arrDesiredJobs.push(`\n${strKey}:\n${strValue}`);
+		});
 
-    arrDesiredJobs.forEach((job) => console.log('\x1b[32m%s\x1b[0m', job));
-  } catch (err) {
-    console.error(`\nError with config ${config.uniName}:\n`, err);
-  }
+		arrDesiredJobs.forEach((job) => console.log('\x1b[32m%s\x1b[0m', job));
+	} catch (err) {
+		console.error(`\nError with config ${config.uniName}:\n`, err);
+	}
 }
 
 const showSpinner = () => {
-  const spinnerChars = ['|', '/', '-', '\\'];
-  let i = 0;
+	const spinnerChars = ['|', '/', '-', '\\'];
+	let i = 0;
 
-  const spinnerInterval = setInterval(() => {
-    process.stdout.write(`\r${spinnerChars[i]} Scraping...`);
-    i = (i + 1) % spinnerChars.length;
-  }, 100);
+	const spinnerInterval = setInterval(() => {
+		process.stdout.write(`\r${spinnerChars[i]} Scraping...`);
+		i = (i + 1) % spinnerChars.length;
+	}, 100);
 
-  return () => clearInterval(spinnerInterval);
+	return () => clearInterval(spinnerInterval);
 };
 
 newFunc();
