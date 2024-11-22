@@ -12,31 +12,28 @@ async function scrapeJobs(page, searchTerms, configPairs) {
     nextPageDisabledClass,
     nextPageLink,
   } = configPairs;
-
-  // Check for a required consent button
-  await checkConsent(page, consentButton);
-
-  // Create an array with jobs matching provided search terms
-  const arrFilteredJobs = await getFilteredJobs(
-    page,
-    jobTitleLink,
-    searchTerms
-  );
-
-  // Recursively navigate each page
-  await navigateToNextPage(
+  const objCheckConsent = { page, consentButton };
+  const objFilteredJobs = { page, jobTitleLink, searchTerms };
+  const objNavigateToNextPage = {
     page,
     canWaitForNavigation,
     errMessage,
     isAnchor,
     nextPageDisabledClass,
-    nextPageLink
-  );
+    nextPageLink,
+  };
+
+  // Check for a required consent button
+  await checkConsent(objCheckConsent);
+
+  // Create an array with jobs matching provided search terms
+  const arrFilteredJobs = await getFilteredJobs(objFilteredJobs);
+
+  // Recursively navigate each page
+  await navigateToNextPage(objNavigateToNextPage);
 
   // Get the jobs on the final page
-  arrFilteredJobs.push(
-    ...(await getFilteredJobs(page, jobTitleLink, searchTerms))
-  );
+  arrFilteredJobs.push(...(await getFilteredJobs(objFilteredJobs)));
 
   return arrFilteredJobs;
 }

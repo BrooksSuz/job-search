@@ -46,7 +46,7 @@ const bg = {
   canRunParallel: false,
   canWaitForNavigation: false,
   consentButton: null,
-  errMessage: null,
+  errMessage: [],
   isAnchor: true,
   jobTitleLink: '.job-listing-container .item-details-link',
   nextPageDisabledClass: null,
@@ -70,6 +70,6 @@ const owens = {
   nextPageLink: 'button[aria-label="next"]',
 };
 
-const configs = [em, um, ut, bg, owens];
+const configs = [em];
 
 export default configs;

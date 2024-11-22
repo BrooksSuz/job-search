@@ -18,51 +18,58 @@ async function newFunc(searchTerms = ['assis']) {
   let stopSpinner = () => {};
 
   // Run parallel tasks
-  const parallelBrowser = await puppeteer.launch();
-  try {
-    console.log('Running parallel tasks...');
-    stopSpinner = showSpinner();
+  if (parallelConfigs) {
+    const parallelBrowser = await puppeteer.launch({ headless: false });
     try {
-      await Promise.all(
-        parallelConfigs.map(async (config) => {
-          const page = await parallelBrowser.newPage();
-          try {
-            await runScrapingTasks(config, page, searchTerms);
-          } catch (err) {
-            console.error(
-              `Error in parallel task for config ${config.uniName}`
-            );
-          } finally {
-            await page.close();
-          }
-        })
-      );
-    } catch (err) {
-      console.error('Error in parallel tasks:', err);
+      console.log('Running parallel tasks...');
+      stopSpinner = showSpinner();
+      try {
+        await Promise.all(
+          parallelConfigs.map(async (config) => {
+            const page = await parallelBrowser.newPage();
+            try {
+              await runScrapingTasks(config, page, searchTerms);
+            } catch (err) {
+              console.error(
+                `Error in parallel task for config ${config.uniName}`
+              );
+            } finally {
+              await page.close();
+            }
+          })
+        );
+      } catch (err) {
+        console.error('Error in parallel tasks:', err);
+      }
+    } finally {
+      stopSpinner();
+      await parallelBrowser.close();
     }
-  } finally {
-    stopSpinner();
-    await parallelBrowser.close();
+  } else {
+    console.log('No parallel tasks to run.');
   }
 
   // Run sequential tasks
-  for (const config of sequentialConfigs) {
-    const sequentialBrowser = await puppeteer.launch();
-    const page = await sequentialBrowser.newPage();
-    try {
-      console.log('Running sequential tasks...');
-      stopSpinner = showSpinner();
-      await runScrapingTasks(config, page, searchTerms);
-    } catch (err) {
-      console.error(
-        `Error in sequential task for config: ${config.uniName}`,
-        err
-      );
-    } finally {
-      stopSpinner();
-      await page.close();
-      await sequentialBrowser.close();
+  if (sequentialConfigs) {
+    for (const config of sequentialConfigs) {
+      const sequentialBrowser = await puppeteer.launch({ headless: false });
+      const page = await sequentialBrowser.newPage();
+      try {
+        console.log('Running sequential tasks...');
+        stopSpinner = showSpinner();
+        await runScrapingTasks(config, page, searchTerms);
+      } catch (err) {
+        console.error(
+          `Error in sequential task for config: ${config.uniName}`,
+          err
+        );
+      } finally {
+        stopSpinner();
+        await sequentialBrowser.close();
+      }
     }
+  } else {
+    console.log('No sequential tasks to run.');
   }
 }
 

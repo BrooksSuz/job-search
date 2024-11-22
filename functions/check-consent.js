@@ -1,20 +1,24 @@
-async function checkConsent(page, consentButton) {
+async function checkConsent(objCheckConsent) {
+  const { page, consentButton } = objCheckConsent;
   if (consentButton) {
     try {
       clickConsent(page, consentButton);
     } catch (err) {
-      console.log(`\nError with function checkConsent\n${err}`);
+      console.error(`\nError with function checkConsent\n${err}`);
     }
   }
 }
 
-const clickConsent = async (page, consentButton, timeout = 10000) => {
-  const promises = [
-    page.waitForSelector(consentButton, { timeout }),
-    page.click(consentButton),
-  ];
-
-  await Promise.all(promises);
+const clickConsent = async (page, consentButton, timeout = 5000) => {
+  try {
+    const promises = [
+      page.waitForSelector(consentButton, { timeout }),
+      page.click(consentButton),
+    ];
+    await Promise.all(promises);
+  } catch (err) {
+    console.error(`\nError with function clickConsent\n${err}`);
+  }
 };
 
 export default checkConsent;

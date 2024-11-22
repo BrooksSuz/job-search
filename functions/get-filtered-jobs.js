@@ -1,8 +1,9 @@
-async function getFilteredJobs(page, jobTitleLink, searchTerms) {
+async function getFilteredJobs(objFilteredJobs) {
+  const { page, jobTitleLink, searchTerms } = objFilteredJobs;
+
   try {
     const jobElements = await page.$$(jobTitleLink);
     const filteredJobs = await filterJobs(page, jobElements, searchTerms);
-
     return filteredJobs;
   } catch (err) {
     console.error('\nError with function getFilteredJobs:\n', err);
@@ -11,15 +12,19 @@ async function getFilteredJobs(page, jobTitleLink, searchTerms) {
 }
 
 const createDataObject = async (page, jobElement) => {
-  const jobData = await page.evaluate(
-    (el) => ({
-      textContent: el.textContent,
-      href: el.href,
-    }),
-    jobElement
-  );
+  try {
+    const jobData = await page.evaluate(
+      (el) => ({
+        textContent: el.textContent,
+        href: el.href,
+      }),
+      jobElement
+    );
 
-  return jobData;
+    return jobData;
+  } catch (err) {
+    console.error('\nError with function createDataObject:\n', err);
+  }
 };
 
 const findMatch = (text, term) => {
@@ -40,8 +45,8 @@ const formatJobText = (text) => {
 };
 
 const filterJobs = async (page, jobElements, searchTerms) => {
-  const jobs = await Promise.all(
-    jobElements.map(async (jobElement) => {
+  try {
+    const promise = jobElements.map(async (jobElement) => {
       const jobData = await createDataObject(page, jobElement);
       const isMatch = searchTerms.some((term) =>
         findMatch(jobData.textContent, term)
@@ -49,10 +54,13 @@ const filterJobs = async (page, jobElements, searchTerms) => {
 
       if (isMatch)
         return { [formatJobText(jobData.textContent)]: jobData.href };
-    })
-  );
+    });
 
-  return jobs.filter((job) => job !== undefined);
+    const jobs = await Promise.all(promise);
+    return jobs.filter((job) => job !== undefined);
+  } catch (err) {
+    console.error('\nError with function filterJobs:\n', err);
+  }
 };
 
 export default getFilteredJobs;
