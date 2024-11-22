@@ -8,9 +8,13 @@ async function checkConsent(page, consentButton) {
   }
 }
 
-const clickConsent = async (page, consentButton) => {
-  await page.waitForSelector(consentButton, { timeout: 10000 });
-  await page.click(consentButton);
+const clickConsent = async (page, consentButton, timeout = 10000) => {
+  const promises = [
+    page.waitForSelector(consentButton, { timeout }),
+    page.click(consentButton),
+  ];
+
+  await Promise.all(promises);
 };
 
 export default checkConsent;

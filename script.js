@@ -5,7 +5,6 @@ import configs from './job-search-configs.js';
 async function newFunc(searchTerms = ['assis']) {
   const parallelConfigs = [];
   const sequentialConfigs = [];
-  const stopSpinner = showSpinner();
 
   // Separate configs into parallel and sequential
   configs.forEach((config) => {
@@ -16,40 +15,59 @@ async function newFunc(searchTerms = ['assis']) {
     }
   });
 
+  let stopSpinner = () => {};
+
   // Run parallel tasks
+  const parallelBrowser = await puppeteer.launch();
   try {
-    await Promise.all(
-      parallelConfigs.map(async (config) => {
-        const browser = await puppeteer.launch();
-        try {
-          await runScrapingTasks(config, browser, searchTerms);
-        } finally {
-          await browser.close();
-        }
-      })
-    );
-  } catch (err) {
-    console.error('Error in parallel tasks:', err);
+    console.log('Running parallel tasks...');
+    stopSpinner = showSpinner();
+    try {
+      await Promise.all(
+        parallelConfigs.map(async (config) => {
+          const page = await parallelBrowser.newPage();
+          try {
+            await runScrapingTasks(config, page, searchTerms);
+          } catch (err) {
+            console.error(
+              `Error in parallel task for config ${config.uniName}`
+            );
+          } finally {
+            await page.close();
+          }
+        })
+      );
+    } catch (err) {
+      console.error('Error in parallel tasks:', err);
+    }
+  } finally {
+    stopSpinner();
+    await parallelBrowser.close();
   }
 
   // Run sequential tasks
   for (const config of sequentialConfigs) {
     const browser = await puppeteer.launch();
+    const page = await browser.newPage(); // Create a page
     try {
-      await runScrapingTasks(config, browser, searchTerms);
+      console.log('Running sequential tasks...');
+      stopSpinner = showSpinner();
+      await runScrapingTasks(config, page, searchTerms);
     } catch (err) {
-      console.error(`Error in sequential task for config: ${config.url}`, err);
+      console.error(
+        `Error in sequential task for config: ${config.uniName}`,
+        err
+      );
     } finally {
+      stopSpinner();
+      await page.close(); // Close page explicitly
       await browser.close();
     }
   }
-
-  stopSpinner();
 }
 
-async function runScrapingTasks(config, browser, searchTerms) {
+async function runScrapingTasks(config, page, searchTerms) {
   const arrDesiredJobs = [];
-  const page = await browser.newPage();
 
   try {
     const { baseUrl, uniName, ...configPairs } = config;
@@ -64,7 +82,7 @@ async function runScrapingTasks(config, browser, searchTerms) {
 
       // Don't include duplicates
       if (alreadyIncluded) {
-        arrDesiredJobs.push(`\n${strKey}:\n${strValue}`);
+        arrDesiredJobs.push(strJobs);
       }
     });
 
@@ -79,7 +97,7 @@ const showSpinner = () => {
   let i = 0;
 
   const spinnerInterval = setInterval(() => {
-    process.stdout.write(`\r${spinnerChars[i]} Scraping...`);
+    process.stdout.write(`\r${spinnerChars[i]}`);
     i = (i + 1) % spinnerChars.length;
   }, 100);
 

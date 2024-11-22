@@ -71,7 +71,7 @@ const clickNavigationElement = async (
     );
     return true;
   } catch (err) {
-    const isExpectedError = err.message.includes(errMessage);
+    const isExpectedError = errMessage.some((e) => e.includes(err.message));
     console.log(
       isExpectedError
         ? '\nExpected error in function clickAndNavigate.\nAssuming last page reached.'
@@ -90,16 +90,8 @@ const waitForNextPageButton = async (
   try {
     return await page.waitForSelector(nextPageLink, { timeout });
   } catch (err) {
-    const isExpectedError = err.message.includes(errMessage);
-    if (isExpectedError) {
-      console.log(
-        '\nExpected error in function waitForNextPageButton.\nAssuming last page reached.'
-      );
-      return null;
-    } else {
-      console.error('\nError with function waitForNextPageButton.\n', err);
-      return null;
-    }
+    console.log('\nError in function waitForNextPageButton:');
+    return false;
   }
 };
 
@@ -128,21 +120,24 @@ const clickAndNavigate = async (
   previousUrl,
   timeout = 5000
 ) => {
-  const promises = [
-    btnNextPage.click(),
-    canWaitForNavigation
-      ? page.waitForNavigation({ timeout })
-      : page.waitForNetworkIdle({ timeout }),
-  ];
-  const isNewUrl = async (previousUrl) => {
+  try {
+    const promises = [
+      canWaitForNavigation
+        ? page.waitForNavigation({ timeout })
+        : page.waitForNetworkIdle({ timeout }),
+      btnNextPage.click(),
+    ];
+    await Promise.all(promises);
+
     await page.waitForFunction(
       (prevUrl) => window.location.href !== prevUrl,
+      { timeout },
       previousUrl
     );
-  };
-
-  await Promise.all(promises);
-  await isNewUrl(previousUrl);
+  } catch (err) {
+    console.log('\nError in function clickAndNavigate:');
+    throw err;
+  }
 };
 
 export default navigateToNextPage;
