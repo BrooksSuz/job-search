@@ -5,6 +5,7 @@ import configs from './job-search-configs.js';
 async function newFunc(searchTerms = ['assis']) {
 	const parallelConfigs = [];
 	const sequentialConfigs = [];
+	const stopSpinner = showSpinner();
 
 	// Separate configs into parallel and sequential
 	configs.forEach((config) => {
@@ -17,7 +18,6 @@ async function newFunc(searchTerms = ['assis']) {
 
 	// Run parallel tasks
 	try {
-		const stopSpinner = showSpinner();
 		await Promise.all(
 			parallelConfigs.map(async (config) => {
 				const browser = await puppeteer.launch();
@@ -28,7 +28,6 @@ async function newFunc(searchTerms = ['assis']) {
 				}
 			})
 		);
-		stopSpinner();
 	} catch (err) {
 		console.error('Error in parallel tasks:', err);
 	}
@@ -44,6 +43,8 @@ async function newFunc(searchTerms = ['assis']) {
 			await browser.close();
 		}
 	}
+
+	stopSpinner();
 }
 
 async function runScrapingTasks(config, browser, searchTerms) {
@@ -58,7 +59,13 @@ async function runScrapingTasks(config, browser, searchTerms) {
 
 		arrScrapedJobs.forEach((objScrapedJob) => {
 			const [[strKey, strValue]] = Object.entries(objScrapedJob);
-			arrDesiredJobs.push(`\n${strKey}:\n${strValue}`);
+			const strJobs = `\n${strKey}:\n${strValue}`;
+			const alreadyIncluded = !arrDesiredJobs.includes(strJobs);
+
+			// Don't include duplicates
+			if (alreadyIncluded) {
+				arrDesiredJobs.push(`\n${strKey}:\n${strValue}`);
+			}
 		});
 
 		arrDesiredJobs.forEach((job) => console.log('\x1b[32m%s\x1b[0m', job));
