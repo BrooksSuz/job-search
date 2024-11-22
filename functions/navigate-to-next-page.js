@@ -127,13 +127,16 @@ const clickAndNavigate = async (
         : page.waitForNetworkIdle({ timeout }),
       btnNextPage.click(),
     ];
-    await Promise.all(promises);
 
-    await page.waitForFunction(
-      (prevUrl) => window.location.href !== prevUrl,
-      { timeout },
-      previousUrl
-    );
+    const isNewUrl = async (previousUrl) => {
+      await page.waitForFunction(
+        (prevUrl) => window.location.href !== prevUrl,
+        previousUrl
+      );
+    };
+
+    await Promise.all(promises);
+    await isNewUrl(previousUrl);
   } catch (err) {
     console.log('\nError in function clickAndNavigate:');
     throw err;

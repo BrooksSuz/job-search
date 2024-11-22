@@ -47,8 +47,8 @@ async function newFunc(searchTerms = ['assis']) {
 
   // Run sequential tasks
   for (const config of sequentialConfigs) {
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage(); // Create a page
+    const sequentialBrowser = await puppeteer.launch();
+    const page = await sequentialBrowser.newPage();
     try {
       console.log('Running sequential tasks...');
       stopSpinner = showSpinner();
@@ -60,8 +60,8 @@ async function newFunc(searchTerms = ['assis']) {
       );
     } finally {
       stopSpinner();
-      await page.close(); // Close page explicitly
-      await browser.close();
+      await page.close();
+      await sequentialBrowser.close();
     }
   }
 }
