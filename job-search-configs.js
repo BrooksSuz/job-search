@@ -1,7 +1,7 @@
 const em = {
   baseUrl: 'https://careers.emich.edu/jobs/search',
   uniName: 'Eastern Michigan',
-  canRunParallel: true,
+  canRunParallel: false,
   canWaitForNavigation: true,
   consentButton: 'button#consent_agree',
   errMessage: ['Navigation timeout of'],
@@ -70,6 +70,6 @@ const owens = {
   nextPageLink: 'button[aria-label="next"]',
 };
 
-const configs = [ut, owens];
+const configs = [em, um, ut, bg, owens];
 
 export default configs;
