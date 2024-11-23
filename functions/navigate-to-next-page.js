@@ -1,122 +1,147 @@
-async function navigateToNextPage(objNavigateToNextPage) {
-  try {
-    const isAnotherPage = await clickNavigationElement(objNavigateToNextPage);
-
-    // Recursively call clickNavigationElement
-    if (isAnotherPage) {
-      await navigateToNextPage(objNavigateToNextPage);
-    }
-  } catch (err) {
-    console.error('\nError with function navigateToNextPage\n');
-  }
+async function navigateToNextPage(params) {
+	const hasNextPage = await clickNavigationElement(params);
+	if (hasNextPage) await navigateToNextPage(params);
 }
 
-const clickNavigationElement = async (objNavigateToNextPage) => {
-  const {
-    page,
-    canWaitForNavigation,
-    errMessage,
-    isAnchor,
-    nextPageDisabledClass,
-    nextPageLink,
-  } = objNavigateToNextPage;
-  const objWaitForNextPageElement = { page, errMessage, nextPageLink };
-  const elNextPage = await waitForNextPageElement(objWaitForNextPageElement);
-  if (!elNextPage) return false;
+const clickNavigationElement = async (params) => {
+	const {
+		page,
+		canWaitForNavigation,
+		errMessage,
+		isAnchor,
+		nextPageDisabledClass,
+		nextPageLink,
+	} = params;
+	const previousUrl = page.url();
+	const getNextPageElementParams = { page, errMessage, nextPageLink };
+	const elNextPage = await getNextPageElement(getNextPageElementParams);
 
-  const objIsValidElement = { isAnchor, elNextPage, nextPageDisabledClass };
-  const isValid = await isValidNextPageElement(objIsValidElement);
-  if (!isValid) return false;
+	if (!elNextPage) return false;
+	if (isAnchor) {
+		const isNextPageAnchorValidParams = {
+			elNextPage,
+			nextPageDisabledClass,
+		};
+		const isAnchorNotValid = !(await isNextPageAnchorValid(
+			isNextPageAnchorValidParams
+		));
 
-  try {
-    const objClickAndNavigate = { page, elNextPage, canWaitForNavigation };
-    await clickAndNavigate(objClickAndNavigate);
-    return true;
-  } catch (err) {
-    console.error('\nError with function clickNavigationElement\n');
-  }
+		if (isAnchorNotValid) return false;
+	}
+
+	const clickAndNavigateParams = {
+		page,
+		elNextPage,
+		canWaitForNavigation,
+		errMessage,
+		previousUrl,
+	};
+
+	return await clickAndNavigate(clickAndNavigateParams);
 };
 
-const waitForNextPageElement = async (objWaitForNextPageElement) => {
-  const { page, errMessage, nextPageLink } = objWaitForNextPageElement;
-  try {
-    return await page.waitForSelector(nextPageLink, { timeout: 5000 });
-  } catch (err) {
-    const isExpectedError = errMessage.some(
-      (e) => e.includes(err.message) || errMessage.includes(e)
-    );
-    console.error(
-      isExpectedError
-        ? '\nExpected error in function waitForNextPageElement.\nAssuming last page reached.\n'
-        : `\nUnexpected error in function waitForNextPageElement\n${err}\n`
-    );
-    return null;
-  }
+const isNextPageAnchorValid = async (params) => {
+	const { elNextPage, nextPageDisabledClass } = params;
+
+	const checkElementStateParams = { elNextPage, nextPageDisabledClass };
+	const { isDisabled, noHref } = await checkElementState(
+		checkElementStateParams
+	);
+
+	if (isDisabled || noHref) {
+		console.log(
+			'\nNext page anchor is disabled or has no href.\n\nAssuming last page reached.\n'
+		);
+		return false;
+	}
+	return true;
 };
 
-const getIsDisabledAndNoHref = async (objGetIsDisabledAndNoHref) => {
-  const { elNextPage, nextPageDisabledClass } = objGetIsDisabledAndNoHref;
-  return await elNextPage.evaluate((el, disabledClass) => {
-    if (!el) return { isDisabled: true, noHref: true };
+const getNextPageElement = async (params) => {
+	const { page, errMessage, nextPageLink, timeout = 5000 } = params;
 
-    // Check for element to be disabled
-    const hasDisabledClass = el.classList.contains(disabledClass);
-    const hasDisabledAttribute = el.hasAttribute('disabled');
-    const isDisabledProp = el.tagName.toLowerCase() !== 'a' && el.disabled;
+	try {
+		return await page.waitForSelector(nextPageLink, { timeout });
+	} catch (err) {
+		const isExpectedError = errMessage.some(
+			(e) => err.message.includes(e) || e.includes(err.message)
+		);
 
-    // Check for href attribute
-    const noHref = !el.hasAttribute('href') || !el.getAttribute('href').trim();
-
-    return {
-      isDisabled: hasDisabledClass || hasDisabledAttribute || isDisabledProp,
-      noHref,
-    };
-  }, nextPageDisabledClass);
+		if (isExpectedError) {
+			console.log(
+				`\nExpected error in function getNextPageElement:\n\n${err.message}.\n\nAssuming last page reached.\n`
+			);
+		} else {
+			console.error(
+				'\nUnexpected error in function getNextPageElement:\n\n',
+				err
+			);
+		}
+		return null;
+	}
 };
 
-const isValidNextPageElement = async (objIsValidElement) => {
-  const { isAnchor, elNextPage, nextPageDisabledClass } = objIsValidElement;
-  const objGetIsDisabledAndNoHref = { elNextPage, nextPageDisabledClass };
+const checkElementState = async (params) => {
+	const { elNextPage, nextPageDisabledClass } = params;
 
-  if (!elNextPage) return false;
+	return await elNextPage.evaluate((el, disabledClass) => {
+		if (!el) return { isDisabled: true, noHref: true };
 
-  const { isDisabled, noHref } = getIsDisabledAndNoHref(
-    objGetIsDisabledAndNoHref
-  );
+		const hasDisabledClass = el.classList.contains(disabledClass);
+		const hasDisabledAttribute = el.hasAttribute('disabled');
+		const isDisabledProp = el.tagName.toLowerCase() !== 'a' && el.disabled;
+		const noHref = !el.hasAttribute('href') || !el.getAttribute('href').trim();
 
-  if (isAnchor && (isDisabled || noHref)) {
-    console.log(
-      '\nNext page button is disabled or has no href.\nAssuming last page reached.\n'
-    );
-    return false;
-  }
-  return true;
+		return {
+			isDisabled: hasDisabledClass || hasDisabledAttribute || isDisabledProp,
+			noHref,
+		};
+	}, nextPageDisabledClass);
 };
 
-const clickAndNavigate = async (objClickAndNavigate, timeout = 5000) => {
-  const { page, elNextPage, canWaitForNavigation } = objClickAndNavigate;
-  const previousUrl = page.url();
+const clickAndNavigate = async (params) => {
+	const {
+		page,
+		elNextPage,
+		canWaitForNavigation,
+		errMessage,
+		previousUrl,
+		timeout = 10000,
+	} = params;
 
-  try {
-    const promises = [
-      canWaitForNavigation
-        ? page.waitForNavigation({ timeout })
-        : page.waitForNetworkIdle({ timeout }),
-      elNextPage.click(),
-    ];
+	try {
+		const promises = [
+			elNextPage.click(),
+			canWaitForNavigation
+				? page.waitForNavigation({ timeout })
+				: page.waitForNetworkIdle({ timeout }),
+		];
 
-    const isNewUrl = async (previousUrl) => {
-      await page.waitForFunction(
-        (prevUrl) => window.location.href !== prevUrl,
-        previousUrl
-      );
-    };
+		const isNewUrl = async (previousUrl) => {
+			await page.waitForFunction(
+				(prevUrl) => window.location.href !== prevUrl,
+				previousUrl
+			);
+		};
 
-    await Promise.all(promises);
-    await isNewUrl(previousUrl);
-  } catch (err) {
-    console.log('\nError in function clickAndNavigate');
-  }
+		await Promise.all(promises);
+		await isNewUrl(previousUrl);
+		return true;
+	} catch (err) {
+		const isExpectedError = errMessage.some(
+			(e) => err.message.includes(e) || e.includes(err.message)
+		);
+		if (isExpectedError) {
+			console.log(
+				`\nExpected error in function clickAndNavigate:\n\n${err.message}.\n\nAssuming last page reached.\n`
+			);
+		} else {
+			console.error(
+				`\nUnexpected error in function clickAndNavigate:\n\n${err}`
+			);
+		}
+		return false;
+	}
 };
 
 export default navigateToNextPage;
