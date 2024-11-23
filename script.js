@@ -2,113 +2,70 @@ import puppeteer from 'puppeteer';
 import scrapeJobs from './functions/scrape-jobs.js';
 import configs from './job-search-configs.js';
 
-async function newFunc(searchTerms = ['assis']) {
-  const parallelConfigs = [];
-  const sequentialConfigs = [];
+async function runScript(searchTerms = ['instru', 'prof'], index = 0) {
+	// Start console spinner
+	const stopSpinner = showSpinner();
 
-  // Separate configs into parallel and sequential
-  configs.forEach((config) => {
-    if (config.canRunParallel) {
-      parallelConfigs.push(config);
-    } else {
-      sequentialConfigs.push(config);
-    }
-  });
+	// Initialize the browser
+	const browser = await puppeteer.launch();
 
-  let stopSpinner = () => {};
+	// Create a new page
+	const page = await browser.newPage();
 
-  // Run parallel tasks
-  if (parallelConfigs) {
-    const parallelBrowser = await puppeteer.launch({ headless: false });
-    try {
-      console.log('Running parallel tasks...');
-      stopSpinner = showSpinner();
-      try {
-        await Promise.all(
-          parallelConfigs.map(async (config) => {
-            const page = await parallelBrowser.newPage();
-            try {
-              await runScrapingTasks(config, page, searchTerms);
-            } catch (err) {
-              console.error(
-                `Error in parallel task for config ${config.uniName}`
-              );
-            } finally {
-              await page.close();
-            }
-          })
-        );
-      } catch (err) {
-        console.error('Error in parallel tasks:', err);
-      }
-    } finally {
-      stopSpinner();
-      await parallelBrowser.close();
-    }
-  } else {
-    console.log('No parallel tasks to run.');
-  }
+	const currentConfig = configs[index];
+	const hasAnotherConfig = index < configs.length - 1;
 
-  // Run sequential tasks
-  if (sequentialConfigs) {
-    for (const config of sequentialConfigs) {
-      const sequentialBrowser = await puppeteer.launch({ headless: false });
-      const page = await sequentialBrowser.newPage();
-      try {
-        console.log('Running sequential tasks...');
-        stopSpinner = showSpinner();
-        await runScrapingTasks(config, page, searchTerms);
-      } catch (err) {
-        console.error(
-          `Error in sequential task for config: ${config.uniName}`,
-          err
-        );
-      } finally {
-        stopSpinner();
-        await sequentialBrowser.close();
-      }
-    }
-  } else {
-    console.log('No sequential tasks to run.');
-  }
+	try {
+		await runScrapingTasks(currentConfig, page, searchTerms);
+	} catch (err) {
+		console.error('\nError in function run:\n\n', err);
+	} finally {
+		stopSpinner();
+	}
+
+	if (hasAnotherConfig) runScript(searchTerms, ++index);
+	await browser.close();
 }
 
-async function runScrapingTasks(config, page, searchTerms) {
-  const arrDesiredJobs = [];
+const runScrapingTasks = async (currentConfig, page, searchTerms) => {
+	const { baseUrl, uniName, ...configPairs } = currentConfig;
+	const objScrapeJobs = { page, searchTerms, configPairs };
+	const arrDesiredJobs = [];
 
-  try {
-    const { baseUrl, uniName, ...configPairs } = config;
-    await page.goto(baseUrl, { waitUntil: 'networkidle0' });
-    const arrScrapedJobs = await scrapeJobs(page, searchTerms, configPairs);
-    console.log('\x1b[35m%s\x1b[0m', `\nRESULTS FOR ${uniName}:`);
+	try {
+		await page.goto(baseUrl, { waitUntil: 'networkidle0', timeout: '60000' });
+		const arrScrapedJobs = await scrapeJobs(objScrapeJobs);
+		console.log('\x1b[35m%s\x1b[0m', `RESULTS FOR ${uniName}:`);
 
-    arrScrapedJobs.forEach((objScrapedJob) => {
-      const [[strKey, strValue]] = Object.entries(objScrapedJob);
-      const strJobs = `\n${strKey}:\n${strValue}`;
-      const alreadyIncluded = !arrDesiredJobs.includes(strJobs);
+		arrScrapedJobs.forEach((objScrapedJob) => {
+			const [[strKey, strValue]] = Object.entries(objScrapedJob);
+			const strJobs = `\n${strKey}:\n${strValue}`;
+			const alreadyIncluded = !arrDesiredJobs.includes(strJobs);
 
-      // Don't include duplicates
-      if (alreadyIncluded) {
-        arrDesiredJobs.push(strJobs);
-      }
-    });
+			// Don't include duplicates
+			if (alreadyIncluded) {
+				arrDesiredJobs.push(strJobs);
+			}
+		});
 
-    arrDesiredJobs.forEach((job) => console.log('\x1b[32m%s\x1b[0m', job));
-  } catch (err) {
-    console.error(`\nError with config ${config.uniName}:\n`, err);
-  }
-}
-
-const showSpinner = () => {
-  const spinnerChars = ['|', '/', '-', '\\'];
-  let i = 0;
-
-  const spinnerInterval = setInterval(() => {
-    process.stdout.write(`\r${spinnerChars[i]}`);
-    i = (i + 1) % spinnerChars.length;
-  }, 100);
-
-  return () => clearInterval(spinnerInterval);
+		arrDesiredJobs.forEach((job) => console.log('\x1b[32m%s\x1b[0m', job));
+	} catch (err) {
+		console.error(`\nError in function runScrapingTasks:\n\n${err}`);
+	} finally {
+		page.close();
+	}
 };
 
-newFunc();
+const showSpinner = () => {
+	const spinnerChars = ['|', '/', '-', '\\'];
+	let i = 0;
+
+	const spinnerInterval = setInterval(() => {
+		process.stdout.write(`\r${spinnerChars[i]}`);
+		i = (i + 1) % spinnerChars.length;
+	}, 100);
+
+	return () => clearInterval(spinnerInterval);
+};
+
+runScript();
