@@ -2,12 +2,14 @@ import checkConsent from './check-consent.js';
 import getFilteredJobs from './get-filtered-jobs.js';
 import navigateToNextPage from './navigate-to-next-page.js';
 
+// TODO: CHECK TO MAKE SURE THE NAVIGATION ELEMENTS ARE BEING CHECKED FOR PROPERLY
+
 async function scrapeJobs(scapeJobsParams) {
 	const { page, searchTerms, configPairs } = scapeJobsParams;
 	const {
 		canWaitForNavigation,
 		consentButton,
-		errMessage,
+		errMessages,
 		isAnchor,
 		jobTitleLink,
 		nextPageDisabledClass,
@@ -18,7 +20,7 @@ async function scrapeJobs(scapeJobsParams) {
 	const navigateToNextPageParams = {
 		page,
 		canWaitForNavigation,
-		errMessage,
+		errMessages,
 		isAnchor,
 		nextPageDisabledClass,
 		nextPageLink,

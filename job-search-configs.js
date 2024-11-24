@@ -1,12 +1,9 @@
 const em = {
-	baseUrl: 'https://careers.emich.edu/jobs/search',
+	url: 'https://careers.emich.edu/jobs/search',
 	uniName: 'Eastern Michigan',
 	canWaitForNavigation: true,
 	consentButton: 'button#consent_agree',
-	errMessage: [
-		'Navigation timeout of',
-		'Node is either not clickable or not an Element',
-	],
+	errMessages: ['Node is either not clickable or not an Element'],
 	isAnchor: true,
 	jobTitleLink: 'h3.card-title > a[id^="link_job_title"]',
 	nextPageDisabledClass: 'disabled',
@@ -14,29 +11,23 @@ const em = {
 };
 
 const um = {
-	baseUrl: 'https://careers.umich.edu/browse-jobs/positions/F',
+	url: 'https://careers.umich.edu/browse-jobs/positions/F',
 	uniName: 'University of Michigan',
 	canWaitForNavigation: true,
 	consentButton: null,
-	errMessage: [
-		'Navigation timeout of',
-		"Waiting for selector `a[title='Go to next page']`",
-	],
+	errMessages: ["Waiting for selector `a[title='Go to next page']`"],
 	isAnchor: true,
 	jobTitleLink: 'a[href^="/job_detail/"]',
-	nextPageDisabledClass: 'disabled',
+	nextPageDisabledClass: null,
 	nextPageLink: "a[title='Go to next page']",
 };
 
 const ut = {
-	baseUrl: 'https://careers.utoledo.edu/cw/en-us/listing/',
+	url: 'https://careers.utoledo.edu/cw/en-us/listing/',
 	uniName: 'University of Toledo',
 	canWaitForNavigation: false,
 	consentButton: null,
-	errMessage: [
-		'Node is either not clickable or not an Element',
-		'TimeoutError: Waiting failed:',
-	],
+	errMessages: ['Node is either not clickable or not an Element'],
 	isAnchor: true,
 	jobTitleLink: 'h4 > a.job-link',
 	nextPageDisabledClass: null,
@@ -44,11 +35,11 @@ const ut = {
 };
 
 const bg = {
-	baseUrl: 'https://www.schooljobs.com/careers/bgsu',
+	url: 'https://www.schooljobs.com/careers/bgsu',
 	uniName: 'Bowling Green State University',
 	canWaitForNavigation: false,
 	consentButton: null,
-	errMessage: [],
+	errMessages: null,
 	isAnchor: true,
 	jobTitleLink: 'a[href^="/careers/bgsu/jobs/"]',
 	nextPageDisabledClass: null,
@@ -56,14 +47,11 @@ const bg = {
 };
 
 const owens = {
-	baseUrl: 'https://owens.wd1.myworkdayjobs.com/OCC',
+	url: 'https://owens.wd1.myworkdayjobs.com/OCC',
 	uniName: 'Owens Community College',
 	canWaitForNavigation: false,
 	consentButton: null,
-	errMessage: [
-		'Waiting for selector `button[aria-label="next"]`',
-		'TimeoutError: Waiting failed:',
-	],
+	errMessages: ['Waiting for selector `button[aria-label="next"]`'],
 	isAnchor: false,
 	jobTitleLink:
 		'section[data-automation-id="jobResults"] a[data-automation-id="jobTitle"]',
@@ -72,14 +60,11 @@ const owens = {
 };
 
 const osu = {
-	baseUrl: 'https://osu.wd1.myworkdayjobs.com/OSUCareers',
+	url: 'https://osu.wd1.myworkdayjobs.com/OSUCareers',
 	uniName: 'Ohio State University',
 	canWaitForNavigation: false,
 	consentButton: null,
-	errMessage: [
-		'Waiting for selector `button[aria-label="next"]`',
-		'TimeoutError: Waiting failed:',
-	],
+	errMessages: ['Waiting for selector `button[aria-label="next"]`'],
 	isAnchor: false,
 	jobTitleLink:
 		'section[data-automation-id="jobResults"] a[data-automation-id="jobTitle"]',
@@ -87,6 +72,6 @@ const osu = {
 	nextPageLink: 'button[aria-label="next"]',
 };
 
-const configs = [em, um, ut, bg, owens, osu];
+const configs = [em, um, ut, bg, owens];
 
 export default configs;

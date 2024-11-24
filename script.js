@@ -10,7 +10,7 @@ async function executeJobSearch(
 	const stopSpinner = startSpinner();
 
 	// Initialize the browser
-	const browser = await puppeteer.launch({ headless: false });
+	const browser = await puppeteer.launch();
 
 	// Create a new page
 	const page = await browser.newPage();
@@ -24,7 +24,7 @@ async function executeJobSearch(
 	try {
 		await processJobScraping(runScrapingTasksParams);
 	} catch (err) {
-		console.error(`\nError in function runScrapingTasks:\n\n${err}`);
+		console.error('\nError in function runScrapingTasks:\n\n', err);
 	} finally {
 		stopSpinner();
 	}
@@ -43,13 +43,12 @@ async function executeJobSearch(
 const processJobScraping = async (params) => {
 	// Variables (destructured & normal)
 	const { currentConfig, page, searchTerms } = params;
-	const { baseUrl, uniName, ...configPairs } = currentConfig;
+	const { url, uniName, ...configPairs } = currentConfig;
 	const scrapeJobsParams = { page, searchTerms, configPairs };
 	const arrDesiredJobs = [];
-
 	try {
-		// Navigate to the site
-		await page.goto(baseUrl, { waitUntil: 'networkidle0', timeout: '60000' });
+		// Go to the site
+		await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 });
 
 		// Scrape the listings
 		const arrScrapedJobs = await scrapeJobs(scrapeJobsParams);
@@ -66,10 +65,10 @@ const processJobScraping = async (params) => {
 			const strJobs = `\n${key}:\n${value}`;
 
 			// Check for duplicates
-			const alreadyIncluded = !arrDesiredJobs.includes(strJobs);
+			const isNotIncluded = !arrDesiredJobs.includes(strJobs);
 
 			// Don't include duplicates
-			if (alreadyIncluded) arrDesiredJobs.push(strJobs);
+			if (isNotIncluded) arrDesiredJobs.push(strJobs);
 		});
 
 		// Log the results
@@ -77,7 +76,7 @@ const processJobScraping = async (params) => {
 			console.log('\x1b[32m%s\x1b[0m', job);
 		});
 	} catch (err) {
-		console.error(`\nError in function runScrapingTasks:\n\n${err}`);
+		console.error('\nError in function processJobScraping:\n\n', err);
 	} finally {
 		page.close();
 	}
