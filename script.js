@@ -2,53 +2,80 @@ import puppeteer from 'puppeteer';
 import scrapeJobs from './functions/scrape-jobs.js';
 import configs from './job-search-configs.js';
 
-async function runScript(searchTerms = ['instru', 'prof'], index = 0) {
+async function executeJobSearch(
+	searchTerms = ['instru', 'prof', 'rn'],
+	index = 0
+) {
 	// Start console spinner
-	const stopSpinner = showSpinner();
+	const stopSpinner = startSpinner();
 
 	// Initialize the browser
-	const browser = await puppeteer.launch();
+	const browser = await puppeteer.launch({ headless: false });
 
 	// Create a new page
 	const page = await browser.newPage();
 
+	// Get the current config
 	const currentConfig = configs[index];
-	const hasAnotherConfig = index < configs.length - 1;
+
+	// Wrap runScrapingTasks parameters into an object
+	const runScrapingTasksParams = { currentConfig, page, searchTerms };
 
 	try {
-		await runScrapingTasks(currentConfig, page, searchTerms);
+		await processJobScraping(runScrapingTasksParams);
 	} catch (err) {
-		console.error('\nError in function run:\n\n', err);
+		console.error(`\nError in function runScrapingTasks:\n\n${err}`);
 	} finally {
 		stopSpinner();
 	}
 
-	if (hasAnotherConfig) runScript(searchTerms, ++index);
-	await browser.close();
+	// Check for another config
+	const hasAnotherConfig = index < configs.length - 1;
+
+	// Base case
+	try {
+		if (hasAnotherConfig) executeJobSearch(searchTerms, ++index);
+	} finally {
+		await browser.close();
+	}
 }
 
-const runScrapingTasks = async (currentConfig, page, searchTerms) => {
+const processJobScraping = async (params) => {
+	// Variables (destructured & normal)
+	const { currentConfig, page, searchTerms } = params;
 	const { baseUrl, uniName, ...configPairs } = currentConfig;
-	const objScrapeJobs = { page, searchTerms, configPairs };
+	const scrapeJobsParams = { page, searchTerms, configPairs };
 	const arrDesiredJobs = [];
 
 	try {
+		// Navigate to the site
 		await page.goto(baseUrl, { waitUntil: 'networkidle0', timeout: '60000' });
-		const arrScrapedJobs = await scrapeJobs(objScrapeJobs);
+
+		// Scrape the listings
+		const arrScrapedJobs = await scrapeJobs(scrapeJobsParams);
+
+		// Log the config name
 		console.log('\x1b[35m%s\x1b[0m', `RESULTS FOR ${uniName}:`);
 
+		// Push listings into an array
 		arrScrapedJobs.forEach((objScrapedJob) => {
-			const [[strKey, strValue]] = Object.entries(objScrapedJob);
-			const strJobs = `\n${strKey}:\n${strValue}`;
+			// Separate the keys and values
+			const [[key, value]] = Object.entries(objScrapedJob);
+
+			// Create the display string
+			const strJobs = `\n${key}:\n${value}`;
+
+			// Check for duplicates
 			const alreadyIncluded = !arrDesiredJobs.includes(strJobs);
 
 			// Don't include duplicates
-			if (alreadyIncluded) {
-				arrDesiredJobs.push(strJobs);
-			}
+			if (alreadyIncluded) arrDesiredJobs.push(strJobs);
 		});
 
-		arrDesiredJobs.forEach((job) => console.log('\x1b[32m%s\x1b[0m', job));
+		// Log the results
+		arrDesiredJobs.forEach((job) => {
+			console.log('\x1b[32m%s\x1b[0m', job);
+		});
 	} catch (err) {
 		console.error(`\nError in function runScrapingTasks:\n\n${err}`);
 	} finally {
@@ -56,7 +83,7 @@ const runScrapingTasks = async (currentConfig, page, searchTerms) => {
 	}
 };
 
-const showSpinner = () => {
+const startSpinner = () => {
 	const spinnerChars = ['|', '/', '-', '\\'];
 	let i = 0;
 
@@ -68,4 +95,4 @@ const showSpinner = () => {
 	return () => clearInterval(spinnerInterval);
 };
 
-runScript();
+executeJobSearch();

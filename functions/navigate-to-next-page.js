@@ -1,9 +1,9 @@
-async function navigateToNextPage(objNavigateToNextPage) {
-	const hasNextPage = await clickNavigationElement(objNavigateToNextPage);
-	if (hasNextPage) await navigateToNextPage(objNavigateToNextPage);
+async function navigateToNextPage(params) {
+	const hasNextPage = await clickNavigationElement(params);
+	if (hasNextPage) await navigateToNextPage(params);
 }
 
-const clickNavigationElement = async (objNavigateToNextPage) => {
+const clickNavigationElement = async (params) => {
 	const {
 		page,
 		canWaitForNavigation,
@@ -11,24 +11,23 @@ const clickNavigationElement = async (objNavigateToNextPage) => {
 		isAnchor,
 		nextPageDisabledClass,
 		nextPageLink,
-	} = objNavigateToNextPage;
-
+	} = params;
 	const previousUrl = page.url();
 	const getNextPageElementParams = { page, errMessage, nextPageLink };
 	const elNextPage = await getNextPageElement(getNextPageElementParams);
 
 	if (!elNextPage) return false;
+	if (isAnchor) {
+		const isNextPageAnchorValidParams = {
+			elNextPage,
+			nextPageDisabledClass,
+		};
+		const isAnchorNotValid = !(await isNextPageAnchorValid(
+			isNextPageAnchorValidParams
+		));
 
-	const isNextPageAnchorValidParams = {
-		elNextPage,
-		isAnchor,
-		nextPageDisabledClass,
-	};
-	const isNotValid = !(await isNextPageAnchorValid(
-		isNextPageAnchorValidParams
-	));
-
-	if (isNotValid) return false;
+		if (isAnchorNotValid) return false;
+	}
 
 	const clickAndNavigateParams = {
 		page,
@@ -41,14 +40,14 @@ const clickNavigationElement = async (objNavigateToNextPage) => {
 };
 
 const isNextPageAnchorValid = async (params) => {
-	const { elNextPage, isAnchor, nextPageDisabledClass } = params;
+	const { elNextPage, nextPageDisabledClass } = params;
 
 	const checkElementStateParams = { elNextPage, nextPageDisabledClass };
 	const { isDisabled, noHref } = await checkElementState(
 		checkElementStateParams
 	);
 
-	if (isAnchor && (isDisabled || noHref)) {
+	if (isDisabled || noHref) {
 		console.log(
 			'\nNext page anchor is disabled or has no href.\n\nAssuming last page reached.\n'
 		);
@@ -77,7 +76,6 @@ const getNextPageElement = async (params) => {
 				err
 			);
 		}
-
 		return null;
 	}
 };
@@ -107,7 +105,7 @@ const clickAndNavigate = async (params) => {
 		canWaitForNavigation,
 		errMessage,
 		previousUrl,
-		timeout = 5000,
+		timeout = 10000,
 	} = params;
 
 	try {
@@ -138,8 +136,7 @@ const clickAndNavigate = async (params) => {
 			);
 		} else {
 			console.error(
-				'\nUnexpected error in function clickAndNavigate:\n\n',
-				err
+				`\nUnexpected error in function clickAndNavigate:\n\n${err}`
 			);
 		}
 		return false;

@@ -71,6 +71,22 @@ const owens = {
 	nextPageLink: 'button[aria-label="next"]',
 };
 
-const configs = [em, um, ut, bg, owens];
+const osu = {
+	baseUrl: 'https://osu.wd1.myworkdayjobs.com/OSUCareers',
+	uniName: 'Ohio State University',
+	canWaitForNavigation: false,
+	consentButton: null,
+	errMessage: [
+		'Waiting for selector `button[aria-label="next"]`',
+		'TimeoutError: Waiting failed:',
+	],
+	isAnchor: false,
+	jobTitleLink:
+		'section[data-automation-id="jobResults"] a[data-automation-id="jobTitle"]',
+	nextPageDisabledClass: null,
+	nextPageLink: 'button[aria-label="next"]',
+};
+
+const configs = [em, um, ut, bg, owens, osu];
 
 export default configs;

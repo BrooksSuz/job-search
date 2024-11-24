@@ -1,12 +1,13 @@
-async function getFilteredJobs(objFilteredJobs) {
-	const { page, jobTitleLink, searchTerms } = objFilteredJobs;
+async function getFilteredJobs(getFilteredJobsParams) {
+	const { page, jobTitleLink, searchTerms } = getFilteredJobsParams;
 
 	try {
 		const jobElements = await page.$$(jobTitleLink);
-		const arrFilteredJobs = await filterJobs(page, jobElements, searchTerms);
+		const filterJobsParams = { page, jobElements, searchTerms };
+		const arrFilteredJobs = await filterJobs(filterJobsParams);
 		return arrFilteredJobs;
 	} catch (err) {
-		console.error('\nError with function getFilteredJobs:\n', err);
+		console.error(`\nError with function getFilteredJobs:\n\n${err}`);
 		return [];
 	}
 }
@@ -23,7 +24,7 @@ const createDataObject = async (page, jobElement) => {
 
 		return jobData;
 	} catch (err) {
-		console.error('\nError with function createDataObject:\n', err);
+		console.error(`\nError with function createDataObject:\n\n${err}`);
 	}
 };
 
@@ -37,14 +38,14 @@ const findMatch = (text, term) => {
 	return isMatch;
 };
 
-const formatJobText = (text) => {
-	return text
+const formatJobText = (text) =>
+	text
 		.toLowerCase()
 		.replace(/\b\w/g, (char) => char.toUpperCase())
 		.trim();
-};
 
-const filterJobs = async (page, jobElements, searchTerms) => {
+const filterJobs = async (params) => {
+	const { page, jobElements, searchTerms } = params;
 	try {
 		const promise = jobElements.map(async (jobElement) => {
 			const jobData = await createDataObject(page, jobElement);
@@ -56,10 +57,13 @@ const filterJobs = async (page, jobElements, searchTerms) => {
 				return { [formatJobText(jobData.textContent)]: jobData.href };
 		});
 
-		const jobs = await Promise.all(promise);
-		return jobs.filter((job) => job !== undefined);
+		const arrFilteredJobs = Promise.all(promise).then((res) =>
+			res.filter((job) => job !== undefined)
+		);
+
+		return arrFilteredJobs;
 	} catch (err) {
-		console.error('\nError with function filterJobs:\n', err);
+		console.error(`\nError with function filterJobs:\n\n${err}`);
 	}
 };
 
