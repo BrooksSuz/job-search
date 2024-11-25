@@ -19,12 +19,12 @@ async function executeJobSearch(
 	const currentConfig = configs[index];
 
 	// Wrap runScrapingTasks parameters into an object
-	const runScrapingTasksParams = { currentConfig, page, searchTerms };
+	const processJobScrapingParams = { currentConfig, page, searchTerms };
 
 	try {
-		await processJobScraping(runScrapingTasksParams);
+		await processJobScraping(processJobScrapingParams);
 	} catch (err) {
-		console.error('\nError in function runScrapingTasks:\n\n', err);
+		console.error('\nUnexpected error in function runScrapingTasks:\n\n', err);
 	} finally {
 		stopSpinner();
 	}
@@ -76,7 +76,10 @@ const processJobScraping = async (params) => {
 			console.log('\x1b[32m%s\x1b[0m', job);
 		});
 	} catch (err) {
-		console.error('\nError in function processJobScraping:\n\n', err);
+		console.error(
+			'\nUnexpected error in function processJobScraping:\n\n',
+			err
+		);
 	} finally {
 		page.close();
 	}

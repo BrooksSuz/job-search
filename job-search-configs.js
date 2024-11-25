@@ -8,6 +8,7 @@ const em = {
 	jobTitleLink: 'h3.card-title > a[id^="link_job_title"]',
 	nextPageDisabledClass: 'disabled',
 	nextPageLink: 'li.next_page > a',
+	nextPageParentSelector: null,
 };
 
 const um = {
@@ -20,6 +21,7 @@ const um = {
 	jobTitleLink: 'a[href^="/job_detail/"]',
 	nextPageDisabledClass: null,
 	nextPageLink: "a[title='Go to next page']",
+	nextPageParentSelector: null,
 };
 
 const ut = {
@@ -32,6 +34,7 @@ const ut = {
 	jobTitleLink: 'h4 > a.job-link',
 	nextPageDisabledClass: null,
 	nextPageLink: "#recent-jobs a[title='More Jobs']:nth-of-type(1)",
+	nextPageParentSelector: null,
 };
 
 const bg = {
@@ -42,8 +45,10 @@ const bg = {
 	errMessages: null,
 	isAnchor: true,
 	jobTitleLink: 'a[href^="/careers/bgsu/jobs/"]',
-	nextPageDisabledClass: null,
+	nextPageDisabledClass: 'disabled',
 	nextPageLink: '.pagination-container a[aria-label="Go to Next Page"]',
+	nextPageParentSelector:
+		'li.PagedList-skipToNext:has(> a[aria-label="Go to Next Page"])',
 };
 
 const owens = {
@@ -57,6 +62,7 @@ const owens = {
 		'section[data-automation-id="jobResults"] a[data-automation-id="jobTitle"]',
 	nextPageDisabledClass: null,
 	nextPageLink: 'button[aria-label="next"]',
+	nextPageParentSelector: null,
 };
 
 const osu = {
@@ -70,6 +76,7 @@ const osu = {
 		'section[data-automation-id="jobResults"] a[data-automation-id="jobTitle"]',
 	nextPageDisabledClass: null,
 	nextPageLink: 'button[aria-label="next"]',
+	nextPageParentSelector: null,
 };
 
 const configs = [em, um, ut, bg, owens];
