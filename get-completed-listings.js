@@ -2,13 +2,25 @@ import puppeteer from 'puppeteer';
 import scrapeJobs from './functions/scrape-jobs.js';
 import configs from './job-search-configs.js';
 
-// Initialize the browser
-const browser = await puppeteer.launch();
-
 async function getCompletedListings(searchTerms) {
+  let browser;
   try {
-    const arrCompletedListings = [];
-    await pushListings(arrCompletedListings, searchTerms);
+    browser = await puppeteer.launch();
+  } catch (err) {
+    console.error('\nUnexpected error launching the browser:\n\n', err);
+    if (browser) await browser.close();
+    return;
+  }
+
+  const arrCompletedListings = [];
+  const sortedConfigs = alphabetizeConfigs(configs);
+  try {
+    await pushListings(
+      arrCompletedListings,
+      searchTerms,
+      browser,
+      sortedConfigs
+    );
     return arrCompletedListings;
   } catch (err) {
     console.error('\nUnexpected error in function executeJobSearch:\n\n', err);
@@ -17,6 +29,16 @@ async function getCompletedListings(searchTerms) {
     await browser.close();
   }
 }
+
+const alphabetizeConfigs = (arr) => {
+  const sortedArr = arr.sort((a, b) => {
+    if (a.uniName < b.uniName) return -1;
+    if (a.uniName > b.uniName) return 1;
+    return 0;
+  });
+  console.log(sortedArr);
+  return sortedArr;
+};
 
 const startSpinner = () => {
   const spinnerChars = ['|', '/', '-', '\\'];
@@ -79,12 +101,18 @@ const processJobScraping = async (params) => {
   }
 };
 
-const pushListings = async (arrCompletedListings, searchTerms, index = 0) => {
+const pushListings = async (
+  arrCompletedListings,
+  searchTerms,
+  browser,
+  sortedConfigs,
+  index = 0
+) => {
   // Create a new page
   const page = await browser.newPage();
 
   // Get the current config
-  const currentConfig = configs[index];
+  const currentConfig = sortedConfigs[index];
 
   // Wrap processJobScraping parameters into an object
   const processJobScrapingParams = { currentConfig, page, searchTerms };
@@ -102,13 +130,20 @@ const pushListings = async (arrCompletedListings, searchTerms, index = 0) => {
     await page.close();
 
     // Check for another config
-    const hasAnotherConfig = index < configs.length - 1;
+    const hasAnotherConfig = index < sortedConfigs.length - 1;
 
     // Base case
     if (hasAnotherConfig)
-      await pushListings(arrCompletedListings, searchTerms, ++index);
+      await pushListings(
+        arrCompletedListings,
+        searchTerms,
+        browser,
+        sortedConfigs,
+        ++index
+      );
   } catch (err) {
     console.error('\nUnexpected error in function executeJobSearch:\n\n', err);
+    await page.close();
   }
 };
 

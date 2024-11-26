@@ -1,11 +1,15 @@
 import nodemailer from 'nodemailer';
 import getCompletedListings from './get-completed-listings.js';
 
-const arrCompletedListings = await getCompletedListings([
-  'web',
-  'developer',
-  'instru',
-]);
+const arrCompletedListings = await getCompletedListings(['assis']);
+
+/* const sortedOrgs = arrCompletedListings.sort((a, b) => {
+  const [aKey] = Object.keys(a);
+  const [bKey] = Object.keys(b);
+  if (aKey < bKey) return -1;
+  if (aKey > bKey) return 1;
+  return 0;
+}); */
 
 const formattedListings = arrCompletedListings
   .map((objUni) => {

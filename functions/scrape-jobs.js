@@ -38,7 +38,22 @@ async function scrapeJobs(scapeJobsParams) {
   // Get the jobs on the final page
   arrScrapedJobs.push(...(await getFilteredJobs(getFilteredJobsParams)));
 
-  return arrScrapedJobs;
+  // Alphabetically sort the listings
+  const sortedScrapedJobs = alphabetizeScrapedJobs(arrScrapedJobs);
+
+  return sortedScrapedJobs;
 }
+
+const alphabetizeScrapedJobs = (arr) => {
+  const sortedArr = arr.sort((a, b) => {
+    const [aKey] = Object.keys(a);
+    const [bKey] = Object.keys(b);
+    if (aKey < bKey) return -1;
+    if (aKey > bKey) return 1;
+    return 0;
+  });
+
+  return sortedArr;
+};
 
 export default scrapeJobs;
