@@ -2,25 +2,36 @@ import puppeteer from 'puppeteer';
 import scrapeJobs from './functions/scrape-jobs.js';
 import configs from './job-search-configs.js';
 
-const arrCompletedListings = [];
-
 // Initialize the browser
 const browser = await puppeteer.launch();
 
-// Start console spinner
-const stopSpinner = startSpinner();
-
-async function runExecuteJobSearch(searchTerms) {
+async function getCompletedListings(searchTerms) {
   try {
-    return await executeJobSearch(searchTerms);
+    const arrCompletedListings = [];
+    await pushListings(arrCompletedListings, searchTerms);
+    return arrCompletedListings;
   } catch (err) {
     console.error('\nUnexpected error in function executeJobSearch:\n\n', err);
   } finally {
     stopSpinner();
     await browser.close();
-    return arrCompletedListings;
   }
 }
+
+const startSpinner = () => {
+  const spinnerChars = ['|', '/', '-', '\\'];
+  let i = 0;
+
+  const spinnerInterval = setInterval(() => {
+    process.stdout.write(`\r${spinnerChars[i]}`);
+    i = (i + 1) % spinnerChars.length;
+  }, 100);
+
+  return () => clearInterval(spinnerInterval);
+};
+
+// Start console spinner
+const stopSpinner = startSpinner();
 
 const processJobScraping = async (params) => {
   // Variables (destructured & normal)
@@ -36,9 +47,7 @@ const processJobScraping = async (params) => {
     const arrScrapedJobs = await scrapeJobs(scrapeJobsParams);
 
     // Guard clause (no jobs)
-    if (!arrScrapedJobs.length) {
-      return;
-    }
+    if (!arrScrapedJobs.length) return null;
 
     // Push listings into an array
     arrScrapedJobs.forEach((objScrapedJob) => {
@@ -70,14 +79,14 @@ const processJobScraping = async (params) => {
   }
 };
 
-const executeJobSearch = async (searchTerms, index = 0) => {
+const pushListings = async (arrCompletedListings, searchTerms, index = 0) => {
   // Create a new page
   const page = await browser.newPage();
 
   // Get the current config
   const currentConfig = configs[index];
 
-  // Wrap runScrapingTasks parameters into an object
+  // Wrap processJobScraping parameters into an object
   const processJobScrapingParams = { currentConfig, page, searchTerms };
 
   try {
@@ -86,7 +95,7 @@ const executeJobSearch = async (searchTerms, index = 0) => {
       processJobScrapingParams
     );
 
-    // Push truthy listings
+    // Push truthy listings (needed for listings that are null in processJobListings)
     if (objProcessedListings) arrCompletedListings.push(objProcessedListings);
 
     // Close the current page
@@ -96,22 +105,11 @@ const executeJobSearch = async (searchTerms, index = 0) => {
     const hasAnotherConfig = index < configs.length - 1;
 
     // Base case
-    if (hasAnotherConfig) await executeJobSearch(searchTerms, ++index);
+    if (hasAnotherConfig)
+      await pushListings(arrCompletedListings, searchTerms, ++index);
   } catch (err) {
-    console.error('\nUnexpected error in function runScrapingTasks:\n\n', err);
+    console.error('\nUnexpected error in function executeJobSearch:\n\n', err);
   }
 };
 
-function startSpinner() {
-  const spinnerChars = ['|', '/', '-', '\\'];
-  let i = 0;
-
-  const spinnerInterval = setInterval(() => {
-    process.stdout.write(`\r${spinnerChars[i]}`);
-    i = (i + 1) % spinnerChars.length;
-  }, 100);
-
-  return () => clearInterval(spinnerInterval);
-}
-
-export default runExecuteJobSearch;
+export default getCompletedListings;

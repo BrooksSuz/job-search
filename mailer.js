@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
-import runExecuteJobSearch from './execute-job-search.js';
+import getCompletedListings from './get-completed-listings.js';
 
-const arrCompletedListings = await runExecuteJobSearch([
+const arrCompletedListings = await getCompletedListings([
   'web',
   'developer',
   'instru',
@@ -19,17 +19,19 @@ const formattedListings = arrCompletedListings
       });
 
       const finished = `
-      <div>
-        <h2>Results for ${uniName}:</h2>\n
-        <ul>
-          ${arrAnchors.map((anchor) => `<li>${anchor}</li>`).join('')}
-        </ul>
-      </div>
-    `;
+        <div>
+          <h2>Results for ${uniName}:</h2>\n
+          <ul>
+            ${arrAnchors.map((anchor) => `<li>${anchor}</li>`).join('')}
+          </ul>
+        </div>
+      `;
       return finished;
     }
   })
   .join('');
+
+const html = `<div><h1>Your Morning's Scraped Listings: </h1>${formattedListings}</div>`;
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.ethereal.email',
@@ -44,9 +46,7 @@ const mailOptions = {
   from: 'delta.kemmer@ethereal.email',
   to: 'susorbrooks@gmail.com',
   subject: "Your Morning's Scraped Listings",
-  html: `
-    <h1>Your Morning's Scraped Listings:</h1>${formattedListings}
-  `,
+  html: html,
 };
 
 transporter.sendMail(mailOptions, (err, info) => {

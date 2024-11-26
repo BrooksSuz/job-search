@@ -7,7 +7,7 @@ async function getFilteredJobs(getFilteredJobsParams) {
 
     return arrFilteredJobs;
   } catch (err) {
-    console.error('\nError with function getFilteredJobs:\n\n', err);
+    console.error('\nUnexpected error in function getFilteredJobs:\n\n', err);
     return [];
   }
 }
@@ -25,7 +25,7 @@ const createDataObject = async (params) => {
 
     return objJobData;
   } catch (err) {
-    console.error('\nError with function createDataObject:\n\n', err);
+    console.error('\nUnexpected error in function createDataObject:\n\n', err);
   }
 };
 
@@ -69,7 +69,7 @@ const filterJobs = async (params) => {
 
     return arrFilteredJobs;
   } catch (err) {
-    console.error('\nError with function filterJobs:\n\n', err);
+    console.error('\nUnexpected error in function filterJobs:\n\n', err);
   }
 };
 
