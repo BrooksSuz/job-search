@@ -1,20 +1,20 @@
 import nodemailer from 'nodemailer';
-import getCompletedListings from './get-completed-listings.js';
+import executeJobSearch from './scraper.js';
 
-const arrCompletedListings = await getCompletedListings(['assis']);
+const arrCompletedListings = await executeJobSearch(['assis']);
 
 const formattedListings = arrCompletedListings
-	.map((objUni) => {
-		const [[uniName, arrUniObjects]] = Object.entries(objUni);
-		if (arrUniObjects) {
-			const arrAnchors = arrUniObjects.map((listing) => {
-				const [[title, url]] = Object.entries(listing);
-				if (listing) {
-					return `<a href='${url}' target='_blank'>${title}</a>`;
-				}
-			});
+  .map((objUni) => {
+    const [[uniName, arrUniObjects]] = Object.entries(objUni);
+    if (arrUniObjects) {
+      const arrAnchors = arrUniObjects.map((listing) => {
+        const [[title, url]] = Object.entries(listing);
+        if (listing) {
+          return `<a href='${url}' target='_blank'>${title}</a>`;
+        }
+      });
 
-			const finished = `
+      const finished = `
         <div>
           <h2>Results for ${uniName}:</h2>\n
           <ul>
@@ -22,14 +22,14 @@ const formattedListings = arrCompletedListings
           </ul>
         </div>
       `;
-			return finished;
-		}
-	})
-	.join('');
+      return finished;
+    }
+  })
+  .join('');
 
 const html = `<div><h1>Your Morning's Scraped Listings: </h1>${formattedListings}</div>`;
 
-const transporter = nodemailer.createTransport({
+/* const transporter = nodemailer.createTransport({
 	host: 'smtp.ethereal.email',
 	port: 587,
 	auth: {
@@ -48,4 +48,4 @@ const mailOptions = {
 transporter.sendMail(mailOptions, (err, info) => {
 	if (err) return console.error('Error:', err);
 	console.log('Email sent:', info.response);
-});
+}); */

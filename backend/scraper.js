@@ -1,6 +1,6 @@
 import puppeteer from 'puppeteer';
-import scrapeJobs from './functions/scrape-jobs.js';
-import configs from './job-search-configs.js';
+import scrapeJobs from '../functions/scrape-jobs.js';
+import configs from '../job-search-configs.js';
 import connectToDB from './db.js';
 
 async function insertJobListings(orgName, listings) {
