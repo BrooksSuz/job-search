@@ -1,4 +1,4 @@
-async function navigateToNextPage(params) {
+async function navigateSite(params) {
   const {
     page,
     canWaitForNavigation,
@@ -34,7 +34,7 @@ async function navigateToNextPage(params) {
   const isSuccessfulNavigation = await runNavigationActions(navigateParams);
 
   // Base case
-  if (isSuccessfulNavigation) return navigateToNextPage(params);
+  if (isSuccessfulNavigation) return navigateSite(params);
 }
 
 const logSpecificError = (params) => {
@@ -163,4 +163,4 @@ const runNavigationActions = async (params) => {
   }
 };
 
-export default navigateToNextPage;
+export default navigateSite;

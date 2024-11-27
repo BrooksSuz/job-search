@@ -1,6 +1,6 @@
 import checkConsent from './check-consent.js';
-import getFilteredJobs from './get-filtered-jobs.js';
-import navigateToNextPage from './navigate-to-next-page.js';
+import getJobs from './get-jobs.js';
+import navigateSite from './navigate-site.js';
 
 async function scrapeJobs(scapeJobsParams) {
   const { page, searchTerms, configPairs } = scapeJobsParams;
@@ -30,13 +30,13 @@ async function scrapeJobs(scapeJobsParams) {
   await checkConsent(checkConsentParams);
 
   // Create an array with jobs matching provided search terms
-  const arrScrapedJobs = await getFilteredJobs(getFilteredJobsParams);
+  const arrScrapedJobs = await getJobs(getFilteredJobsParams);
 
   // Recursively navigate each page
-  await navigateToNextPage(navigateToNextPageParams);
+  await navigateSite(navigateToNextPageParams);
 
   // Get the jobs on the final page
-  arrScrapedJobs.push(...(await getFilteredJobs(getFilteredJobsParams)));
+  arrScrapedJobs.push(...(await getJobs(getFilteredJobsParams)));
 
   // Alphabetically sort the listings
   const sortedScrapedJobs = alphabetizeScrapedJobs(arrScrapedJobs);

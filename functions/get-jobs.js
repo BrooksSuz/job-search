@@ -1,4 +1,4 @@
-async function getFilteredJobs(getFilteredJobsParams) {
+async function getJobs(getFilteredJobsParams) {
   const { page, jobTitleLink, searchTerms } = getFilteredJobsParams;
   try {
     const jobElements = await page.$$(jobTitleLink);
@@ -73,4 +73,4 @@ const filterJobs = async (params) => {
   }
 };
 
-export default getFilteredJobs;
+export default getJobs;
