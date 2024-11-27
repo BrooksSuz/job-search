@@ -1,15 +1,23 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, ServerApiVersion } from 'mongodb';
 
-const uri = 'mongodb://localhost:27017'; // Default MongoDB URI
-const client = new MongoClient(uri);
+const uri =
+	'mongodb+srv://BrooksSuz:W4pOz0uC6DIlQoYq@job-scraper-cluster.annto.mongodb.net/?retryWrites=true&w=majority&appName=job-scraper-cluster';
+
+const client = new MongoClient(uri, {
+	serverApi: {
+		version: ServerApiVersion.v1,
+		strict: true,
+		deprecationErrors: true,
+	},
+});
 
 async function connectToDB() {
 	try {
 		await client.connect();
 		console.log('Connected to MongoDB');
 		return client.db('job_scraper'); // Replace with your database name
-	} catch (error) {
-		console.error('MongoDB connection error:', error);
+	} catch (err) {
+		console.error('Unexpected error in function connectToDB:', err);
 	}
 }
 
