@@ -1,6 +1,6 @@
 import puppeteer from 'puppeteer';
-import scrapeJobs from '../functions/scrape-jobs.js';
-import configs from '../job-search-configs.js';
+import scrapeJobs from './functions/scrape-jobs.js';
+import configs from './job-search-configs.js';
 import connectToDB from './db.js';
 
 async function insertJobListings(orgName, listings) {
@@ -38,6 +38,9 @@ const updateDatabase = async (arr) => {
 };
 
 async function executeJobSearch(searchTerms) {
+  // Start console spinner
+  const stopSpinner = startSpinner();
+
   let browser;
   try {
     browser = await puppeteer.launch();
@@ -56,26 +59,50 @@ async function executeJobSearch(searchTerms) {
       browser,
       sortedConfigs
     );
-    return arrCompletedListings;
+
+    const divListings = arrCompletedListings
+      .map((objUni) => {
+        const [[uniName, arrUniObjects]] = Object.entries(objUni);
+        if (arrUniObjects) {
+          const arrAnchors = arrUniObjects.map((listing) => {
+            const [[title, url]] = Object.entries(listing);
+            if (listing) {
+              return `<a href='${url}' target='_blank'>${title}</a>`;
+            }
+          });
+
+          const finished = `
+            <div class='org-container'>
+              <h2>Results for ${uniName}:</h2>\n
+              <ul>
+                ${arrAnchors.map((anchor) => `<li>${anchor}</li>`).join('')}
+              </ul>
+            </div>
+          `;
+          return finished;
+        }
+      })
+      .join('');
+    return divListings;
   } catch (err) {
     console.error('\nUnexpected error in function executeJobSearch:\n\n', err);
   } finally {
     stopSpinner();
     await browser.close();
-    await updateDatabase(arrCompletedListings);
+    // await updateDatabase(arrCompletedListings);
   }
 }
 
-const alphabetizeConfigs = (arr) => {
+function alphabetizeConfigs(arr) {
   const sortedArr = arr.sort((a, b) => {
     if (a.uniName < b.uniName) return -1;
     if (a.uniName > b.uniName) return 1;
     return 0;
   });
   return sortedArr;
-};
+}
 
-const startSpinner = () => {
+function startSpinner() {
   const spinnerChars = ['|', '/', '-', '\\'];
   let i = 0;
 
@@ -85,12 +112,9 @@ const startSpinner = () => {
   }, 100);
 
   return () => clearInterval(spinnerInterval);
-};
+}
 
-// Start console spinner
-const stopSpinner = startSpinner();
-
-const processJobScraping = async (params) => {
+async function processJobScraping(params) {
   // Variables (destructured & normal)
   const { currentConfig, page, searchTerms } = params;
   const { url, uniName, ...configPairs } = currentConfig;
@@ -134,15 +158,15 @@ const processJobScraping = async (params) => {
       err
     );
   }
-};
+}
 
-const pushListings = async (
+async function pushListings(
   arrCompletedListings,
   searchTerms,
   browser,
   sortedConfigs,
   index = 0
-) => {
+) {
   // Create a new page
   const page = await browser.newPage();
 
@@ -180,6 +204,6 @@ const pushListings = async (
     console.error('\nUnexpected error in function executeJobSearch:\n\n', err);
     await page.close();
   }
-};
+}
 
 export default executeJobSearch;
