@@ -11,14 +11,14 @@ const client = new MongoClient(uri, {
 	},
 });
 
-async function connectToDB() {
+const connectToDB = async () => {
 	try {
 		await client.connect();
 		console.log('Connected to MongoDB');
-		return client.db('job_scraper'); // Replace with your database name
+		return client.db('job_scraper');
 	} catch (err) {
 		console.error('Unexpected error in function connectToDB:', err);
 	}
-}
+};
 
 export default connectToDB;
