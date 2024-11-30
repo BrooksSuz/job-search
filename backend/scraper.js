@@ -10,10 +10,9 @@ import {
 async function executeJobSearch(strSearchTerms, arrConfigs) {
 	const browser = await createBrowser();
 	const { searchTerms, configs } = formatArguments(strSearchTerms, arrConfigs);
-	const orgListings = [];
 
 	try {
-		await pushListings(orgListings, searchTerms, browser, configs);
+		const orgListings = await getListings(searchTerms, browser, configs);
 		const divListings = createHtmlListings(orgListings);
 		return divListings;
 	} catch (err) {
@@ -50,11 +49,11 @@ const alphabetizeConfigs = (arr) => {
 	return sortedArr;
 };
 
-const pushListings = async (
-	orgListings,
+const getListings = async (
 	searchTerms,
 	browser,
 	configs,
+	orgListings = [],
 	index = 0
 ) => {
 	// Create a new page
@@ -82,8 +81,11 @@ const pushListings = async (
 		const hasAnotherConfig = index < configs.length - 1;
 
 		// Base case
-		if (hasAnotherConfig)
-			await pushListings(orgListings, searchTerms, browser, configs, ++index);
+		if (hasAnotherConfig) {
+			await getListings(searchTerms, browser, configs, orgListings, ++index);
+		} else {
+			return orgListings;
+		}
 	} catch (err) {
 		console.error('\nUnexpected error in function executeJobSearch:\n\n', err);
 		await page.close();
