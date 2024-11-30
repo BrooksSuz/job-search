@@ -1,7 +1,7 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import executeJobSearch from './scraper.js';
+import executeJobSearch from './main.js';
 
 const fileName = fileURLToPath(import.meta.url);
 const dirName = path.dirname(fileName);

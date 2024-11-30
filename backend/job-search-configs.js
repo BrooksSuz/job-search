@@ -1,6 +1,6 @@
 const em = {
 	url: 'https://careers.emich.edu/jobs/search',
-	uniName: 'Eastern Michigan',
+	name: 'Eastern Michigan',
 	canWaitForNavigation: true,
 	consentButton: 'button#consent_agree',
 	errMessages: 'Node is either not clickable or not an Element',
@@ -13,7 +13,7 @@ const em = {
 
 const um = {
 	url: 'https://careers.umich.edu/browse-jobs/positions/F',
-	uniName: 'University of Michigan',
+	name: 'University of Michigan',
 	canWaitForNavigation: true,
 	consentButton: '',
 	errMessages: "Waiting for selector `a[title='Go to next page']`",
@@ -26,7 +26,7 @@ const um = {
 
 const ut = {
 	url: 'https://careers.utoledo.edu/cw/en-us/listing/',
-	uniName: 'University of Toledo',
+	name: 'University of Toledo',
 	canWaitForNavigation: false,
 	consentButton: '',
 	errMessages: 'Node is either not clickable or not an Element',
@@ -39,7 +39,7 @@ const ut = {
 
 const bg = {
 	url: 'https://www.schooljobs.com/careers/bgsu',
-	uniName: 'Bowling Green State University',
+	name: 'Bowling Green State University',
 	canWaitForNavigation: false,
 	consentButton: '',
 	errMessages: '',
@@ -53,7 +53,7 @@ const bg = {
 
 const owens = {
 	url: 'https://owens.wd1.myworkdayjobs.com/OCC',
-	uniName: 'Owens Community College',
+	name: 'Owens Community College',
 	canWaitForNavigation: false,
 	consentButton: '',
 	errMessages: 'Waiting for selector `button[aria-label="next"]`',
@@ -67,7 +67,7 @@ const owens = {
 
 const osu = {
 	url: 'https://osu.wd1.myworkdayjobs.com/OSUCareers',
-	uniName: 'Ohio State University',
+	name: 'Ohio State University',
 	canWaitForNavigation: false,
 	consentButton: '',
 	errMessages: 'Waiting for selector `button[aria-label="next"]`',

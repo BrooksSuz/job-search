@@ -1,0 +1,35 @@
+import puppeteer from 'puppeteer';
+import getSiteListings from './main-utils/browser.js';
+import formatArguments from './main-utils/config.js';
+import createHtmlListings from './main-utils/html.js';
+import updateDatabase from './main-utils/database.js';
+
+async function executeJobSearch(strSearchTerms, arrConfigs) {
+	const browser = await createBrowser();
+	const { searchTerms, configs } = formatArguments(strSearchTerms, arrConfigs);
+
+	try {
+		const siteListings = await getSiteListings(searchTerms, browser, configs);
+		const divListings = createHtmlListings(siteListings);
+
+		// Optionally update the database with results
+		// await updateDatabase(siteListings);
+
+		return divListings;
+	} catch (err) {
+		console.error('\nUnexpected error in executeJobSearch:', err);
+	} finally {
+		await browser.close();
+	}
+}
+
+const createBrowser = async () => {
+	try {
+		return await puppeteer.launch();
+	} catch (err) {
+		console.error('\nError launching the browser:', err);
+		throw err;
+	}
+};
+
+export default executeJobSearch;
