@@ -18,7 +18,7 @@ btnGetJobs.addEventListener('click', () => {
 	const divSpinner = document.querySelector('.spinner');
 	const arrKeys = [
 		'url',
-		'uniName',
+		'name',
 		'canWaitForNavigation',
 		'consentButton',
 		'errMessages',
@@ -34,7 +34,11 @@ btnGetJobs.addEventListener('click', () => {
 	const inputAdvancedValues = Array.from(advancedInputs).map(
 		(inputAdvanced, index) => {
 			const key = encodeURIComponent(arrKeys[index]);
-			const value = encodeURIComponent(inputAdvanced.value);
+			const value =
+				arrKeys[index] === 'canWaitForNavigation' ||
+				arrKeys[index] === 'isAnchor'
+					? encodeURIComponent(inputAdvanced.checked)
+					: encodeURIComponent(inputAdvanced.value);
 			return `${key}=${value}`;
 		}
 	);

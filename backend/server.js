@@ -1,7 +1,7 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import executeJobSearch from './scraper.js';
+import executeJobSearch from './main.js';
 
 const fileName = fileURLToPath(import.meta.url);
 const dirName = path.dirname(fileName);
@@ -14,6 +14,7 @@ app.get('/api/jobs', (req, res) => {
 	const advancedParams = { ...req.query }; // Extract other query parameters
 	delete advancedParams.keywords;
 	const configs = [advancedParams];
+	console.log(configs);
 	executeJobSearch(keywords, configs)
 		.then((jobs) => res.json(jobs))
 		.catch((err) => res.status(500).json({ error: 'Failed to scrape jobs' }));
