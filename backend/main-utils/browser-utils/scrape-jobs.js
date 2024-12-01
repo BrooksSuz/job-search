@@ -2,7 +2,7 @@ import getJobs from './get-jobs.js';
 import navigateSite from './navigate-site.js';
 
 async function scrapeJobs(params, allScrapedJobs = []) {
-	const { page, searchTerms, configPairs } = params;
+	const { page, searchTerms, configPairs, countObj } = params;
 	const {
 		canWaitForNavigation,
 		consentButton,
@@ -33,6 +33,9 @@ async function scrapeJobs(params, allScrapedJobs = []) {
 	// Scrape jobs on the current page
 	const jobsOnPage = await getJobs(getJobsParams);
 	allScrapedJobs.push(...jobsOnPage);
+
+	// Increment scarped page count variable
+	countObj.count++;
 
 	// Attempt to navigate to the next page
 	const hasNextPage = await navigateSite(navigateToNextPageParams);

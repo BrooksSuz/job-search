@@ -6,6 +6,7 @@ import executeJobSearch from './main.js';
 const fileName = fileURLToPath(import.meta.url);
 const dirName = path.dirname(fileName);
 const app = express();
+const countObj = { count: 0 };
 
 app.use(express.static(path.join(dirName, '../public')));
 
@@ -14,9 +15,16 @@ app.get('/api/jobs', (req, res) => {
 	const advancedParams = { ...req.query };
 	delete advancedParams.keywords;
 	const configs = [advancedParams];
-	executeJobSearch(keywords, configs)
+	countObj.count = 0;
+
+	executeJobSearch(keywords, configs, countObj)
 		.then((jobs) => res.json(jobs))
 		.catch((err) => res.status(500).json({ error: 'Failed to scrape jobs' }));
+});
+
+app.get('/api/count', (req, res) => {
+	const count = countObj.count;
+	res.json({ count });
 });
 
 app.get('/', (req, res) => {

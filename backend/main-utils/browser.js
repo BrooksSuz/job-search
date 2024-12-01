@@ -1,6 +1,6 @@
 import scrapeJobs from './browser-utils/scrape-jobs.js';
 
-async function getSiteListings(searchTerms, browser, configs) {
+async function getSiteListings(searchTerms, browser, configs, countObj) {
 	const siteListings = [];
 
 	for (const config of configs) {
@@ -10,6 +10,7 @@ async function getSiteListings(searchTerms, browser, configs) {
 				config,
 				page,
 				searchTerms,
+				countObj,
 			});
 			if (result) siteListings.push(result);
 		} catch (err) {
@@ -23,10 +24,9 @@ async function getSiteListings(searchTerms, browser, configs) {
 }
 
 const processJobScraping = async (params) => {
-	// Destructure params
-	const { config, page, searchTerms } = params;
+	const { config, page, searchTerms, countObj } = params;
 	const { url, name, ...configPairs } = config;
-	const scrapeJobsParams = { page, searchTerms, configPairs };
+	const scrapeJobsParams = { page, searchTerms, configPairs, countObj };
 	const arrDesiredJobs = [];
 
 	try {

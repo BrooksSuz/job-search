@@ -4,12 +4,17 @@ import formatArguments from './main-utils/config.js';
 import createHtmlListings from './main-utils/html.js';
 import updateDatabase from './main-utils/database.js';
 
-async function executeJobSearch(strSearchTerms, arrConfigs) {
+async function executeJobSearch(strSearchTerms, arrConfigs, countObj) {
 	const browser = await createBrowser();
 	const { searchTerms, configs } = formatArguments(strSearchTerms, arrConfigs);
 
 	try {
-		const siteListings = await getSiteListings(searchTerms, browser, configs);
+		const siteListings = await getSiteListings(
+			searchTerms,
+			browser,
+			configs,
+			countObj
+		);
 		const divListings = createHtmlListings(siteListings);
 
 		// Optionally update the database with results

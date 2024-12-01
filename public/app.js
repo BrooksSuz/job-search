@@ -61,6 +61,7 @@ btnGetJobs.addEventListener('click', () => {
 		}
 	);
 	const advancedParams = inputAdvancedValues.join('&');
+	const stopCount = updateCount();
 	const stopSpinner = startSpinner(divSpinner);
 
 	fetch(`/api/jobs?input=${inputKeywordsValue}&${advancedParams}`)
@@ -74,6 +75,7 @@ btnGetJobs.addEventListener('click', () => {
 		})
 		.finally(() => {
 			divSpinner.classList.remove('show');
+			stopCount();
 			stopSpinner();
 		});
 });
@@ -89,4 +91,20 @@ function startSpinner(divSpinner) {
 	}, 100);
 
 	return () => clearInterval(spinnerInterval);
+}
+
+function updateCount() {
+	let i = 0;
+	const counterInterval = setInterval(() => {
+		fetch('/api/count')
+			.then((response) => response.json())
+			.then((data) => {
+				document.getElementById(
+					'count'
+				).textContent = `Pages Scraped: ${data.count}`;
+			})
+			.catch((error) => console.error('Error fetching count:', error));
+	}, 500);
+
+	return () => clearInterval(counterInterval);
 }
