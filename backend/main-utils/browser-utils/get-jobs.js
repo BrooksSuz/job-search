@@ -40,7 +40,7 @@ const findMatch = (params) => {
 const formatJobText = (text) =>
 	text
 		.toLowerCase()
-		.replace(/\b\w/g, (char) => char.toUpperCase())
+		.replace(/(?<!')\b\w/g, (char) => char.toUpperCase())
 		.trim();
 
 const filterJobs = async (params) => {

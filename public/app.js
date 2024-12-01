@@ -1,5 +1,23 @@
+import configs from './job-search-configs.js';
+
 const btnGetJobs = document.querySelector('.get-jobs');
 const h3Advanced = document.querySelector('.container-advanced > h3');
+
+document.addEventListener('DOMContentLoaded', () => {
+	const inputs = document.querySelectorAll('.advanced-inputs > label input');
+
+	configs.forEach((config) => {
+		let index = 0;
+		for (const key in config) {
+			if (key === 'canWaitForNavigation' || key === 'isAnchor') {
+				inputs[index].checked = config[key];
+			} else {
+				inputs[index].value = config[key];
+			}
+			index++;
+		}
+	});
+});
 
 h3Advanced.addEventListener('click', () => {
 	const divAdvancedInputsClassList =

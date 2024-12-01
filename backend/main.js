@@ -5,7 +5,7 @@ import createHtmlListings from './main-utils/html.js';
 import updateDatabase from './main-utils/database.js';
 
 async function executeJobSearch(strSearchTerms, arrConfigs) {
-	const browser = await createBrowser();
+	const browser = await createBrowser(false);
 	const { searchTerms, configs } = formatArguments(strSearchTerms, arrConfigs);
 
 	try {
@@ -17,17 +17,18 @@ async function executeJobSearch(strSearchTerms, arrConfigs) {
 
 		return divListings;
 	} catch (err) {
-		console.error('\nUnexpected error in executeJobSearch:', err);
+		console.error('\nUnexpected error in executeJobSearch:\n\n', err);
 	} finally {
 		await browser.close();
+		console.log('All done :D');
 	}
 }
 
-const createBrowser = async () => {
+const createBrowser = async (headless = true) => {
 	try {
-		return await puppeteer.launch();
+		return await puppeteer.launch({ headless: headless });
 	} catch (err) {
-		console.error('\nError launching the browser:', err);
+		console.error('\nUnexpected error in createBrowser:', err);
 		throw err;
 	}
 };

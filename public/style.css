@@ -55,7 +55,7 @@ h3 {
   user-select: none;
 }
 
-h3:hover {
+.container-advanced > h3:hover {
   cursor: pointer;
 }
 
