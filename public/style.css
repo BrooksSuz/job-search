@@ -15,16 +15,38 @@
   flex: 3;
 }
 
+.container-advanced > h3:hover {
+  cursor: pointer;
+}
+
 .container-get-jobs {
   display: flex;
+  position: sticky;
+  top: 0;
+  padding: 10px;
+  background-color: darkslategrey;
+  text-align: center;
+  z-index: 1000;
+}
+
+.container-get-jobs > * {
+  margin-right: 20px;
 }
 
 .container-get-jobs > label {
   display: flex;
-}nth-
+}
 
 .container-get-jobs > label > input {
   flex: 1;
+}
+
+.container-main {
+  align-items: center;
+}
+
+.container-main * > {
+  max-width: 375px;
 }
 
 .job-list {
@@ -47,16 +69,8 @@
   flex-direction: column;
 }
 
-body > * {
-  max-width: 375px;
-}
-
 h3 {
   user-select: none;
-}
-
-.container-advanced > h3:hover {
-  cursor: pointer;
 }
 
 a:visited {

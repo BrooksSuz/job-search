@@ -15,10 +15,9 @@ async function scrapeJobs(params, allScrapedJobs = []) {
 	} = configPairs;
 
 	const checkConsentParams = { page, consentButton };
-	if (allScrapedJobs.length === 0) {
-		// Check consent only on the first call
-		await checkConsent(checkConsentParams);
-	}
+
+	// Check consent only on the first call
+	if (allScrapedJobs.length === 0) await checkConsent(checkConsentParams);
 
 	const getJobsParams = { page, jobTitleLink, searchTerms };
 	const navigateToNextPageParams = {

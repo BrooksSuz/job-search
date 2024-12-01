@@ -5,7 +5,7 @@ import createHtmlListings from './main-utils/html.js';
 import updateDatabase from './main-utils/database.js';
 
 async function executeJobSearch(strSearchTerms, arrConfigs) {
-	const browser = await createBrowser(false);
+	const browser = await createBrowser();
 	const { searchTerms, configs } = formatArguments(strSearchTerms, arrConfigs);
 
 	try {

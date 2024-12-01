@@ -10,8 +10,8 @@ const app = express();
 app.use(express.static(path.join(dirName, '../public')));
 
 app.get('/api/jobs', (req, res) => {
-	const keywords = req.query.input; // The main input
-	const advancedParams = { ...req.query }; // Extract other query parameters
+	const keywords = req.query.input;
+	const advancedParams = { ...req.query };
 	delete advancedParams.keywords;
 	const configs = [advancedParams];
 	executeJobSearch(keywords, configs)
