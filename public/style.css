@@ -24,32 +24,34 @@
 }
 
 .container-get-jobs {
-  display: flex;
+  width: 375px;
   position: sticky;
   top: 0;
-  padding: 10px;
+  padding: 5px;
   background-color: darkslategrey;
-  text-align: center;
-  z-index: 1000;
+}
+
+.container-get-jobs {
+  gap: 0.2rem;
 }
 
 .container-get-jobs > * {
-  margin-right: 20px;
-}
-
-.container-get-jobs > label {
-  display: flex;
+  align-self: center;
 }
 
 .container-get-jobs > label > input {
   flex: 1;
 }
 
+.container-content {
+  align-items: center;
+}
+
 .container-main {
   align-items: center;
 }
 
-.container-main * > {
+.container-main > * {
   max-width: 375px;
 }
 

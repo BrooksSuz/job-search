@@ -21,85 +21,94 @@
     <title>Job Listings</title>
   </head>
   <body>
-    <h1>Find Those Jobs!</h1>
-    <div class="container-get-jobs">
-      <label
-        ><h3>Keywords:</h3>
-        <input
-          class="keywords"
-          type="text"
-          placeholder="instructor, plumber, etc."
-        />
-      </label>
-      <button
-        class="get-jobs"
-        type="button"
-      >
-        <span class="get-jobs-text">Get Jobs</span>
-        <span class="spinner"></span>
-      </button>
-
-      <div id="count"></div>
-    </div>
     <div class="container-main flex">
-      <div class="container-advanced">
-        <h3>Advanced Settings</h3>
-        <div class="advanced-inputs">
-          <label>
-            <h3>Url:</h3>
-            <input type="text" />
-          </label>
-          <label>
-            <h3>Name:</h3>
-            <input type="text"
-          /></label>
-          <label>
-            <h3>Navigate:</h3>
-            <input type="checkbox" />
-          </label>
-          <label>
-            <h3>Consent:</h3>
-            <input
-              type="text"
-              placeholder="Is there a consent popup?"
-            />
-          </label>
-          <label>
-            <h3>Error:</h3>
-            <input
-              type="text"
-              placeholder="Separate with commas"
-            />
-          </label>
-          <label>
-            <h3>Is Anchor:</h3>
-            <input type="checkbox" />
-          </label>
-          <label>
-            <h3>Job Element:</h3>
-            <input type="text" />
-          </label>
-          <label>
-            <h3>Disabled:</h3>
-            <input
-              type="text"
-              placeholder="If there is one."
-            />
-          </label>
-          <label>
-            <h3>Next Page:</h3>
-            <input type="text" />
-          </label>
-          <label>
-            <h3>Next Page Parent:</h3>
-            <input
-              type="text"
-              placeholder="If there is one."
-            />
-          </label>
+      <h1>Find Those Jobs!</h1>
+      <div class="container-get-jobs flex">
+        <div>
+          <label for="keywords">Keywords:</label>
+          <input
+            id="keywords"
+            class="keywords"
+            type="text"
+            placeholder="instructor, plumber, etc."
+          />
+          <button
+            class="get-jobs"
+            type="button"
+          >
+            <span
+              class="get-jobs-text"
+              aria-label="Get Jobs"
+              >Get Jobs</span
+            >
+            <span
+              class="spinner"
+              aria-hidden="true"
+            ></span>
+          </button>
         </div>
+        <div id="count">Pages Scraped: 0</div>
       </div>
-      <div class="job-list"></div>
+      <div class="container-content flex">
+        <div class="container-advanced">
+          <h3>Advanced Settings</h3>
+          <div class="advanced-inputs">
+            <label>
+              <h3>Url:</h3>
+              <input type="text" />
+            </label>
+            <label>
+              <h3>Name:</h3>
+              <input type="text"
+            /></label>
+            <label>
+              <h3>Navigate:</h3>
+              <input type="checkbox" />
+            </label>
+            <label>
+              <h3>Consent:</h3>
+              <input
+                type="text"
+                placeholder="Is there a consent popup?"
+              />
+            </label>
+            <label>
+              <h3>Error:</h3>
+              <input
+                type="text"
+                placeholder="Separate with commas"
+              />
+            </label>
+            <label>
+              <h3>Is Anchor:</h3>
+              <input type="checkbox" />
+            </label>
+            <label>
+              <h3>Job Element:</h3>
+              <input type="text" />
+            </label>
+            <label>
+              <h3>Disabled:</h3>
+              <input
+                type="text"
+                placeholder="If there is one."
+              />
+            </label>
+            <label>
+              <h3>Next Page:</h3>
+              <input type="text" />
+            </label>
+            <label>
+              <h3>Next Page Parent:</h3>
+              <input
+                type="text"
+                placeholder="If there is one."
+              />
+            </label>
+          </div>
+        </div>
+        <div class="job-list"></div>
+      </div>
     </div>
     <script
       type="module"
