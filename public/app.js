@@ -33,6 +33,7 @@ h3Advanced.addEventListener('click', () => {
 btnGetJobs.addEventListener('click', () => {
   const inputKeywords = document.querySelector('.keywords');
   const inputKeywordsValue = encodeURIComponent(inputKeywords.value);
+  const spanBtnJobsText = document.querySelector('.get-jobs-text');
   const divSpinner = document.querySelector('.spinner');
   const arrKeys = [
     'url',
@@ -61,6 +62,8 @@ btnGetJobs.addEventListener('click', () => {
   );
   const advancedParams = inputAdvancedValues.join('&');
   const stopCount = updateCount();
+  btnGetJobs.disabled = true;
+  spanBtnJobsText.style.display = 'none';
   const stopSpinner = startSpinner(divSpinner);
 
   fetch(`/api/jobs?input=${inputKeywordsValue}&${advancedParams}`)
@@ -76,6 +79,8 @@ btnGetJobs.addEventListener('click', () => {
       divSpinner.classList.remove('show');
       stopCount();
       stopSpinner();
+      btnGetJobs.disabled = false;
+      spanBtnJobsText.style.display = 'inline';
     });
 });
 

@@ -53,6 +53,14 @@
   max-width: 375px;
 }
 
+.container-org ul {
+  gap: 0.3rem;
+}
+
+.get-jobs {
+  min-width: 56px;
+}
+
 .job-list {
   display: flex;
   flex-direction: column;
@@ -61,7 +69,6 @@
 
 .spinner {
   display: none;
-  font-size: 1.2rem;
 }
 
 .show {

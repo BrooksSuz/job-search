@@ -54,7 +54,7 @@ const bg = {
 const owens = {
   url: 'https://owens.wd1.myworkdayjobs.com/OCC',
   name: 'Owens Community College',
-  canWait: true,
+  canWait: false,
   consent: '',
   errMessages: 'Waiting for selector `button[aria-label="next"]`',
   isAnchor: false,
@@ -68,7 +68,7 @@ const owens = {
 const osu = {
   url: 'https://osu.wd1.myworkdayjobs.com/OSUCareers',
   name: 'Ohio State University',
-  canWait: true,
+  canWait: false,
   consent: '',
   errMessages: 'Waiting for selector `button[aria-label="next"]`',
   isAnchor: false,
@@ -79,6 +79,6 @@ const osu = {
   nextPageParent: '',
 };
 
-const configs = [owens];
+const configs = [ut];
 
 export default configs;
