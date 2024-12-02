@@ -1,70 +1,70 @@
 async function getJobs(getFilteredJobsParams) {
-	const { page, jobTitleLink, searchTerms } = getFilteredJobsParams;
-	try {
-		const jobElements = await page.$$(jobTitleLink);
-		const filterJobsParams = { page, jobElements, searchTerms };
-		const arrFilteredJobs = await filterJobs(filterJobsParams);
-		return arrFilteredJobs;
-	} catch (err) {
-		console.error('\nUnexpected error in function getJobs:\n\n', err);
-		return [];
-	}
+  const { page, jobListing, searchTerms } = getFilteredJobsParams;
+  try {
+    const jobElements = await page.$$(jobListing);
+    const filterJobsParams = { page, jobElements, searchTerms };
+    const arrFilteredJobs = await filterJobs(filterJobsParams);
+    return arrFilteredJobs;
+  } catch (err) {
+    console.error('\nUnexpected error in function getJobs:\n\n', err);
+    return [];
+  }
 }
 
 const createDataObject = async (params) => {
-	const { page, jobElement } = params;
-	try {
-		const objJobData = await page.evaluate(
-			(el) => ({
-				textContent: el.textContent,
-				href: el.href,
-			}),
-			jobElement
-		);
-		return objJobData;
-	} catch (err) {
-		console.error('\nUnexpected error in function createDataObject:\n\n', err);
-	}
+  const { page, jobElement } = params;
+  try {
+    const objJobData = await page.evaluate(
+      (el) => ({
+        textContent: el.textContent,
+        href: el.href,
+      }),
+      jobElement
+    );
+    return objJobData;
+  } catch (err) {
+    console.error('\nUnexpected error in function createDataObject:\n\n', err);
+  }
 };
 
 const findMatch = (params) => {
-	const { text, term } = params;
-	const lowerCaseText = text.toLowerCase();
-	const lowerCaseTerm = term.toLowerCase();
-	const isMatch =
-		lowerCaseText.includes(lowerCaseTerm) ||
-		lowerCaseTerm.includes(lowerCaseText);
-	return isMatch;
+  const { text, term } = params;
+  const lowerCaseText = text.toLowerCase();
+  const lowerCaseTerm = term.toLowerCase();
+  const isMatch =
+    lowerCaseText.includes(lowerCaseTerm) ||
+    lowerCaseTerm.includes(lowerCaseText);
+  return isMatch;
 };
 
 const formatJobText = (text) =>
-	text
-		.toLowerCase()
-		.replace(/(?<!')\b\w/g, (char) => char.toUpperCase())
-		.trim();
+  text
+    .toLowerCase()
+    .replace(/(?<!')\b\w/g, (char) => char.toUpperCase())
+    .trim();
 
 const filterJobs = async (params) => {
-	const { page, jobElements, searchTerms } = params;
-	try {
-		const promise = jobElements.map(async (jobElement) => {
-			const createDataObjectParams = { page, jobElement };
-			const objJobData = await createDataObject(createDataObjectParams);
-			const text = objJobData.textContent;
-			const isMatch = searchTerms.some((term) => {
-				const findMatchParams = { text, term };
-				return findMatch(findMatchParams);
-			});
-			const title = formatJobText(text);
-			const url = objJobData.href;
-			if (isMatch) return { [title]: url };
-		});
-		const arrFilteredJobs = Promise.all(promise).then((res) =>
-			res.filter((job) => job !== undefined)
-		);
-		return arrFilteredJobs;
-	} catch (err) {
-		console.error('\nUnexpected error in function filterJobs:\n\n', err);
-	}
+  const { page, jobElements, searchTerms } = params;
+  try {
+    const promise = jobElements.map(async (jobElement) => {
+      const createDataObjectParams = { page, jobElement };
+      const objJobData = await createDataObject(createDataObjectParams);
+      const text = objJobData.textContent;
+      const isMatch = searchTerms.some((term) => {
+        const findMatchParams = { text, term };
+        return findMatch(findMatchParams);
+      });
+      const title = formatJobText(text);
+      const url = objJobData.href;
+      if (isMatch) return { [title]: url };
+    });
+    const arrFilteredJobs = Promise.all(promise).then((res) =>
+      res.filter((job) => job !== undefined)
+    );
+    return arrFilteredJobs;
+  } catch (err) {
+    console.error('\nUnexpected error in function filterJobs:\n\n', err);
+  }
 };
 
 export default getJobs;

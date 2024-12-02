@@ -3,7 +3,7 @@
   gap: 1rem;
 }
 
-.advanced-inputs > label  {
+.advanced-inputs > label {
   display: flex;
 }
 
@@ -13,6 +13,10 @@
 
 .advanced-inputs > label > *:nth-child(2) {
   flex: 3;
+}
+
+.container-advanced > h3 {
+  text-align: center;
 }
 
 .container-advanced > h3:hover {
