@@ -5,37 +5,36 @@ import createHtmlListings from './main-utils/html.js';
 import updateDatabase from './main-utils/database.js';
 
 async function executeJobSearch(strSearchTerms, arrConfigs, countObj) {
-	const browser = await createBrowser();
-	const { searchTerms, configs } = formatArguments(strSearchTerms, arrConfigs);
+  const browser = await createBrowser();
+  const { searchTerms, configs } = formatArguments(strSearchTerms, arrConfigs);
 
-	try {
-		const siteListings = await getSiteListings(
-			searchTerms,
-			browser,
-			configs,
-			countObj
-		);
-		const divListings = createHtmlListings(siteListings);
+  try {
+    const siteListings = await getSiteListings(
+      searchTerms,
+      browser,
+      configs,
+      countObj
+    );
+    const divListings = createHtmlListings(siteListings);
 
-		// Optionally update the database with results
-		// await updateDatabase(siteListings);
+    // await updateDatabase(siteListings);
 
-		return divListings;
-	} catch (err) {
-		console.error('\nUnexpected error in executeJobSearch:\n\n', err);
-	} finally {
-		await browser.close();
-		console.log('All done :D');
-	}
+    return divListings;
+  } catch (err) {
+    console.error('\nUnexpected error in executeJobSearch:\n\n', err);
+  } finally {
+    await browser.close();
+    console.log('All done :D');
+  }
 }
 
 const createBrowser = async (headless = true) => {
-	try {
-		return await puppeteer.launch({ headless: headless });
-	} catch (err) {
-		console.error('\nUnexpected error in createBrowser:', err);
-		throw err;
-	}
+  try {
+    return await puppeteer.launch({ headless: headless });
+  } catch (err) {
+    console.error('\nUnexpected error in createBrowser:', err);
+    throw err;
+  }
 };
 
 export default executeJobSearch;

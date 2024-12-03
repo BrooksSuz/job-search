@@ -11,29 +11,29 @@ const countObj = { count: 0 };
 app.use(express.static(path.join(dirName, '../public')));
 
 app.get('/api/jobs', (req, res) => {
-	const keywords = req.query.input;
-	const advancedParams = { ...req.query };
-	delete advancedParams.keywords;
-	const configs = [advancedParams];
-	countObj.count = 0;
+  const keywords = req.query.input;
+  const advancedParams = { ...req.query };
+  delete advancedParams.keywords;
+  const configs = [advancedParams];
+  countObj.count = 0;
 
-	executeJobSearch(keywords, configs, countObj)
-		.then((jobs) => res.json(jobs))
-		.catch((err) => res.status(500).json({ error: 'Failed to scrape jobs' }));
+  executeJobSearch(keywords, configs, countObj)
+    .then((jobs) => res.json(jobs))
+    .catch((err) => res.status(500).json({ error: 'Failed to scrape jobs' }));
 });
 
 app.get('/api/count', (req, res) => {
-	const count = countObj.count;
-	res.json({ count });
+  const count = countObj.count;
+  res.json({ count });
 });
 
 app.get('/', (req, res) => {
-	res.sendFile(path.join(dirName, '../public', 'index.html'));
+  res.sendFile(path.join(dirName, '../public', 'index.html'));
 });
 
 const port = 3000;
 app.listen(port, () => {
-	console.log(`Server running at http://localhost:${port}`);
+  console.log(`Server running at http://localhost:${port}`);
 });
 
 export { countObj };
