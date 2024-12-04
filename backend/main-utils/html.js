@@ -4,11 +4,13 @@ function createHtmlListings(siteListings) {
   const htmlListings = siteListings
     .map((objListings) => {
       const [[name, arrConfigObjects]] = Object.entries(objListings);
+      if (!arrConfigObjects.length) return createEmptyDiv(name);
+
       if (arrConfigObjects) {
         const anchors = arrConfigObjects.map((listing) =>
           createAnchor(listing)
         );
-        return createDiv(name, anchors);
+        return createPopulatedDiv(name, anchors);
       }
     })
     .join('');
@@ -20,13 +22,21 @@ const createAnchor = (listing) => {
   if (listing) return `<a href='${url}' target='_blank'>${title}</a>`;
 };
 
-const createDiv = (name, arrAnchors) => `
+const createPopulatedDiv = (name, arrAnchors) => `
 	<div class='container-org'>
 		<h2>Results for ${name}:</h2>
 		<p>(${countObj.count} pages scraped)</p>
 		<ul class='flex'>
 			${arrAnchors.map((anchor) => `<li>${anchor}</li>`).join('')}
 		</ul>
+	</div>
+`;
+
+const createEmptyDiv = (name) => `
+	<div class='container-org'>
+		<h2>Results for ${name}:</h2>
+		<p>(${countObj.count} pages scraped)</p>
+		<p>No results with provided keywords.</p>
 	</div>
 `;
 
