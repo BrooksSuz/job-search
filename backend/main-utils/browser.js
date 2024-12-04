@@ -1,26 +1,22 @@
 import scrapeJobs from './browser-utils/scrape-jobs.js';
 
-async function getSiteListings(searchTerms, browser, configs, countObj) {
-  const siteListings = [];
-
-  for (const config of configs) {
-    const page = await browser.newPage();
-    try {
-      const result = await processJobScraping({
-        config,
-        page,
-        searchTerms,
-        countObj,
-      });
-      siteListings.push(result);
-    } catch (err) {
-      console.error('Error in getsiteListings:', err);
-    } finally {
-      await page.close();
-    }
+async function getSiteListings(searchTerms, browser, config, countObj) {
+  const page = await browser.newPage();
+  let result;
+  try {
+    result = await processJobScraping({
+      config,
+      page,
+      searchTerms,
+      countObj,
+    });
+  } catch (err) {
+    console.error('Error in getsiteListings:', err);
+  } finally {
+    await page.close();
   }
 
-  return siteListings;
+  return result;
 }
 
 const processJobScraping = async (params) => {

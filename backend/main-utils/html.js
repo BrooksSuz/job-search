@@ -1,20 +1,12 @@
 import { countObj } from '../server.js';
 
 function createHtmlListings(siteListings) {
-  const htmlListings = siteListings
-    .map((objListings) => {
-      const [[name, arrConfigObjects]] = Object.entries(objListings);
-      if (!arrConfigObjects.length) return createEmptyDiv(name);
+  const [[name, arrConfigObjects]] = Object.entries(siteListings);
+  // Guard Clause: No listings
+  if (!arrConfigObjects.length) return createEmptyDiv(name);
 
-      if (arrConfigObjects) {
-        const anchors = arrConfigObjects.map((listing) =>
-          createAnchor(listing)
-        );
-        return createPopulatedDiv(name, anchors);
-      }
-    })
-    .join('');
-  return htmlListings;
+  const anchors = arrConfigObjects.map((listing) => createAnchor(listing));
+  return createPopulatedDiv(name, anchors);
 }
 
 const createAnchor = (listing) => {

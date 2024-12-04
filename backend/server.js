@@ -14,12 +14,11 @@ app.get('/api/jobs', (req, res) => {
   const keywords = req.query.input;
   const advancedParams = { ...req.query };
   delete advancedParams.keywords;
-  const configs = [advancedParams];
   countObj.count = 0;
 
-  executeJobSearch(keywords, configs, countObj)
-    .then((jobs) => res.json(jobs))
-    .catch(() => res.status(500).json({ error: 'Failed to scrape jobs' }));
+  executeJobSearch(keywords, advancedParams, countObj).then((jobs) =>
+    res.json(jobs)
+  );
 });
 
 app.get('/api/count', (req, res) => {
