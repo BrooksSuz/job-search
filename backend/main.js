@@ -1,12 +1,11 @@
 import puppeteer from 'puppeteer';
 import getSiteListings from './main-utils/browser.js';
-import formatArguments from './main-utils/config.js';
 import createHtmlListings from './main-utils/html.js';
 import updateDatabase from './main-utils/database.js';
 
-async function executeJobSearch(strSearchTerms, arrConfigs, countObj) {
+async function executeJobSearch(strSearchTerms, configs, countObj) {
   const browser = await createBrowser();
-  const { searchTerms, configs } = formatArguments(strSearchTerms, arrConfigs);
+  const searchTerms = formatArguments(strSearchTerms);
   let key;
   let value;
 
@@ -28,6 +27,11 @@ async function executeJobSearch(strSearchTerms, arrConfigs, countObj) {
     await browser.close();
     console.log(`Finished scraping ${key}`);
   }
+}
+
+function formatArguments(strSearchTerms) {
+  const searchTerms = strSearchTerms.split(',').map((term) => term.trim());
+  return searchTerms;
 }
 
 const createBrowser = async (headless = true) => {

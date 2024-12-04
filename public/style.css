@@ -71,6 +71,8 @@
 
 .spinner {
   display: none;
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
 }
 
 .show {
