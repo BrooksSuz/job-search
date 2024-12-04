@@ -19,7 +19,7 @@ app.get('/api/jobs', (req, res) => {
 
   executeJobSearch(keywords, configs, countObj)
     .then((jobs) => res.json(jobs))
-    .catch((err) => res.status(500).json({ error: 'Failed to scrape jobs' }));
+    .catch(() => res.status(500).json({ error: 'Failed to scrape jobs' }));
 });
 
 app.get('/api/count', (req, res) => {

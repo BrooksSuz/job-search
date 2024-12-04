@@ -1,5 +1,6 @@
 import getJobs from './get-jobs.js';
 import navigateSite from './navigate-site.js';
+import handleError from './error.js';
 
 async function scrapeJobs(params, allScrapedJobs = []) {
   const { page, searchTerms, configPairs, countObj } = params;
@@ -14,7 +15,7 @@ async function scrapeJobs(params, allScrapedJobs = []) {
     nextPageParent,
   } = configPairs;
 
-  const checkConsentParams = { page, consent };
+  const checkConsentParams = { page, consent, errMessages };
 
   // Check consent only on the first call
   if (allScrapedJobs.length === 0) await checkConsent(checkConsentParams);
@@ -48,7 +49,7 @@ async function scrapeJobs(params, allScrapedJobs = []) {
 }
 
 const checkConsent = async (objCheckConsent) => {
-  const { page, consent } = objCheckConsent;
+  const { page, consent, errMessages } = objCheckConsent;
   if (consent) {
     const promises = [
       page.click(consent),
@@ -57,7 +58,9 @@ const checkConsent = async (objCheckConsent) => {
     try {
       await Promise.all(promises);
     } catch (err) {
-      console.error('Unexpected error in function checkConsent:\n\n', err);
+      const functionName = 'checkConsent';
+      const handleErrorParams = { err, errMessages, functionName };
+      handleError(handleErrorParams);
     }
   }
 };

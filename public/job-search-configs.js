@@ -79,6 +79,6 @@ const osu = {
   nextPageParent: '',
 };
 
-const configs = [em, um, ut, bg, owens];
+const configs = [em];
 
 export default configs;

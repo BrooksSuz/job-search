@@ -7,6 +7,8 @@ import updateDatabase from './main-utils/database.js';
 async function executeJobSearch(strSearchTerms, arrConfigs, countObj) {
   const browser = await createBrowser();
   const { searchTerms, configs } = formatArguments(strSearchTerms, arrConfigs);
+  let key;
+  let value;
 
   try {
     const siteListings = await getSiteListings(
@@ -16,15 +18,15 @@ async function executeJobSearch(strSearchTerms, arrConfigs, countObj) {
       countObj
     );
     const divListings = createHtmlListings(siteListings);
-
-    // await updateDatabase(siteListings);
+    [[key, value]] = Object.entries(siteListings[0]);
+    // if (!value.length) await updateDatabase(siteListings);
 
     return divListings;
   } catch (err) {
     console.error('\nUnexpected error in executeJobSearch:\n\n', err);
   } finally {
     await browser.close();
-    console.log('All done :D');
+    console.log(`Finished scraping ${key}`);
   }
 }
 
