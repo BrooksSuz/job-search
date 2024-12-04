@@ -27,8 +27,9 @@ btnGetJobs.addEventListener('click', () => {
   const spanSpinner = document.querySelector('.spinner');
   const stopCount = updateCount();
   const stopSpinner = startSpinner(spanSpinner);
+  const alphabetizedConfigs = alphabetizeConfigs(configs);
 
-  func().finally(() => {
+  func(alphabetizedConfigs).finally(() => {
     spanSpinner.classList.remove('show');
     stopCount();
     stopSpinner();
@@ -63,8 +64,8 @@ function updateCount() {
   return () => clearInterval(counterInterval);
 }
 
-async function func() {
-  for (const config of configs) {
+async function func(alphabetizedConfigs) {
+  for (const config of alphabetizedConfigs) {
     // Get inputs
     const inputs = document.querySelectorAll('.advanced-inputs > label input');
     const inputKeywords = document.querySelector('.keywords');
@@ -104,4 +105,10 @@ async function func() {
         console.error('Error fetching job data:', err);
       });
   }
+}
+
+function alphabetizeConfigs(arr) {
+  return [...arr].sort((a, b) =>
+    a.name < b.name ? -1 : a.name > b.name ? 1 : 0
+  );
 }
