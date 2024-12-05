@@ -1,61 +1,73 @@
 import handleError from './error.js';
 
-async function navigateSite(params) {
-  const {
-    page,
-    canWait,
-    errMessages,
-    isAnchor,
-    nextPageDisabled,
-    nextPageLink,
-    nextPageParent,
-  } = params;
-
+async function navigateSite(
+  page,
+  canWait,
+  errMessages,
+  isAnchor,
+  nextPageDisabled,
+  nextPageLink,
+  nextPageParent
+) {
   const previousUrl = page.url();
-  const elNextPage = await getNextPageElement({
-    page,
-    errMessages,
-    nextPageLink,
-  });
+  const elNextPage = await getNextPageElement(page, errMessages, nextPageLink);
 
   // Check if next page exists or is disabled
-  const canExitEarly = await exitEarly({
+  const canStopRecursion = await stopRecursion(
     page,
     elNextPage,
     isAnchor,
     nextPageDisabled,
-    nextPageParent,
-  });
-  if (canExitEarly) return false;
+    nextPageParent
+  );
+
+  // Guard clause: Can stop recursion
+  if (canStopRecursion) return false;
 
   // Navigate to the next page
-  const isSuccessfulNavigation = await runNavigationActions({
+  const isSuccessfulNavigation = await runNavigationActions(
     page,
     canWait,
     elNextPage,
     errMessages,
-    previousUrl,
-  });
+    previousUrl
+  );
 
+  // Recursive case: A successful navigation
   return isSuccessfulNavigation;
 }
 
-const getNextPageElement = async (params) => {
-  const { page, errMessages, nextPageLink } = params;
-  try {
-    return await page.waitForSelector(nextPageLink, { timeout: 5000 });
-  } catch (err) {
+const getNextPageElement = async (page, errMessages, nextPageLink) =>
+  await page.waitForSelector(nextPageLink, { timeout: 5000 }).catch((err) => {
     const functionName = 'getNextPageElement';
-    const handleErrorParams = { err, errMessages, functionName };
-    handleError(handleErrorParams);
+    handleError(err, errMessages, functionName);
     return null;
-  }
+  });
+
+const checkHrefState = async (elNextPage) =>
+  await elNextPage.evaluate(
+    (el) => !el.hasAttribute('href') || !el.getAttribute('href').trim()
+  );
+
+const checkDisabledState = async (element, nextPageDisabled) => {
+  return await element.evaluate((el, disabledSelector) => {
+    if (disabledSelector) {
+      const hasDisabledSelector = el.classList.contains(disabledSelector);
+      const hasDisabledAttribute = el.hasAttribute('disabled');
+      const isDisabled = hasDisabledSelector || hasDisabledAttribute;
+
+      return isDisabled;
+    }
+  }, nextPageDisabled);
 };
 
-const exitEarly = async (params) => {
-  const { page, elNextPage, isAnchor, nextPageDisabled, nextPageParent } =
-    params;
-
+const stopRecursion = async (
+  page,
+  elNextPage,
+  isAnchor,
+  nextPageDisabled,
+  nextPageParent
+) => {
   // Null-check elNextPage
   const isElNextPageNull = !elNextPage;
   if (isElNextPageNull) return true;
@@ -63,6 +75,7 @@ const exitEarly = async (params) => {
   // Check if elNextPage cannot be clicked
   const isDisabled = nextPageParent
     ? await checkDisabledState(
+        // TODO: Catch this?
         await page.waitForSelector(nextPageParent, { timeout: 5000 }),
         nextPageDisabled
       )
@@ -84,61 +97,40 @@ const exitEarly = async (params) => {
   }
 };
 
-const checkDisabledState = async (element, nextPageDisabled) => {
-  return await element.evaluate((el, disabledSelector) => {
-    if (disabledSelector) {
-      const hasDisabledSelector = el.classList.contains(disabledSelector);
-      const hasDisabledAttribute = el.hasAttribute('disabled');
-      const isDisabled = hasDisabledSelector || hasDisabledAttribute;
+const createClickAndWaitPromises = (page, canWait, elNextPage) => [
+  elNextPage.click(),
+  canWait === 'true'
+    ? page.waitForNavigation({ timeout: 10000 })
+    : page.waitForNetworkIdle({ timeout: 10000 }),
+];
 
-      return isDisabled;
-    }
-  }, nextPageDisabled);
+const clickAndWait = async (page, canWait, elNextPage) => {
+  await Promise.all(createClickAndWaitPromises(page, canWait, elNextPage));
 };
 
-const checkHrefState = async (elNextPage) => {
-  return await elNextPage.evaluate(
-    (el) => !el.hasAttribute('href') || !el.getAttribute('href').trim()
+const waitForNewUrl = async (page, previousUrl) => {
+  await page.waitForFunction(
+    (previousUrl) => window.location.href !== previousUrl,
+    previousUrl
   );
 };
 
-const runNavigationActions = async (params) => {
-  const { page, canWait, elNextPage, errMessages, previousUrl } = params;
-  const clickAndWaitParams = { page, canWait, elNextPage };
-  const waitForNewUrlParams = { page, previousUrl };
-
+const runNavigationActions = async (
+  page,
+  canWait,
+  elNextPage,
+  errMessages,
+  previousUrl
+) => {
   try {
-    await clickAndWait(clickAndWaitParams);
-    await waitForNewUrl(waitForNewUrlParams);
+    await clickAndWait(page, canWait, elNextPage, errMessages);
+    await waitForNewUrl(page, errMessages, previousUrl);
     return true;
   } catch (err) {
     const functionName = 'runNavigationActions';
-    const handleErrorParams = { err, errMessages, functionName };
-    handleError(handleErrorParams);
+    handleError(err, errMessages, functionName);
     return false;
   }
-};
-
-const clickAndWait = async (params) => {
-  const { page, canWait, elNextPage } = params;
-  const promises = [
-    elNextPage.click(),
-    canWait === 'true'
-      ? page.waitForNavigation({ timeout: 10000 })
-      : page.waitForNetworkIdle({ timeout: 10000 }),
-  ];
-  await Promise.all(promises);
-};
-
-const waitForNewUrl = async (params) => {
-  const { page, previousUrl } = params;
-  const isNewUrl = async (previousUrl) => {
-    await page.waitForFunction(
-      (prevUrl) => window.location.href !== prevUrl,
-      previousUrl
-    );
-  };
-  await isNewUrl(previousUrl);
 };
 
 export default navigateSite;

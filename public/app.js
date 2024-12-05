@@ -108,4 +108,6 @@ async function func(alphabetizedConfigs) {
 }
 
 const alphabetizeConfigs = (arr) =>
-  [...arr].sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+  [...arr].sort((a, b) =>
+    a.orgName < b.orgName ? -1 : a.orgName > b.orgName ? 1 : 0
+  );

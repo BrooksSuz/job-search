@@ -1,17 +1,12 @@
 import scrapeJobs from './browser-utils/scrape-jobs.js';
 
-async function getSiteListings(searchTerms, browser, config, countObj) {
+async function getSiteListings(searchTerms, browser, config, objCount) {
   const page = await browser.newPage();
   let result;
   try {
-    result = await processJobScraping({
-      config,
-      page,
-      searchTerms,
-      countObj,
-    });
+    result = await processJobScraping(config, page, searchTerms, objCount);
   } catch (err) {
-    console.error('Error in getsiteListings:', err);
+    console.error('Error in getSiteListings:', err);
   } finally {
     await page.close();
   }
@@ -19,17 +14,19 @@ async function getSiteListings(searchTerms, browser, config, countObj) {
   return result;
 }
 
-const processJobScraping = async (params) => {
-  const { config, page, searchTerms, countObj } = params;
-  const { url, name, ...configPairs } = config;
-  const scrapeJobsParams = { page, searchTerms, configPairs, countObj };
+const processJobScraping = async (config, page, searchTerms, objCount) => {
+  const { url, orgName, ...configPairs } = config;
   const arrDesiredJobs = [];
-
   try {
     await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 });
-    const arrScrapedJobs = await scrapeJobs(scrapeJobsParams);
+    const arrScrapedJobs = await scrapeJobs(
+      page,
+      searchTerms,
+      configPairs,
+      objCount
+    );
 
-    if (!arrScrapedJobs.length) return { [name]: [] };
+    if (!arrScrapedJobs.length) return arrDesiredJobs;
 
     arrScrapedJobs.forEach((objScrapedJob) => {
       const currentUrl = Object.values(objScrapedJob)[0];
@@ -40,7 +37,7 @@ const processJobScraping = async (params) => {
       if (isNotIncluded) arrDesiredJobs.push(objScrapedJob);
     });
 
-    return { [name]: arrDesiredJobs };
+    return arrDesiredJobs;
   } catch (err) {
     console.error(
       '\nUnexpected error in function processJobScraping:\n\n',

@@ -3,30 +3,32 @@ import getSiteListings from './main-utils/browser.js';
 import createHtmlListings from './main-utils/html.js';
 import updateDatabase from './main-utils/database.js';
 
-async function executeJobSearch(strSearchTerms, config, countObj) {
+async function executeJobSearch(strSearchTerms, config, objCount) {
   const browser = await createBrowser();
   const searchTerms = formatArguments(strSearchTerms);
-  let name;
-  let arrConfigObjects;
 
+  // Let declaration for try/catch/finally scope
+  console.log(`\nBegin scraping ${config.orgName}`);
   try {
-    const siteListings = await getSiteListings(
+    // Get desired listings (individual listing object: { title: url })
+    const arrDesiredJobs = await getSiteListings(
       searchTerms,
       browser,
       config,
-      countObj
+      objCount
     );
-    const divListings = createHtmlListings(siteListings);
-    [[name, arrConfigObjects]] = Object.entries(siteListings);
 
-    // if (!value.length) await updateDatabase(siteListings);
+    // Create div containers
+    const strDivListings = createHtmlListings(config.orgName, arrDesiredJobs);
 
-    return divListings;
+    // if (!arrDesiredJobs.length) await updateDatabase(arrDesiredJobs);
+
+    return strDivListings;
   } catch (err) {
     console.error('\nUnexpected error in executeJobSearch:\n\n', err);
   } finally {
     await browser.close();
-    console.log(`Finished scraping ${name}`);
+    console.log(`Finished scraping ${config.orgName}`);
   }
 }
 

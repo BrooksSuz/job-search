@@ -1,9 +1,9 @@
 const em = {
   url: 'https://careers.emich.edu/jobs/search',
-  name: 'Eastern Michigan',
+  orgName: 'Eastern Michigan',
   canWait: true,
   consent: 'button#consent_agree',
-  errMessages: 'Node is either not clickable or not an Element',
+  errorMessages: 'Node is either not clickable or not an Element',
   isAnchor: true,
   jobListing: 'h3.card-title > a[id^="link_job_title"]',
   nextPageDisabled: 'disabled',
@@ -13,10 +13,10 @@ const em = {
 
 const um = {
   url: 'https://careers.umich.edu/browse-jobs/positions/F',
-  name: 'University of Michigan',
+  orgName: 'University of Michigan',
   canWait: true,
   consent: '',
-  errMessages: "Waiting for selector `a[title='Go to next page']`",
+  errorMessages: "Waiting for selector `a[title='Go to next page']`",
   isAnchor: true,
   jobListing: 'a[href^="/job_detail/"]',
   nextPageDisabled: '',
@@ -26,10 +26,10 @@ const um = {
 
 const ut = {
   url: 'https://careers.utoledo.edu/cw/en-us/listing/',
-  name: 'University of Toledo',
+  orgName: 'University of Toledo',
   canWait: false,
   consent: '',
-  errMessages: 'Node is either not clickable or not an Element',
+  errorMessages: 'Node is either not clickable or not an Element',
   isAnchor: true,
   jobListing: 'h4 > a.job-link',
   nextPageDisabled: '',
@@ -39,10 +39,10 @@ const ut = {
 
 const bg = {
   url: 'https://www.schooljobs.com/careers/bgsu',
-  name: 'Bowling Green State University',
+  orgName: 'Bowling Green State University',
   canWait: false,
   consent: '',
-  errMessages: '',
+  errorMessages: '',
   isAnchor: true,
   jobListing: 'a[href^="/careers/bgsu/jobs/"]',
   nextPageDisabled: 'disabled',
@@ -53,10 +53,10 @@ const bg = {
 
 const owens = {
   url: 'https://owens.wd1.myworkdayjobs.com/OCC',
-  name: 'Owens Community College',
+  orgName: 'Owens Community College',
   canWait: false,
   consent: '',
-  errMessages: 'Waiting for selector `button[aria-label="next"]`',
+  errorMessages: 'Waiting for selector `button[aria-label="next"]`',
   isAnchor: false,
   jobListing:
     'section[data-automation-id="jobResults"] a[data-automation-id="jobTitle"]',
@@ -67,10 +67,10 @@ const owens = {
 
 const osu = {
   url: 'https://osu.wd1.myworkdayjobs.com/OSUCareers',
-  name: 'Ohio State University',
+  orgName: 'Ohio State University',
   canWait: false,
   consent: '',
-  errMessages: 'Waiting for selector `button[aria-label="next"]`',
+  errorMessages: 'Waiting for selector `button[aria-label="next"]`',
   isAnchor: false,
   jobListing:
     'section[data-automation-id="jobResults"] a[data-automation-id="jobTitle"]',
@@ -79,6 +79,6 @@ const osu = {
   nextPageParent: '',
 };
 
-const configs = [ut, em];
+const configs = [owens, bg, ut, um, em];
 
 export default configs;

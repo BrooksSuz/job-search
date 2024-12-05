@@ -1,55 +1,62 @@
-import getJobs from './get-jobs.js';
+import filterListings from './filter-listings.js';
 import navigateSite from './navigate-site.js';
 import handleError from './error.js';
 
-async function scrapeJobs(params, allScrapedJobs = []) {
-  const { page, searchTerms, configPairs, countObj } = params;
+async function scrapeJobs(
+  page,
+  arrSearchTerms,
+  objConfigPairs,
+  objCount,
+  arrAllScrapedJobs = []
+) {
+  // Destructure configPairs and disperse
   const {
-    canWait,
-    consent,
-    errMessages,
-    isAnchor,
-    jobListing,
-    nextPageDisabled,
-    nextPageLink,
-    nextPageParent,
-  } = configPairs;
-
-  const checkConsentParams = { page, consent, errMessages };
+    canWait: boolCanWait,
+    consent: strConsent,
+    errorMessages: arrErrorMessages,
+    isAnchor: boolIsAnchor,
+    jobListing: strListing,
+    nextPageDisabled: strNextPageDisabled,
+    nextPageLink: strNextPageLink,
+    nextPageParent: strNextPageParent,
+  } = objConfigPairs;
 
   // Check consent only on the first call
-  if (allScrapedJobs.length === 0) await checkConsent(checkConsentParams);
-
-  const getJobsParams = { page, jobListing, searchTerms };
-  const navigateToNextPageParams = {
-    page,
-    canWait,
-    errMessages,
-    isAnchor,
-    nextPageDisabled,
-    nextPageLink,
-    nextPageParent,
-  };
+  if (arrAllScrapedJobs.length === 0)
+    await checkConsent(page, strConsent, arrErrorMessages);
 
   // Scrape jobs on the current page
-  const jobsOnPage = await getJobs(getJobsParams);
-  allScrapedJobs.push(...jobsOnPage);
+  const jobsOnPage = await filterListings(page, arrSearchTerms, strListing);
+  arrAllScrapedJobs.push(...jobsOnPage);
 
-  // Increment scarped page count variable
-  countObj.count++;
+  // Increment scraped page count variable
+  objCount.count++;
 
   // Attempt to navigate to the next page
-  const hasNextPage = await navigateSite(navigateToNextPageParams);
+  const hasNextPage = await navigateSite(
+    page,
+    boolCanWait,
+    arrErrorMessages,
+    boolIsAnchor,
+    strNextPageDisabled,
+    strNextPageLink,
+    strNextPageParent
+  );
 
   // Base case: No next page
-  if (!hasNextPage) return alphabetizeScrapedJobs(allScrapedJobs);
+  if (!hasNextPage) return alphabetizeScrapedJobs([...arrAllScrapedJobs]);
 
   // Recursive case: Scrape the next page
-  return scrapeJobs(params, allScrapedJobs);
+  return scrapeJobs(
+    page,
+    arrSearchTerms,
+    objConfigPairs,
+    objCount,
+    arrAllScrapedJobs
+  );
 }
 
-const checkConsent = async (objCheckConsent) => {
-  const { page, consent, errMessages } = objCheckConsent;
+const checkConsent = async (page, consent, errMessages) => {
   if (consent) {
     const promises = [
       page.click(consent),
@@ -59,21 +66,18 @@ const checkConsent = async (objCheckConsent) => {
       await Promise.all(promises);
     } catch (err) {
       const functionName = 'checkConsent';
-      const handleErrorParams = { err, errMessages, functionName };
-      handleError(handleErrorParams);
+      handleError(err, errMessages, functionName);
     }
   }
 };
 
-const alphabetizeScrapedJobs = (arr) => {
-  const sortedArr = arr.sort((a, b) => {
+const alphabetizeScrapedJobs = (arr) =>
+  arr.sort((a, b) => {
     const [aKey] = Object.keys(a);
     const [bKey] = Object.keys(b);
     if (aKey < bKey) return -1;
     if (aKey > bKey) return 1;
     return 0;
   });
-  return sortedArr;
-};
 
 export default scrapeJobs;

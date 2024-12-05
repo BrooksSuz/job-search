@@ -1,35 +1,36 @@
-import { countObj } from '../server.js';
+import { objCount } from '../server.js';
 
-function createHtmlListings(siteListings) {
-  const [[name, arrConfigObjects]] = Object.entries(siteListings);
-  // Guard Clause: No listings
-  if (!arrConfigObjects.length) return createEmptyDiv(name);
-
-  const anchors = arrConfigObjects.map((listing) => createAnchor(listing));
-  return createPopulatedDiv(name, anchors);
+function createHtmlListings(strOrgName, arrDesiredJobs) {
+  // Guard clause: No listings
+  if (!arrDesiredJobs.length) return createEmptyDiv(strOrgName);
+  const arrAnchors = arrDesiredJobs.map((listing) => {
+    const [[strTitle, strUrl]] = Object.entries(listing);
+    return createAnchor(strTitle, strUrl);
+  });
+  return createPopulatedDiv(strOrgName, arrAnchors);
 }
 
-const createAnchor = (listing) => {
-  const [[title, url]] = Object.entries(listing);
-  if (listing) return `<a href='${url}' target='_blank'>${title}</a>`;
-};
+const createAnchor = (strTitle, strUrl) =>
+  `<a href='${strUrl}' target='_blank'>${strTitle}</a>`;
 
-const createPopulatedDiv = (name, arrAnchors) => `
-	<div class='container-org'>
-		<h2>Results for ${name}:</h2>
-		<p>(${countObj.count} pages scraped)</p>
-		<ul class='flex'>
-			${arrAnchors.map((anchor) => `<li>${anchor}</li>`).join('')}
-		</ul>
-	</div>
-`;
+const createPopulatedDiv = (strOrgName, arrAnchors) =>
+  `
+		<div class='container-org'>
+			<h2>Results for ${strOrgName}:</h2>
+			<p>(${objCount.count} pages scraped)</p>
+			<ul class='flex'>
+				${arrAnchors.map((strAnchor) => `<li>${strAnchor}</li>`).join('')}
+			</ul>
+		</div>
+	`;
 
-const createEmptyDiv = (name) => `
-	<div class='container-org'>
-		<h2>Results for ${name}:</h2>
-		<p>(${countObj.count} pages scraped)</p>
-		<p>No results with provided keywords.</p>
-	</div>
-`;
+const createEmptyDiv = (strOrgName) =>
+  `
+		<div class='container-org'>
+			<h2>Results for ${strOrgName}:</h2>
+			<p>(${objCount.count} pages scraped)</p>
+			<p>No results with provided keywords.</p>
+		</div>
+	`;
 
 export default createHtmlListings;
