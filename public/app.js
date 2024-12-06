@@ -25,13 +25,11 @@ btnGetJobs.addEventListener('click', () => {
   });
   spanBtnJobsText.style.display = 'none';
   const spanSpinner = document.querySelector('.spinner');
-  const stopCount = updateCount();
   const stopSpinner = startSpinner(spanSpinner);
   const alphabetizedConfigs = alphabetizeConfigs(configs);
 
   func(alphabetizedConfigs).finally(() => {
     spanSpinner.classList.remove('show');
-    stopCount();
     stopSpinner();
     btnGetJobs.disabled = false;
     inputs.forEach((input) => {
@@ -52,16 +50,6 @@ function startSpinner(spanSpinner) {
   }, 100);
 
   return () => clearInterval(spinnerInterval);
-}
-
-function updateCount() {
-  const counterInterval = setInterval(() => {
-    fetch('/api/count')
-      .then((response) => response.json())
-      .catch((error) => console.error('Error fetching count:', error));
-  }, 500);
-
-  return () => clearInterval(counterInterval);
 }
 
 async function func(alphabetizedConfigs) {

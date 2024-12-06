@@ -1,12 +1,12 @@
 import filterListings from './filter-listings.js';
 import navigateSite from './navigate-site.js';
 import handleError from './error.js';
+import { incrementCount } from '../../main.js';
 
 async function scrapeJobs(
   page,
   arrSearchTerms,
   objConfigPairs,
-  objCount,
   arrAllScrapedJobs = []
 ) {
   // Destructure configPairs and disperse
@@ -30,7 +30,7 @@ async function scrapeJobs(
   arrAllScrapedJobs.push(...jobsOnPage);
 
   // Increment scraped page count variable
-  objCount.count++;
+  incrementCount();
 
   // Attempt to navigate to the next page
   const hasNextPage = await navigateSite(
@@ -47,13 +47,7 @@ async function scrapeJobs(
   if (!hasNextPage) return alphabetizeScrapedJobs([...arrAllScrapedJobs]);
 
   // Recursive case: Scrape the next page
-  return scrapeJobs(
-    page,
-    arrSearchTerms,
-    objConfigPairs,
-    objCount,
-    arrAllScrapedJobs
-  );
+  return scrapeJobs(page, arrSearchTerms, objConfigPairs, arrAllScrapedJobs);
 }
 
 const checkConsent = async (page, consent, errMessages) => {

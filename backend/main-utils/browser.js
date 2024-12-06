@@ -1,10 +1,10 @@
 import scrapeJobs from './browser-utils/scrape-jobs.js';
 
-async function getSiteListings(searchTerms, browser, config, objCount) {
+async function getSiteListings(searchTerms, browser, config) {
   const page = await browser.newPage();
   let result;
   try {
-    result = await processJobScraping(config, page, searchTerms, objCount);
+    result = await processJobScraping(config, page, searchTerms);
   } catch (err) {
     console.error('Error in getSiteListings:', err);
   } finally {
@@ -14,17 +14,12 @@ async function getSiteListings(searchTerms, browser, config, objCount) {
   return result;
 }
 
-const processJobScraping = async (config, page, searchTerms, objCount) => {
+const processJobScraping = async (config, page, searchTerms) => {
   const { url, orgName, ...configPairs } = config;
   const arrDesiredJobs = [];
   try {
     await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 });
-    const arrScrapedJobs = await scrapeJobs(
-      page,
-      searchTerms,
-      configPairs,
-      objCount
-    );
+    const arrScrapedJobs = await scrapeJobs(page, searchTerms, configPairs);
 
     if (!arrScrapedJobs.length) return arrDesiredJobs;
 
