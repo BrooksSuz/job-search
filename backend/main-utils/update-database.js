@@ -1,12 +1,13 @@
 import { MongoClient, ServerApiVersion } from 'mongodb';
+import throwErrorAndHalt from '../error.js';
 
 async function updateDatabase(org) {
   const [[orgName, listings]] = Object.entries(org);
   try {
     await insertJobListings(orgName, listings);
     console.log(`Successfully inserted listings for ${orgName}`);
-  } catch (error) {
-    console.error(`Failed to insert listings for ${orgName}:`, error);
+  } catch (err) {
+    throwErrorAndHalt(err, 'updateDatabase');
   }
 }
 
@@ -27,7 +28,7 @@ const insertJobListings = async (orgName, listings) => {
     }
     console.log('Job listings inserted.');
   } catch (err) {
-    console.error('\nUnexpected error in function insertJobListings:\n\n', err);
+    throwErrorAndHalt(err, 'insertJobListings');
   }
 };
 
@@ -48,7 +49,7 @@ const connectToDB = async () => {
     console.log('Connected to MongoDB');
     return client.db('job_scraper');
   } catch (err) {
-    console.error('Unexpected error in function connectToDB:', err);
+    throwErrorAndHalt(err, 'connectToDB');
   }
 };
 

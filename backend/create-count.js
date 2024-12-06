@@ -1,5 +1,4 @@
 // Count factory function
-
 function createCount() {
   let count = 0;
   const getCount = () => count;

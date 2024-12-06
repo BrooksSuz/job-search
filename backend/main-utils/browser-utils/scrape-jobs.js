@@ -1,7 +1,7 @@
 import filterListings from './filter-listings.js';
 import navigateSite from './navigate-site.js';
-import handleError from './error.js';
-import { incrementCount } from '../../main.js';
+import handleError from './handle-error.js';
+import { incrementCount } from '../../execute-job-search.js';
 
 async function scrapeJobs(
   page,

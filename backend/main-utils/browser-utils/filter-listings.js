@@ -1,3 +1,5 @@
+import throwErrorAndHalt from '../../error.js';
+
 async function filterListings(page, arrSearchTerms, strListing) {
   try {
     // Get listing elements
@@ -19,8 +21,7 @@ async function filterListings(page, arrSearchTerms, strListing) {
 
     return filteredListings;
   } catch (err) {
-    console.error('\nUnexpected error in function filterJobs:\n\n', err);
-    return [];
+    throwErrorAndHalt;
   }
 }
 
@@ -34,10 +35,7 @@ const createDataObject = (page, elListing) =>
       elListing
     )
     .catch((err) => {
-      console.error(
-        '\nUnexpected error in function createDataObject:\n\n',
-        err
-      );
+      throwErrorAndHalt;
     });
 
 const toLowerCaseMultiple = (...args) => args.map((str) => str.toLowerCase());

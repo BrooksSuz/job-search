@@ -1,46 +1,49 @@
-import handleError from './error.js';
+import handleError from './handle-error.js';
 
 async function navigateSite(
   page,
-  canWait,
-  errMessages,
-  isAnchor,
-  nextPageDisabled,
-  nextPageLink,
-  nextPageParent
+  boolCanWait,
+  arrErrMessages,
+  boolIsAnchor,
+  strNextPageDisabled,
+  strNextPageLink,
+  strNextPageParent
 ) {
-  const previousUrl = page.url();
-  const elNextPage = await getNextPageElement(page, errMessages, nextPageLink);
+  const urlPrevious = page.url();
+  const elNextPage = await getNextPageElement(
+    page,
+    arrErrMessages,
+    strNextPageLink
+  );
 
   // Check if next page exists or is disabled
-  const canStopRecursion = await stopRecursion(
+  const boolCanStopRecursion = await stopRecursion(
     page,
     elNextPage,
-    isAnchor,
-    nextPageDisabled,
-    nextPageParent
+    boolIsAnchor,
+    strNextPageDisabled,
+    strNextPageParent
   );
 
   // Guard clause: Can stop recursion
-  if (canStopRecursion) return false;
+  if (boolCanStopRecursion) return false;
 
   // Navigate to the next page
-  const isSuccessfulNavigation = await runNavigationActions(
+  const boolIsSuccessfulNavigation = await runNavigationActions(
     page,
-    canWait,
+    boolCanWait,
     elNextPage,
-    errMessages,
-    previousUrl
+    arrErrMessages,
+    urlPrevious
   );
 
   // Recursive case: A successful navigation
-  return isSuccessfulNavigation;
+  return boolIsSuccessfulNavigation;
 }
 
-const getNextPageElement = async (page, errMessages, nextPageLink) =>
-  await page.waitForSelector(nextPageLink, { timeout: 5000 }).catch((err) => {
-    const functionName = 'getNextPageElement';
-    handleError(err, errMessages, functionName);
+const getNextPageElement = (page, arrErrMessages, strNextPageLink) =>
+  page.waitForSelector(strNextPageLink, { timeout: 5000 }).catch((err) => {
+    handleError(err, arrErrMessages, 'getNextPageElement');
     return null;
   });
 
@@ -49,50 +52,61 @@ const checkHrefState = async (elNextPage) =>
     (el) => !el.hasAttribute('href') || !el.getAttribute('href').trim()
   );
 
-const checkDisabledState = async (element, nextPageDisabled) => {
-  return await element.evaluate((el, disabledSelector) => {
-    if (disabledSelector) {
-      const hasDisabledSelector = el.classList.contains(disabledSelector);
-      const hasDisabledAttribute = el.hasAttribute('disabled');
-      const isDisabled = hasDisabledSelector || hasDisabledAttribute;
+const checkDisabledState = async (element, strNextPageDisabled) =>
+  await element.evaluate((el, strNextPageDisabled) => {
+    if (strNextPageDisabled) {
+      const boolHasDisabledSelector =
+        el.classList.contains(strNextPageDisabled);
+      const boolHasDisabledAttribute = el.hasAttribute('disabled');
+      const boolIsDisabled =
+        boolHasDisabledSelector || boolHasDisabledAttribute;
 
-      return isDisabled;
+      return boolIsDisabled;
     }
-  }, nextPageDisabled);
-};
+  }, strNextPageDisabled);
+
+const populateCheckDisabledState = async (
+  page,
+  elNextPage,
+  strNextPageDisabled,
+  strNextPageParent
+) =>
+  strNextPageParent
+    ? await checkDisabledState(
+        await page.waitForSelector(strNextPageParent, { timeout: 5000 }),
+        strNextPageDisabled
+      )
+    : await checkDisabledState(elNextPage, strNextPageDisabled);
 
 const stopRecursion = async (
   page,
   elNextPage,
-  isAnchor,
-  nextPageDisabled,
-  nextPageParent
+  boolIsAnchor,
+  strNextPageDisabled,
+  strNextPageParent
 ) => {
   // Null-check elNextPage
-  const isElNextPageNull = !elNextPage;
-  if (isElNextPageNull) return true;
+  const boolIsElNextPageNull = !elNextPage;
+  if (boolIsElNextPageNull) return true;
 
   // Check if elNextPage cannot be clicked
-  const isDisabled = nextPageParent
-    ? await checkDisabledState(
-        // TODO: Catch this?
-        await page.waitForSelector(nextPageParent, { timeout: 5000 }),
-        nextPageDisabled
-      )
-    : await checkDisabledState(elNextPage, nextPageDisabled);
+  const boolIsDisabled = await populateCheckDisabledState(
+    page,
+    elNextPage,
+    strNextPageDisabled,
+    strNextPageParent
+  );
 
-  if (isDisabled) {
+  if (boolIsDisabled) {
     console.log(
-      '\nNext page element is disabled.\nAssuming last page reached.\n'
+      'Next page element is disabled.\nAssuming last page reached.\n'
     );
     return true;
   }
 
   const hasNoHref = await checkHrefState(elNextPage);
-  if (isAnchor === 'true' && hasNoHref) {
-    console.log(
-      '\nNext page anchor has no href.\nAssuming last page reached.\n'
-    );
+  if (boolIsAnchor === 'true' && hasNoHref) {
+    console.log('Next page anchor has no href.\nAssuming last page reached.\n');
     return true;
   }
 };

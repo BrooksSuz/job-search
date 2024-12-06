@@ -1,4 +1,4 @@
-import { getCount } from '../main.js';
+import { getCount } from '../execute-job-search.js';
 
 function createHtmlListings(strOrgName, arrDesiredJobs) {
   // Guard clause: No listings
@@ -17,7 +17,7 @@ const createPopulatedDiv = (strOrgName, arrAnchors) =>
   `
 		<div class='container-org'>
 			<h2>Results for ${strOrgName}:</h2>
-			<p>(${getCount()} pages scraped)</p>
+			<p>(${getCount()} Pages Scraped)</p>
 			<ul class='flex'>
 				${arrAnchors.map((strAnchor) => `<li>${strAnchor}</li>`).join('')}
 			</ul>
@@ -28,7 +28,7 @@ const createEmptyDiv = (strOrgName) =>
   `
 		<div class='container-org'>
 			<h2>Results for ${strOrgName}:</h2>
-			<p>(${getCount()} pages scraped)</p>
+			<p>(${getCount()} Pages Scraped)</p>
 			<p>No results with provided keywords.</p>
 		</div>
 	`;
