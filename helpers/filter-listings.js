@@ -5,18 +5,19 @@ async function filterListings(page, arrSearchTerms, strListing) {
 		// Get listing elements
 		const arrElements = await page.$$(strListing);
 
-		// Create a promise that searches for a provided term
+		// Create promises for searching provided terms
 		const findMatchPromises = createFindMatchPromises(
 			page,
 			arrElements,
 			arrSearchTerms
 		);
 
-		// Execute each promise in parallel
-		const filteredListings = await Promise.all(findMatchPromises).then(
-			(arrListings) =>
-				// Remove any undefined values from failed matches
-				arrListings.filter((elListing) => elListing !== undefined)
+		// Wait for all promises to resolve
+		const arrListings = await Promise.all(findMatchPromises);
+
+		// Remove any undefined values
+		const filteredListings = arrListings.filter(
+			(elListing) => elListing !== undefined
 		);
 
 		return filteredListings;

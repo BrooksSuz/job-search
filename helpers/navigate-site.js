@@ -41,7 +41,7 @@ async function navigateSite(
 }
 
 const getNextPageElement = (page, arrErrMessages, strNextPageLink) =>
-	page.waitForSelector(strNextPageLink, {}).catch((err) => {
+	page.waitForSelector(strNextPageLink).catch((err) => {
 		handleError(err, arrErrMessages, 'getNextPageElement');
 		return null;
 	});
@@ -78,7 +78,7 @@ const populateCheckDisabledState = async (
 	// Check if a parent selector string is provided and use it instead
 	strNextPageParent
 		? await checkDisabledState(
-				await page.waitForSelector(strNextPageParent, { timeout: 10000 }),
+				await page.waitForSelector(strNextPageParent),
 				strNextPageDisabled
 		  )
 		: await checkDisabledState(elNextPage, strNextPageDisabled);
@@ -104,7 +104,7 @@ const stopRecursion = async (
 
 	if (boolIsDisabled) {
 		console.log(
-			'\nNext page element is disabled.\nAssuming last page reached.\n'
+			'\nNext page element is disabled.\nAssuming last page reached.'
 		);
 		return true;
 	}
@@ -112,9 +112,7 @@ const stopRecursion = async (
 	// Stop if the element is an anchor and it has no href
 	const boolHasNoHref = await checkHrefState(elNextPage);
 	if (strIsAnchor === 'true' && boolHasNoHref) {
-		console.log(
-			'\nNext page anchor has no href.\nAssuming last page reached.\n'
-		);
+		console.log('\nNext page anchor has no href.\nAssuming last page reached.');
 		return true;
 	}
 };
