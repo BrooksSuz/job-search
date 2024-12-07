@@ -1,8 +1,14 @@
 import { throwErrorAndHalt } from './error.js';
 import scrapeListings from './scrape-listings.js';
 
-const buildListings = async (browser, arrSearchTerms, objConfig) => {
+const buildListings = async (
+	browser,
+	arrSearchTerms,
+	objConfig,
+	incrementCount
+) => {
 	const page = await browser.newPage();
+	page.setDefaultTimeout(10000);
 	const { url, orgName, ...configPairs } = objConfig;
 	try {
 		// Go to the provided site
@@ -12,7 +18,8 @@ const buildListings = async (browser, arrSearchTerms, objConfig) => {
 		const arrScrapedListings = await scrapeListings(
 			page,
 			arrSearchTerms,
-			configPairs
+			configPairs,
+			incrementCount
 		);
 
 		// Return only one of each listing into a new array

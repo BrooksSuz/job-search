@@ -1,20 +1,18 @@
-import { getCount } from '../find-listings.js';
-
-function createHtml(strOrgName, arrDesiredListings) {
-  // Guard clause: No listings
-  if (!arrDesiredListings.length) return createEmptyDiv(strOrgName);
-  const arrAnchors = arrDesiredListings.map((listing) => {
-    const [[strTitle, strUrl]] = Object.entries(listing);
-    return createAnchor(strTitle, strUrl);
-  });
-  return createPopulatedDiv(strOrgName, arrAnchors);
+function createHtml(strOrgName, arrDesiredListings, getCount) {
+	// Guard clause: No listings
+	if (!arrDesiredListings.length) return createEmptyDiv(strOrgName, getCount);
+	const arrAnchors = arrDesiredListings.map((listing) => {
+		const [[strTitle, strUrl]] = Object.entries(listing);
+		return createAnchor(strTitle, strUrl);
+	});
+	return createPopulatedDiv(strOrgName, arrAnchors, getCount);
 }
 
 const createAnchor = (strTitle, strUrl) =>
-  `<a href='${strUrl}' target='_blank'>${strTitle}</a>`;
+	`<a href='${strUrl}' target='_blank'>${strTitle}</a>`;
 
-const createPopulatedDiv = (strOrgName, arrAnchors) =>
-  `
+const createPopulatedDiv = (strOrgName, arrAnchors, getCount) =>
+	`
 		<div class='container-org'>
 			<h2>Results for ${strOrgName}:</h2>
 			<p>(${getCount()} Pages Scraped)</p>
@@ -24,8 +22,8 @@ const createPopulatedDiv = (strOrgName, arrAnchors) =>
 		</div>
 	`;
 
-const createEmptyDiv = (strOrgName) =>
-  `
+const createEmptyDiv = (strOrgName, getCount) =>
+	`
 		<div class='container-org'>
 			<h2>Results for ${strOrgName}:</h2>
 			<p>(${getCount()} Pages Scraped)</p>

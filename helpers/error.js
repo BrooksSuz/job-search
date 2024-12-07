@@ -1,7 +1,7 @@
 function handleError(err, arrErrorMessages, strFunctionName) {
 	// Guard clause: No errors provided
 	if (!arrErrorMessages.length) {
-		console.log('\nNo provided expected errors.\n\nCarrying on...\n');
+		console.log('\nNo provided expected errors.\nCarrying on...');
 		return;
 	}
 
@@ -32,7 +32,7 @@ const compareErrorMessage = (err, arrErrorMessages) =>
 const chooseErrorMessage = (err, boolIsExpectedError, strFunctionName) => {
 	if (boolIsExpectedError) {
 		console.log(
-			`\nExpected error in function ${strFunctionName}.\nAssuming last page reached.\n`
+			`\nExpected error in function ${strFunctionName}.\nAssuming last page reached.`
 		);
 	} else {
 		throwErrorAndHalt(err, 'chooseErrorMessage');
