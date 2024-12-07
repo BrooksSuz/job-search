@@ -1,6 +1,6 @@
-import configs from './job-search-configs.js';
+import configs from './org-configs.js';
 
-const btnGetJobs = document.querySelector('.get-jobs');
+const btnGetListings = document.querySelector('.get-listings');
 const h3Advanced = document.querySelector('.container-advanced > h3');
 
 h3Advanced.addEventListener('click', () => {
@@ -14,16 +14,16 @@ h3Advanced.addEventListener('click', () => {
   }
 });
 
-btnGetJobs.addEventListener('click', () => {
-  const divJobList = document.querySelector('.job-list');
-  const spanBtnJobsText = document.querySelector('.get-jobs-text');
+btnGetListings.addEventListener('click', () => {
+  const divListings = document.querySelector('.listings');
+  const spanBtnListingsText = document.querySelector('.get-listings-text');
   const inputs = document.querySelectorAll('.advanced-inputs > label input');
-  if (divJobList.firstChild) divJobList.replaceChildren();
-  btnGetJobs.disabled = true;
+  if (divListings.firstChild) divListings.replaceChildren();
+  btnGetListings.disabled = true;
   inputs.forEach((input) => {
     input.disabled = 'true';
   });
-  spanBtnJobsText.style.display = 'none';
+  spanBtnListingsText.style.display = 'none';
   const spanSpinner = document.querySelector('.spinner');
   const stopSpinner = startSpinner(spanSpinner);
   const alphabetizedConfigs = alphabetizeConfigs(configs);
@@ -31,11 +31,11 @@ btnGetJobs.addEventListener('click', () => {
   func(alphabetizedConfigs).finally(() => {
     spanSpinner.classList.remove('show');
     stopSpinner();
-    btnGetJobs.disabled = false;
+    btnGetListings.disabled = false;
     inputs.forEach((input) => {
       input.disabled = 'false';
     });
-    spanBtnJobsText.style.display = 'inline';
+    spanBtnListingsText.style.display = 'inline';
   });
 });
 
@@ -83,14 +83,14 @@ async function func(alphabetizedConfigs) {
     const params = inputsEncoded.join('&');
 
     // Run the current config
-    await fetch(`/api/jobs?input=${inputKeywordsValue}&${params}`)
+    await fetch(`/api/listings?input=${inputKeywordsValue}&${params}`)
       .then((res) => res.json())
       .then((strHtml) => {
-        const divJobList = document.querySelector('.job-list');
-        divJobList.innerHTML += strHtml;
+        const divListings = document.querySelector('.listings');
+        divListings.innerHTML += strHtml;
       })
       .catch((err) => {
-        console.error('Error fetching job data:', err);
+        console.error('Error fetching listing data:', err);
       });
   }
 }

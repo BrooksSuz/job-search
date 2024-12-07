@@ -23,7 +23,7 @@
   cursor: pointer;
 }
 
-.container-get-jobs {
+.container-get-listings {
   width: 375px;
   position: sticky;
   top: 0;
@@ -31,15 +31,15 @@
   background-color: darkslategrey;
 }
 
-.container-get-jobs {
+.container-get-listings {
   gap: 0.2rem;
 }
 
-.container-get-jobs > * {
+.container-get-listings > * {
   align-self: center;
 }
 
-.container-get-jobs > label > input {
+.container-get-listings > label > input {
   flex: 1;
 }
 
@@ -59,11 +59,11 @@
   gap: 0.3rem;
 }
 
-.get-jobs {
+.get-listings {
   min-width: 56px;
 }
 
-.job-list {
+.listings {
   display: flex;
   flex-direction: column;
   gap: 1rem;

@@ -1,9 +1,9 @@
-import { getCount } from '../execute-job-search.js';
+import { getCount } from '../find-listings.js';
 
-function createHtmlListings(strOrgName, arrDesiredJobs) {
+function createHtml(strOrgName, arrDesiredListings) {
   // Guard clause: No listings
-  if (!arrDesiredJobs.length) return createEmptyDiv(strOrgName);
-  const arrAnchors = arrDesiredJobs.map((listing) => {
+  if (!arrDesiredListings.length) return createEmptyDiv(strOrgName);
+  const arrAnchors = arrDesiredListings.map((listing) => {
     const [[strTitle, strUrl]] = Object.entries(listing);
     return createAnchor(strTitle, strUrl);
   });
@@ -33,4 +33,4 @@ const createEmptyDiv = (strOrgName) =>
 		</div>
 	`;
 
-export default createHtmlListings;
+export default createHtml;

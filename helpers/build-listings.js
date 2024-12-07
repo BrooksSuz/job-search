@@ -1,7 +1,7 @@
-import scrapeJobs from './browser-utils/scrape-jobs.js';
-import throwErrorAndHalt from '../error.js';
+import throwErrorAndHalt from './custom-error.js';
+import scrapeListings from './scrape-listings.js';
 
-const getSiteListings = async (browser, arrSearchTerms, objConfig) => {
+const buildListings = async (browser, arrSearchTerms, objConfig) => {
   const page = await browser.newPage();
   const { url, orgName, ...configPairs } = objConfig;
   try {
@@ -9,7 +9,7 @@ const getSiteListings = async (browser, arrSearchTerms, objConfig) => {
     await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 });
 
     // Scrape those listings!
-    const arrScrapedListings = await scrapeJobs(
+    const arrScrapedListings = await scrapeListings(
       page,
       arrSearchTerms,
       configPairs
@@ -27,9 +27,9 @@ const getSiteListings = async (browser, arrSearchTerms, objConfig) => {
 };
 
 // Sets require unique values by default (more efficient than using the some method)
-const removeDuplicates = (arrScrapedJobs, seenUrls = new Set()) =>
-  arrScrapedJobs.filter((objScrapedJob) => {
-    const currentUrl = Object.values(objScrapedJob)[0];
+const removeDuplicates = (arrScrapedListings, seenUrls = new Set()) =>
+  arrScrapedListings.filter((objScrapedListing) => {
+    const currentUrl = Object.values(objScrapedListing)[0];
     if (!seenUrls.has(currentUrl)) {
       seenUrls.add(currentUrl);
       return true;
@@ -37,4 +37,4 @@ const removeDuplicates = (arrScrapedJobs, seenUrls = new Set()) =>
     return false;
   });
 
-export default getSiteListings;
+export default buildListings;

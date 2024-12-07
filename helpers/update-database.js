@@ -1,17 +1,17 @@
 import { MongoClient, ServerApiVersion } from 'mongodb';
-import throwErrorAndHalt from '../error.js';
+import throwErrorAndHalt from './custom-error.js';
 
 async function updateDatabase(org) {
   const [[orgName, listings]] = Object.entries(org);
   try {
-    await insertJobListings(orgName, listings);
+    await insertListings(orgName, listings);
     console.log(`Successfully inserted listings for ${orgName}`);
   } catch (err) {
     throwErrorAndHalt(err, 'updateDatabase');
   }
 }
 
-const insertJobListings = async (orgName, listings) => {
+const insertListings = async (orgName, listings) => {
   const db = await connectToDB();
   const collection = db.collection('job_listings');
   try {
@@ -26,9 +26,9 @@ const insertJobListings = async (orgName, listings) => {
       // Insert new organization with listings
       await collection.insertOne({ org_name: orgName, listings });
     }
-    console.log('Job listings inserted.');
+    console.log('Listings inserted.');
   } catch (err) {
-    throwErrorAndHalt(err, 'insertJobListings');
+    throwErrorAndHalt(err, 'insertListings');
   }
 };
 

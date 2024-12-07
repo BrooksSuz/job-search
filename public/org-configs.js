@@ -5,7 +5,7 @@ const em = {
   consent: 'button#consent_agree',
   errorMessages: 'Node is either not clickable or not an Element',
   isAnchor: true,
-  jobListing: 'h3.card-title > a[id^="link_job_title"]',
+  listing: 'h3.card-title > a[id^="link_job_title"]',
   nextPageDisabled: 'disabled',
   nextPageLink: 'li.next_page > a',
   nextPageParent: '',
@@ -18,7 +18,7 @@ const um = {
   consent: '',
   errorMessages: "Waiting for selector `a[title='Go to next page']`",
   isAnchor: true,
-  jobListing: 'a[href^="/job_detail/"]',
+  listing: 'a[href^="/job_detail/"]',
   nextPageDisabled: '',
   nextPageLink: "a[title='Go to next page']",
   nextPageParent: '',
@@ -31,7 +31,7 @@ const ut = {
   consent: '',
   errorMessages: 'Node is either not clickable or not an Element',
   isAnchor: true,
-  jobListing: 'h4 > a.job-link',
+  listing: 'h4 > a.job-link',
   nextPageDisabled: '',
   nextPageLink: "#recent-jobs a[title='More Jobs']:nth-of-type(1)",
   nextPageParent: '',
@@ -44,7 +44,7 @@ const bg = {
   consent: '',
   errorMessages: '',
   isAnchor: true,
-  jobListing: 'a[href^="/careers/bgsu/jobs/"]',
+  listing: 'a[href^="/careers/bgsu/jobs/"]',
   nextPageDisabled: 'disabled',
   nextPageLink: '.pagination-container a[aria-label="Go to Next Page"]',
   nextPageParent:
@@ -58,7 +58,7 @@ const owens = {
   consent: '',
   errorMessages: 'Waiting for selector `button[aria-label="next"]`',
   isAnchor: false,
-  jobListing:
+  listing:
     'section[data-automation-id="jobResults"] a[data-automation-id="jobTitle"]',
   nextPageDisabled: '',
   nextPageLink: 'button[aria-label="next"]',
@@ -72,7 +72,7 @@ const osu = {
   consent: '',
   errorMessages: 'Waiting for selector `button[aria-label="next"]`',
   isAnchor: false,
-  jobListing:
+  listing:
     'section[data-automation-id="jobResults"] a[data-automation-id="jobTitle"]',
   nextPageDisabled: '',
   nextPageLink: 'button[aria-label="next"]',

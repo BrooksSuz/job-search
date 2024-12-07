@@ -1,4 +1,4 @@
-import throwErrorAndHalt from '../../error.js';
+import throwErrorAndHalt from './custom-error.js';
 
 function handleError(err, arrErrorMessages, strFunctionName) {
   // Guard clause: No errors provided

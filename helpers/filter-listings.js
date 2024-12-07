@@ -1,4 +1,4 @@
-import throwErrorAndHalt from '../../error.js';
+import throwErrorAndHalt from './custom-error.js';
 
 async function filterListings(page, arrSearchTerms, strListing) {
   try {
@@ -21,7 +21,7 @@ async function filterListings(page, arrSearchTerms, strListing) {
 
     return filteredListings;
   } catch (err) {
-    throwErrorAndHalt;
+    throwErrorAndHalt(err, 'filterListings');
   }
 }
 
@@ -35,7 +35,7 @@ const createDataObject = (page, elListing) =>
       elListing
     )
     .catch((err) => {
-      throwErrorAndHalt;
+      throwErrorAndHalt(err, 'createDataObject');
     });
 
 const toLowerCaseMultiple = (...args) => args.map((str) => str.toLowerCase());
@@ -47,7 +47,7 @@ const compareStrings = ([strTextContent, strSearchTerm]) =>
 const findMatch = (strTextContent, strSearchTerm) =>
   compareStrings(toLowerCaseMultiple(strTextContent, strSearchTerm));
 
-const formatJobText = (strTextContent) =>
+const formatListingText = (strTextContent) =>
   strTextContent
     .toLowerCase()
     // Lookbehind regex to prevent capitalization after apostrophes
@@ -56,12 +56,14 @@ const formatJobText = (strTextContent) =>
 
 const createFindMatchPromises = (page, arrElements, arrSearchTerms) =>
   arrElements.map(async (elListing) => {
-    const objJobData = await createDataObject(page, elListing);
+    const objListingData = await createDataObject(page, elListing);
     const isMatch = arrSearchTerms.some((strTerm) =>
-      findMatch(objJobData.textContent, strTerm)
+      findMatch(objListingData.textContent, strTerm)
     );
     if (isMatch)
-      return { [formatJobText(objJobData.textContent)]: objJobData.href };
+      return {
+        [formatListingText(objListingData.textContent)]: objListingData.href,
+      };
   });
 
 export default filterListings;

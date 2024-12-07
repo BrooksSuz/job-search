@@ -2,9 +2,9 @@ import handleError from './handle-error.js';
 
 async function navigateSite(
   page,
-  boolCanWait,
+  strCanWait,
   arrErrMessages,
-  boolIsAnchor,
+  strIsAnchor,
   strNextPageDisabled,
   strNextPageLink,
   strNextPageParent
@@ -20,7 +20,7 @@ async function navigateSite(
   const boolCanStopRecursion = await stopRecursion(
     page,
     elNextPage,
-    boolIsAnchor,
+    strIsAnchor,
     strNextPageDisabled,
     strNextPageParent
   );
@@ -28,16 +28,15 @@ async function navigateSite(
   // Guard clause: Can stop recursion
   if (boolCanStopRecursion) return false;
 
-  // Navigate to the next page
+  // Check for successful navigation
   const boolIsSuccessfulNavigation = await runNavigationActions(
     page,
-    boolCanWait,
+    strCanWait,
     elNextPage,
     arrErrMessages,
     urlPrevious
   );
 
-  // Recursive case: A successful navigation
   return boolIsSuccessfulNavigation;
 }
 
@@ -48,20 +47,25 @@ const getNextPageElement = (page, arrErrMessages, strNextPageLink) =>
   });
 
 const checkHrefState = async (elNextPage) =>
-  await elNextPage.evaluate(
-    (el) => !el.hasAttribute('href') || !el.getAttribute('href').trim()
-  );
+  // Return booleans for readability
+  await elNextPage.evaluate((el) => {
+    if (!el.hasAttribute('href') || !el.getAttribute('href').trim()) {
+      return true;
+    }
+    return false;
+  });
 
 const checkDisabledState = async (element, strNextPageDisabled) =>
   await element.evaluate((el, strNextPageDisabled) => {
     if (strNextPageDisabled) {
+      // Check for a custom disabled style
       const boolHasDisabledSelector =
         el.classList.contains(strNextPageDisabled);
-      const boolHasDisabledAttribute = el.hasAttribute('disabled');
-      const boolIsDisabled =
-        boolHasDisabledSelector || boolHasDisabledAttribute;
 
-      return boolIsDisabled;
+      // Check for the disabled attribute
+      const boolHasDisabledAttribute = el.hasAttribute('disabled');
+
+      return boolHasDisabledSelector || boolHasDisabledAttribute;
     }
   }, strNextPageDisabled);
 
@@ -71,6 +75,7 @@ const populateCheckDisabledState = async (
   strNextPageDisabled,
   strNextPageParent
 ) =>
+  // Check if a parent selector string is provided and use it instead
   strNextPageParent
     ? await checkDisabledState(
         await page.waitForSelector(strNextPageParent, { timeout: 5000 }),
@@ -81,7 +86,7 @@ const populateCheckDisabledState = async (
 const stopRecursion = async (
   page,
   elNextPage,
-  boolIsAnchor,
+  strIsAnchor,
   strNextPageDisabled,
   strNextPageParent
 ) => {
@@ -89,7 +94,7 @@ const stopRecursion = async (
   const boolIsElNextPageNull = !elNextPage;
   if (boolIsElNextPageNull) return true;
 
-  // Check if elNextPage cannot be clicked
+  // Stop if element is disabled
   const boolIsDisabled = await populateCheckDisabledState(
     page,
     elNextPage,
@@ -99,50 +104,50 @@ const stopRecursion = async (
 
   if (boolIsDisabled) {
     console.log(
-      'Next page element is disabled.\nAssuming last page reached.\n'
+      '\nNext page element is disabled.\nAssuming last page reached.\n'
     );
     return true;
   }
 
-  const hasNoHref = await checkHrefState(elNextPage);
-  if (boolIsAnchor === 'true' && hasNoHref) {
-    console.log('Next page anchor has no href.\nAssuming last page reached.\n');
+  // Stop if the element is an anchor and it has no href
+  const boolHasNoHref = await checkHrefState(elNextPage);
+  if (strIsAnchor === 'true' && boolHasNoHref) {
+    console.log(
+      '\nNext page anchor has no href.\nAssuming last page reached.\n'
+    );
     return true;
   }
 };
 
-const createClickAndWaitPromises = (page, canWait, elNextPage) => [
-  elNextPage.click(),
-  canWait === 'true'
-    ? page.waitForNavigation({ timeout: 10000 })
-    : page.waitForNetworkIdle({ timeout: 10000 }),
-];
-
-const clickAndWait = async (page, canWait, elNextPage) => {
-  await Promise.all(createClickAndWaitPromises(page, canWait, elNextPage));
+const clickAndWait = async (page, strCanWait, elNextPage) => {
+  await Promise.all([
+    elNextPage.click(),
+    strCanWait === 'true'
+      ? page.waitForNavigation({ timeout: 5000 })
+      : page.waitForNetworkIdle({ timeout: 5000 }),
+  ]);
 };
 
-const waitForNewUrl = async (page, previousUrl) => {
+const waitForNewUrl = async (page, urlPrevious) => {
   await page.waitForFunction(
-    (previousUrl) => window.location.href !== previousUrl,
-    previousUrl
+    (urlPrevious) => window.location.href !== urlPrevious,
+    urlPrevious
   );
 };
 
 const runNavigationActions = async (
   page,
-  canWait,
+  strCanWait,
   elNextPage,
-  errMessages,
-  previousUrl
+  arrErrorMessages,
+  urlPrevious
 ) => {
   try {
-    await clickAndWait(page, canWait, elNextPage, errMessages);
-    await waitForNewUrl(page, errMessages, previousUrl);
+    await clickAndWait(page, strCanWait, elNextPage, arrErrorMessages);
+    await waitForNewUrl(page, arrErrorMessages, urlPrevious);
     return true;
   } catch (err) {
-    const functionName = 'runNavigationActions';
-    handleError(err, errMessages, functionName);
+    handleError(err, arrErrorMessages, 'runNavigationActions');
     return false;
   }
 };
