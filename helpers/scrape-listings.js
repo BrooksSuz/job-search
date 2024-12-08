@@ -1,4 +1,3 @@
-import { incrementCount } from '../find-listings.js';
 import filterListings from './filter-listings.js';
 import { handleError } from './error.js';
 import navigateSite from './navigate-site.js';
@@ -7,6 +6,7 @@ async function scrapeListings(
 	page,
 	arrSearchTerms,
 	objConfigPairs,
+	incrementCount,
 	arrAllScrapedListings = [] // Default array for recursion
 ) {
 	// Destructure configPairs and disperse
@@ -33,9 +33,6 @@ async function scrapeListings(
 	);
 	arrAllScrapedListings.push(...arrFilteredListings);
 
-	// Increment scraped page count variable
-	incrementCount();
-
 	// Attempt to navigate to the next page
 	const boolHasNextPage = await navigateSite(
 		page,
@@ -47,6 +44,9 @@ async function scrapeListings(
 		strNextPageParent
 	);
 
+	// Increment page count
+	incrementCount();
+
 	// Base case: No next page
 	if (!boolHasNextPage)
 		return alphabetizeScrapedListings([...arrAllScrapedListings]);
@@ -56,6 +56,7 @@ async function scrapeListings(
 		page,
 		arrSearchTerms,
 		objConfigPairs,
+		incrementCount,
 		arrAllScrapedListings
 	);
 }
@@ -64,7 +65,7 @@ const checkConsent = async (page, strConsent, arrErrorMessages) => {
 	if (strConsent) {
 		const arrPromises = [
 			page.click(strConsent),
-			page.waitForSelector(strConsent, { timeout: 10000 }),
+			page.waitForSelector(strConsent),
 		];
 		await Promise.all(arrPromises).catch((err) => {
 			handleError(err, arrErrorMessages, 'checkConsent');

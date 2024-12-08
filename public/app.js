@@ -1,101 +1,133 @@
-import configs from './org-configs.js';
+import arrConfigs from './org-configs.js';
 
-const btnGetListings = document.querySelector('.get-listings');
 const h3Advanced = document.querySelector('.container-advanced > h3');
+const btnGetListings = document.querySelector('.get-listings');
 
-h3Advanced.addEventListener('click', () => {
-  const divAdvancedInputsClassList =
-    document.querySelector('.advanced-inputs').classList;
-  const bool = divAdvancedInputsClassList.contains('show-flex');
-  if (bool) {
-    divAdvancedInputsClassList.remove('show-flex');
-  } else {
-    divAdvancedInputsClassList.add('show-flex');
-  }
-});
+// Show/hide advanced inputs
+h3Advanced.addEventListener('click', onH3AdvancedClick);
 
-btnGetListings.addEventListener('click', () => {
-  const divListings = document.querySelector('.listings');
-  const spanBtnListingsText = document.querySelector('.get-listings-text');
-  const inputs = document.querySelectorAll('.advanced-inputs > label input');
-  if (divListings.firstChild) divListings.replaceChildren();
-  btnGetListings.disabled = true;
-  inputs.forEach((input) => {
-    input.disabled = 'true';
-  });
-  spanBtnListingsText.style.display = 'none';
-  const spanSpinner = document.querySelector('.spinner');
-  const stopSpinner = startSpinner(spanSpinner);
-  const alphabetizedConfigs = alphabetizeConfigs(configs);
+// Run main program logic
+btnGetListings.addEventListener('click', onBtnGetListingsClick);
 
-  func(alphabetizedConfigs).finally(() => {
-    spanSpinner.classList.remove('show');
-    stopSpinner();
-    btnGetListings.disabled = false;
-    inputs.forEach((input) => {
-      input.disabled = 'false';
-    });
-    spanBtnListingsText.style.display = 'inline';
-  });
-});
+function onH3AdvancedClick() {
+	const divAdvancedInputsClassList =
+		document.querySelector('.advanced-inputs').classList;
+	const boolContainsShowFlex = divAdvancedInputsClassList.contains('show-flex');
 
-function startSpinner(spanSpinner) {
-  const spinnerChars = ['|', '/', '-', '\\'];
-  spanSpinner.classList.add('show');
-
-  let i = 0;
-  const spinnerInterval = setInterval(() => {
-    spanSpinner.textContent = spinnerChars[i];
-    i = (i + 1) % spinnerChars.length;
-  }, 100);
-
-  return () => clearInterval(spinnerInterval);
+	if (boolContainsShowFlex) {
+		divAdvancedInputsClassList.remove('show-flex');
+	} else {
+		divAdvancedInputsClassList.add('show-flex');
+	}
 }
 
-async function func(alphabetizedConfigs) {
-  for (const config of alphabetizedConfigs) {
-    // Get inputs
-    const inputs = document.querySelectorAll('.advanced-inputs > label input');
-    const inputKeywords = document.querySelector('.keywords');
-    const inputKeywordsValue = encodeURIComponent(inputKeywords.value);
+async function onBtnGetListingsClick() {
+	// Remove children from previous search
+	const divListings = document.querySelector('.listings');
+	if (divListings.firstChild) divListings.replaceChildren();
 
-    // Assign them values
-    const keys = Object.keys(config);
-    keys.map((key, i) => {
-      if (key === 'canWait' || key === 'isAnchor') {
-        inputs[i].checked = config[key];
-      } else {
-        inputs[i].value = config[key];
-      }
-    });
+	// Disable search elements
+	const btnGetListings = document.querySelector('.get-listings');
+	const inputsAdvanced = document.querySelectorAll(
+		'.advanced-inputs > label input'
+	);
+	btnGetListings.disabled = true;
+	inputsAdvanced.forEach((input) => {
+		input.disabled = true;
+	});
 
-    // Get the encoded keys/values
-    const inputsEncoded = Array.from(inputs).map((input, i) => {
-      const encodedKey = encodeURIComponent(keys[i]);
-      const encodedValue =
-        keys[i] === 'canWait' || keys[i] === 'isAnchor'
-          ? encodeURIComponent(input.checked)
-          : encodeURIComponent(input.value);
-      return `${encodedKey}=${encodedValue}`;
-    });
+	// Replace button text with spinner animation
+	const spanBtnListingsText = document.querySelector('.get-listings-text');
+	spanBtnListingsText.style.display = 'none';
+	const spanSpinner = document.querySelector('.spinner');
+	const stopSpinner = startSpinner(spanSpinner);
 
-    // Join them
-    const params = inputsEncoded.join('&');
+	// Alphabetize and consume API endpoint
+	const arrAlphabetizedConfigs = alphabetizeConfigs(arrConfigs);
+	await executeJobSearch(arrAlphabetizedConfigs).finally(() => {
+		// Remove/stop the spinner and display original text
+		spanSpinner.classList.remove('show');
+		stopSpinner();
+		spanBtnListingsText.style.display = 'inline';
 
-    // Run the current config
-    await fetch(`/api/listings?input=${inputKeywordsValue}&${params}`)
-      .then((res) => res.json())
-      .then((strHtml) => {
-        const divListings = document.querySelector('.listings');
-        divListings.innerHTML += strHtml;
-      })
-      .catch((err) => {
-        console.error('Error fetching listing data:', err);
-      });
-  }
+		// Re-enable search elements
+		btnGetListings.disabled = false;
+		inputsAdvanced.forEach((input) => {
+			input.disabled = 'false';
+		});
+	});
 }
 
-const alphabetizeConfigs = (arr) =>
-  [...arr].sort((a, b) =>
-    a.orgName < b.orgName ? -1 : a.orgName > b.orgName ? 1 : 0
-  );
+async function executeJobSearch(arrAlphabetizedConfigs) {
+	// Loop through each config
+	for (const objConfig of arrAlphabetizedConfigs) {
+		const inputsAdvanced = document.querySelectorAll(
+			'.advanced-inputs > label input'
+		);
+
+		// Encode user keywords
+		const inputKeywords = document.querySelector('.keywords');
+		const strKeywordsParam = encodeURIComponent(inputKeywords.value);
+		const arrConfigKeys = Object.keys(objConfig);
+
+		// Fill search inputs
+		populateElements(arrConfigKeys, inputsAdvanced, objConfig);
+
+		// Encode input values for query string
+		const strParams = encodeInputs(arrConfigKeys, inputsAdvanced).join('&');
+
+		// Feed the config to the API
+		await consumeAPI(strKeywordsParam, strParams);
+	}
+}
+
+const startSpinner = (spanSpinner) => {
+	const spinnerChars = ['|', '/', '-', '\\'];
+	spanSpinner.classList.add('show');
+
+	let i = 0;
+	const spinnerInterval = setInterval(() => {
+		spanSpinner.textContent = spinnerChars[i];
+		i = (i + 1) % spinnerChars.length;
+	}, 100);
+
+	return () => clearInterval(spinnerInterval);
+};
+
+const alphabetizeConfigs = (arrConfigs) =>
+	[...arrConfigs].sort((a, b) =>
+		a.orgName < b.orgName ? -1 : a.orgName > b.orgName ? 1 : 0
+	);
+
+const populateElements = (arrConfigKeys, inputsAdvanced, objConfig) => {
+	arrConfigKeys.map((key, i) => {
+		if (key === 'canWait' || key === 'isAnchor') {
+			inputsAdvanced[i].checked = objConfig[key];
+		} else {
+			inputsAdvanced[i].value = objConfig[key];
+		}
+	});
+};
+
+const encodeInputs = (arrConfigKeys, inputsAdvanced) =>
+	Array.from(inputsAdvanced).map((input, i) => {
+		const encodedKey = encodeURIComponent(arrConfigKeys[i]);
+		const encodedValue =
+			arrConfigKeys[i] === 'canWait' || arrConfigKeys[i] === 'isAnchor'
+				? encodeURIComponent(input.checked)
+				: encodeURIComponent(input.value);
+		return `${encodedKey}=${encodedValue}`;
+	});
+
+const consumeAPI = async (inputKeywordsValue, strParams) => {
+	try {
+		const response = await fetch(
+			`/api/listings?keywords=${inputKeywordsValue}&${strParams}`
+		);
+		const strHtml = await response.json();
+		const divListings = document.querySelector('.listings');
+		divListings.innerHTML += strHtml;
+	} catch (err) {
+		console.error('Error fetching listing data:', err);
+	}
+};
