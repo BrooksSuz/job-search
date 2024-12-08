@@ -11,7 +11,7 @@ async function findListings(strSearchTerms, objConfig) {
 	const arrFormattedTerms = formatArguments(strSearchTerms);
 	const { getCount, incrementCount } = createCount();
 
-	console.log(`\nBegin scraping ${objConfig.orgName}`);
+	console.log(`\nBegin scraping ${objConfig.siteName}`);
 	try {
 		// Get desired listings (individual listing object: { title: url })
 		const arrDesiredListings = await buildListings(
@@ -23,7 +23,7 @@ async function findListings(strSearchTerms, objConfig) {
 
 		// Create div containers
 		const strDivListings = createHtml(
-			objConfig.orgName,
+			objConfig.siteName,
 			arrDesiredListings,
 			getCount
 		);
@@ -35,7 +35,7 @@ async function findListings(strSearchTerms, objConfig) {
 		throwErrorAndHalt(err, 'findListings');
 	} finally {
 		await browser.close();
-		console.log(`\nFinished scraping ${objConfig.orgName}`);
+		console.log(`\nFinished scraping ${objConfig.siteName}`);
 	}
 }
 
