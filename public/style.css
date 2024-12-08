@@ -1,0 +1,93 @@
+.advanced-inputs {
+  display: none;
+  gap: 1rem;
+}
+
+.advanced-inputs > label {
+  display: flex;
+}
+
+.advanced-inputs > label > *:nth-child(1) {
+  flex: 1;
+}
+
+.advanced-inputs > label > *:nth-child(2) {
+  flex: 3;
+}
+
+.container-advanced > h3 {
+  text-align: center;
+}
+
+.container-advanced > h3:hover {
+  cursor: pointer;
+}
+
+.container-get-listings {
+  width: 375px;
+  position: sticky;
+  top: 0;
+  padding: 5px;
+  background-color: darkslategrey;
+}
+
+.container-get-listings {
+  gap: 0.2rem;
+}
+
+.container-get-listings > * {
+  align-self: center;
+}
+
+.container-get-listings > label > input {
+  flex: 1;
+}
+
+.container-content {
+  align-items: center;
+}
+
+.container-main {
+  align-items: center;
+}
+
+.container-main > * {
+  max-width: 375px;
+}
+
+.container-org ul {
+  gap: 0.3rem;
+}
+
+.get-listings {
+  min-width: 56px;
+}
+
+.listings {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.spinner {
+  display: none;
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+}
+
+.show {
+  display: block;
+}
+
+.show-flex {
+  display: flex;
+  flex-direction: column;
+}
+
+h3 {
+  user-select: none;
+}
+
+a:visited {
+  color: transparent;
+}

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <link
+      rel="shortcut icon"
+      href="#"
+    />
+    <link
+      rel="stylesheet"
+      href="reset.css"
+    />
+    <link
+      rel="stylesheet"
+      href="style.css"
+    />
+    <title>Job Search</title>
+  </head>
+  <body>
+    <div class="container-main flex">
+      <h1>Find Those Jobs!</h1>
+      <div class="container-get-listings flex">
+        <div>
+          <label for="keywords">Keywords:</label>
+          <input
+            id="keywords"
+            class="keywords"
+            type="text"
+            placeholder="instructor, plumber, etc."
+          />
+          <button
+            class="get-listings"
+            type="button"
+          >
+            <span
+              class="get-listings-text"
+              aria-label="Get Job Listings"
+              >Get Jobs</span
+            >
+            <span
+              class="spinner"
+              aria-hidden="true"
+            ></span>
+          </button>
+        </div>
+      </div>
+      <div class="container-content flex">
+        <div class="container-advanced">
+          <h3>Advanced Settings</h3>
+          <div class="advanced-inputs">
+            <label>
+              <h3>Url:</h3>
+              <input type="text" />
+            </label>
+            <label>
+              <h3>Name:</h3>
+              <input type="text"
+            /></label>
+            <label>
+              <h3>Navigate:</h3>
+              <input type="checkbox" />
+            </label>
+            <label>
+              <h3>Consent:</h3>
+              <input
+                type="text"
+                placeholder="Is there a consent popup?"
+              />
+            </label>
+            <label>
+              <h3>Error:</h3>
+              <input
+                type="text"
+                placeholder="Separate with commas"
+              />
+            </label>
+            <label>
+              <h3>Is Anchor:</h3>
+              <input type="checkbox" />
+            </label>
+            <label>
+              <h3>Job Element:</h3>
+              <input type="text" />
+            </label>
+            <label>
+              <h3>Disabled:</h3>
+              <input
+                type="text"
+                placeholder="If there is one."
+              />
+            </label>
+            <label>
+              <h3>Next Page:</h3>
+              <input type="text" />
+            </label>
+            <label>
+              <h3>Next Page Parent:</h3>
+              <input
+                type="text"
+                placeholder="If there is one."
+              />
+            </label>
+          </div>
+        </div>
+        <div class="listings"></div>
+      </div>
+    </div>
+    <script
+      type="module"
+      src="app.js"
+    ></script>
+  </body>
+</html>
