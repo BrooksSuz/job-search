@@ -1,25 +1,9 @@
-import arrConfigs from './org-configs.js';
-
-const h3Advanced = document.querySelector('.container-advanced > h3');
-const btnGetListings = document.querySelector('.get-listings');
-
-// Show/hide advanced inputs
-h3Advanced.addEventListener('click', onH3AdvancedClick);
+import arrConfigs from './site-configs.js';
 
 // Run main program logic
-btnGetListings.addEventListener('click', onBtnGetListingsClick);
-
-function onH3AdvancedClick() {
-	const divAdvancedInputsClassList =
-		document.querySelector('.advanced-inputs').classList;
-	const boolContainsShowFlex = divAdvancedInputsClassList.contains('show-flex');
-
-	if (boolContainsShowFlex) {
-		divAdvancedInputsClassList.remove('show-flex');
-	} else {
-		divAdvancedInputsClassList.add('show-flex');
-	}
-}
+document
+	.querySelector('.get-listings')
+	.addEventListener('click', onBtnGetListingsClick);
 
 async function onBtnGetListingsClick() {
 	// Remove children from previous search
@@ -29,7 +13,7 @@ async function onBtnGetListingsClick() {
 	// Disable search elements
 	const btnGetListings = document.querySelector('.get-listings');
 	const inputsAdvanced = document.querySelectorAll(
-		'.advanced-inputs > label input'
+		'.container-advanced > label input'
 	);
 	btnGetListings.disabled = true;
 	inputsAdvanced.forEach((input) => {
@@ -53,7 +37,7 @@ async function onBtnGetListingsClick() {
 		// Re-enable search elements
 		btnGetListings.disabled = false;
 		inputsAdvanced.forEach((input) => {
-			input.disabled = 'false';
+			input.disabled = false;
 		});
 	});
 }
@@ -62,7 +46,7 @@ async function executeJobSearch(arrAlphabetizedConfigs) {
 	// Loop through each config
 	for (const objConfig of arrAlphabetizedConfigs) {
 		const inputsAdvanced = document.querySelectorAll(
-			'.advanced-inputs > label input'
+			'.container-advanced > label input'
 		);
 
 		// Encode user keywords
@@ -89,14 +73,14 @@ const startSpinner = (spanSpinner) => {
 	const spinnerInterval = setInterval(() => {
 		spanSpinner.textContent = spinnerChars[i];
 		i = (i + 1) % spinnerChars.length;
-	}, 100);
+	}, 90);
 
 	return () => clearInterval(spinnerInterval);
 };
 
 const alphabetizeConfigs = (arrConfigs) =>
 	[...arrConfigs].sort((a, b) =>
-		a.orgName < b.orgName ? -1 : a.orgName > b.orgName ? 1 : 0
+		a.siteName < b.siteName ? -1 : a.siteName > b.siteName ? 1 : 0
 	);
 
 const populateElements = (arrConfigKeys, inputsAdvanced, objConfig) => {

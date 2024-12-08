@@ -1,30 +1,30 @@
 import { MongoClient, ServerApiVersion } from 'mongodb';
 import { throwErrorAndHalt } from './custom-error.js';
 
-async function updateDatabase(org) {
-	const [[orgName, listings]] = Object.entries(org);
+async function updateDatabase(site) {
+	const [[siteName, listings]] = Object.entries(site);
 	try {
-		await insertListings(orgName, listings);
-		console.log(`Successfully inserted listings for ${orgName}`);
+		await insertListings(siteName, listings);
+		console.log(`Successfully inserted listings for ${siteName}`);
 	} catch (err) {
 		throwErrorAndHalt(err, 'updateDatabase');
 	}
 }
 
-const insertListings = async (orgName, listings) => {
+const insertListings = async (siteName, listings) => {
 	const db = await connectToDB();
 	const collection = db.collection('job_listings');
 	try {
-		const existingOrg = await collection.findOne({ org_name: orgName });
-		if (existingOrg) {
-			// Update existing organization
+		const existingsite = await collection.findOne({ site_name: siteName });
+		if (existingsite) {
+			// Update existing siteanization
 			await collection.updateOne(
-				{ org_name: orgName },
+				{ site_name: siteName },
 				{ $push: { listings: { $each: listings } } } // Add new listings
 			);
 		} else {
-			// Insert new organization with listings
-			await collection.insertOne({ org_name: orgName, listings });
+			// Insert new siteanization with listings
+			await collection.insertOne({ site_name: siteName, listings });
 		}
 		console.log('Listings inserted.');
 	} catch (err) {

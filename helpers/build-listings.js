@@ -9,7 +9,7 @@ const buildListings = async (
 ) => {
 	const page = await browser.newPage();
 	page.setDefaultTimeout(10000);
-	const { url, orgName, ...configPairs } = objConfig;
+	const { url, siteName, ...configPairs } = objConfig;
 	try {
 		// Go to the provided site
 		await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 });
