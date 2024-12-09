@@ -5,7 +5,7 @@
   "main": "./server.js",
   "scripts": {
     "start": "node ./server.js",
-    "heroku-postbuild": "npm run build && mkdir  ./.cache && mv /app/.cache/puppeteer ./.cache"
+    "heroku-postbuild": "mkdir ./.cache && mv /app/.cache/puppeteer ./.cache"
   },
   "keywords": [],
   "author": "",
