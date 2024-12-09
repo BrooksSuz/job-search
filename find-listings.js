@@ -7,10 +7,7 @@ import {
 } from './helpers/index.js';
 
 async function findListings(strSearchTerms, objConfig) {
-	const browser = await createBrowser({
-		executablePath: '/app/.apt/usr/bin/chromium-browser',
-		args: ['--no-sandbox', '--disable-setuid-sandbox'],
-	});
+	const browser = await createBrowser();
 	const arrFormattedTerms = formatArguments(strSearchTerms);
 	const { getCount, incrementCount } = createCount();
 
@@ -44,8 +41,12 @@ const formatArguments = (strSearchTerms) =>
 	strSearchTerms.split(',').map((term) => term.trim());
 
 const createBrowser = () =>
-	puppeteer.launch().catch((err) => {
-		throwErrorAndHalt(err, 'createBrowser');
-	});
+	puppeteer
+		.launch({
+			args: ['--no-sandbox', '--disable-setuid-sandbox'],
+		})
+		.catch((err) => {
+			throwErrorAndHalt(err, 'createBrowser');
+		});
 
 export default findListings;
