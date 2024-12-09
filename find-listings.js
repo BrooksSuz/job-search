@@ -28,8 +28,6 @@ async function findListings(strSearchTerms, objConfig) {
 			getCount
 		);
 
-		// if (!arrDesiredListings.length) await updateDatabase(arrDesiredListings);
-
 		return strDivListings;
 	} catch (err) {
 		throwErrorAndHalt(err, 'findListings');
