@@ -8,9 +8,8 @@ import {
 
 async function findListings(strSearchTerms, objConfig) {
 	const browser = await createBrowser({
-		executablePath:
-			process.env.PUPPETEER_EXECUTABLE_PATH || puppeteer.executablePath(),
-		userDataDir: '/app/.cache/puppeteer',
+		executablePath: '/app/.apt/usr/bin/chromium-browser',
+		args: ['--no-sandbox', '--disable-setuid-sandbox'],
 	});
 	const arrFormattedTerms = formatArguments(strSearchTerms);
 	const { getCount, incrementCount } = createCount();
