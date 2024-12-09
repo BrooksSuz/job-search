@@ -7,7 +7,11 @@ import {
 } from './helpers/index.js';
 
 async function findListings(strSearchTerms, objConfig) {
-	const browser = await createBrowser();
+	const browser = await createBrowser({
+		executablePath:
+			process.env.PUPPETEER_EXECUTABLE_PATH || puppeteer.executablePath(),
+		userDataDir: '/app/.cache/puppeteer',
+	});
 	const arrFormattedTerms = formatArguments(strSearchTerms);
 	const { getCount, incrementCount } = createCount();
 
