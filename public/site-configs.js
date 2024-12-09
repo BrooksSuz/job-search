@@ -1,16 +1,16 @@
-const ut = {
-	url: 'https://careers.utoledo.edu/cw/en-us/listing/',
-	siteName: 'University of Toledo',
-	canWait: false,
+const um = {
+	url: 'https://careers.umich.edu/browse-jobs/positions/F',
+	siteName: 'University of Michigan',
+	canWait: true,
 	consent: '',
-	errorMessages: 'Node is either not clickable or not an Element',
+	errorMessages: "Waiting for selector `a[title='Go to next page']`",
 	isAnchor: true,
-	listing: 'h4 > a.job-link',
+	listing: 'a[href^="/job_detail/"]',
 	nextPageDisabled: '',
-	nextPageLink: "#recent-jobs a[title='More Jobs']:nth-of-type(1)",
+	nextPageLink: "a[title='Go to next page']",
 	nextPageParent: '',
 };
 
-const arrConfigs = [ut];
+const arrConfigs = [um];
 
 export default arrConfigs;
