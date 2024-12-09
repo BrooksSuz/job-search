@@ -23,7 +23,12 @@ body * {
   margin-bottom: 0.2rem;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: #f0f0f0;
   cursor: default;
 }
@@ -49,7 +54,8 @@ button {
   min-width: 70px;
 }
 
-button, label {
+button,
+label {
   min-height: 55px;
 }
 
@@ -99,7 +105,7 @@ a:hover {
   color: var(--atomic-tangerine);
 }
 
-[class^="container"] {
+[class^='container'] {
   align-items: center;
   padding: 0.3rem;
 }
@@ -131,6 +137,10 @@ a:hover {
 .container-main > * {
   border: 1px solid var(--aquamarine);
   width: clamp(375px, 60%, 800px);
+}
+
+.container-site {
+  animation: fadeIn 1s ease-out;
 }
 
 .container-site h3 {
@@ -180,5 +190,16 @@ a:visited {
 
   label > span {
     min-width: 115px;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
