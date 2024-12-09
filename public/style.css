@@ -75,9 +75,24 @@ button:disabled {
   background-color: hsla(12, 100%, 72%, 0.4);
 }
 
+input[type="text"] {
+  all: unset;
+  border: 1px solid #f0f0f0;
+  padding: 8px;
+  font-size: 14px;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+input[type="text"]:focus {
+  outline: none;
+  border-color: var(--atomic-tangerine);
+  box-shadow: 0 0 3px rgba(20, 100%, 76%, 0.5);
+}
+
+
 summary {
   text-align: center;
-  cursor: default;
 }
 
 label {
