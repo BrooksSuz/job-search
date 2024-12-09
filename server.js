@@ -6,6 +6,7 @@ import findListings from './find-listings.js';
 const fileName = fileURLToPath(import.meta.url);
 const dirName = path.dirname(fileName);
 const app = express();
+const port = process.env.PORT || 3000;
 
 app.use(express.static(path.join(dirName, './public')));
 
@@ -22,7 +23,6 @@ app.get('/', (req, res) => {
 	res.sendFile(path.join(dirName, './public', 'index.html'));
 });
 
-const port = 3000;
 app.listen(port, () => {
 	console.log(`Server running at http://localhost:${port}`);
 });

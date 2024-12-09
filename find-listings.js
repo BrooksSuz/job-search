@@ -41,8 +41,12 @@ const formatArguments = (strSearchTerms) =>
 	strSearchTerms.split(',').map((term) => term.trim());
 
 const createBrowser = () =>
-	puppeteer.launch().catch((err) => {
-		throwErrorAndHalt(err, 'createBrowser');
-	});
+	puppeteer
+		.launch({
+			args: ['--no-sandbox', '--disable-setuid-sandbox'],
+		})
+		.catch((err) => {
+			throwErrorAndHalt(err, 'createBrowser');
+		});
 
 export default findListings;
