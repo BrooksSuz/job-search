@@ -1,6 +1,4 @@
-// import arrConfigs from './site-configs.js';
-
-const controller = new AbortController();
+import arrConfigs from './site-configs.js';
 
 // Run main program logic
 document
@@ -29,7 +27,7 @@ async function onBtnGetListingsClick() {
   const stopSpinner = startSpinner(spanSpinner);
 
   // Get configs from database
-  const arrConfigs = await fetchSiteConfigs();
+  // const arrConfigs = await fetchSiteConfigs();
 
   // Alphabetize and consume API endpoint
   const arrAlphabetizedConfigs = alphabetizeConfigs(arrConfigs);
@@ -44,6 +42,10 @@ async function onBtnGetListingsClick() {
     inputsAdvanced.forEach((input) => {
       input.disabled = false;
     });
+
+    // Send mail
+    // TODO: Figure out what to do with this (it works)
+    // sendListingsHTML();
   });
 }
 
@@ -130,5 +132,27 @@ const consumeAPI = async (inputKeywordsValue, strParams) => {
     divListings.appendChild(htmlDoc.body.firstChild);
   } catch (err) {
     console.error('Error fetching listing data:', err);
+  }
+};
+
+const sendListingsHTML = async () => {
+  const divListings = document.querySelector('.listings');
+  const divToString = divListings.outerHTML;
+  try {
+    const response = await fetch(`/api/send-mail`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ html: divToString }),
+    });
+
+    if (response.ok) {
+      console.log('HTML sent successfully');
+    } else {
+      console.error('Error sending HTML', error);
+    }
+  } catch (err) {
+    console.error('Error in function sendListingHTML', err);
   }
 };

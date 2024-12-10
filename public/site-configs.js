@@ -74,6 +74,6 @@ const osu = {
   nextPageParent: '',
 };
 
-const arrConfigs = [em, um, ut, bg, owens];
+const arrConfigs = [em];
 
 export default arrConfigs;

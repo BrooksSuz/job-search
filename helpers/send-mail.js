@@ -9,14 +9,18 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const mailOptions = {
-  from: 'delta.kemmer@ethereal.email',
-  to: 'susorbrooks@gmail.com',
-  subject: "Your Morning's Scraped Listings",
-  html: html,
-};
+function sendMail(html) {
+  const mailOptions = {
+    from: 'delta.kemmer@ethereal.email',
+    to: 'susorbrooks@gmail.com',
+    subject: "Today's Job Listings",
+    html: html,
+  };
 
-transporter.sendMail(mailOptions, (err, info) => {
-  if (err) return console.error('Error:', err);
-  console.log('Email sent:', info.response);
-});
+  transporter.sendMail(mailOptions, (err, info) => {
+    if (err) return console.error('Error:', err);
+    console.log('Email sent:', info.response);
+  });
+}
+
+export default sendMail;
