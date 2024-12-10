@@ -1,121 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta
-			name="viewport"
-			content="width=device-width, initial-scale=1.0"
-		/>
-		<link
-			rel="shortcut icon"
-			href="#"
-		/>
-		<link
-			rel="stylesheet"
-			href="reset.css"
-		/>
-		<link
-			rel="stylesheet"
-			href="style.css"
-		/>
-		<title>Job Search</title>
-	</head>
-	<body>
-		<div class="container-main flex">
-			<h1>Find Those Jobs!</h1>
-			<div class="container-get-listings">
-				<label
-					><span>Keywords:</span>
-					<input
-						id="keywords"
-						class="keywords"
-						type="text"
-						placeholder="Instructor, Plumber, Etc."
-					/>
-				</label>
-				<button
-					class="get-listings"
-					type="button"
-				>
-					<span
-						class="get-listings-text"
-						aria-label="Get Job Listings"
-						>Get Jobs</span
-					>
-					<span
-						class="spinner"
-						aria-hidden="true"
-					></span>
-				</button>
-			</div>
-			<div class="container-content flex">
-				<details class="container-advanced flex">
-					<summary>Advanced Settings</summary>
-					<label>
-						<span>Url:</span>
-						<input type="text" />
-					</label>
-					<label>
-						<span>Site Name:</span>
-						<input type="text"
-					/></label>
-					<label>
-						<span>Navigate:</span>
-						<input type="checkbox" />
-					</label>
-					<label>
-						<span>Selector (1):</span>
-						<input
-							type="text"
-							placeholder="Consent Popup Element"
-						/>
-					</label>
-					<label>
-						<span>Error:</span>
-						<input
-							type="text"
-							placeholder="Separate with commas"
-						/>
-					</label>
-					<label>
-						<span>Anchor:</span>
-						<input type="checkbox" />
-					</label>
-					<label>
-						<span>Selector (2):</span>
-						<input
-							type="text"
-							placeholder="Job Listing Element"
-						/>
-					</label>
-					<label>
-						<span>Selector (3):</span>
-						<input
-							type="text"
-							placeholder="Disabled Element"
-						/>
-					</label>
-					<label>
-						<span>Selector (4):</span>
-						<input
-							type="text"
-							placeholder="Next Page Element"
-						/>
-					</label>
-					<label>
-						<span>Selector (5):</span>
-						<input
-							type="text"
-							placeholder="Next Page Parent Element"
-						/>
-					</label>
-				</details>
-				<div class="listings flex"></div>
-			</div>
-		</div>
-		<script
-			type="module"
-			src="app.js"
-		></script>
-	</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <link
+      rel="shortcut icon"
+      href="#"
+    />
+    <link
+      rel="stylesheet"
+      href="reset.css"
+    />
+    <link
+      rel="stylesheet"
+      href="style.css"
+    />
+    <title>Job Search</title>
+  </head>
+  <body>
+    <div class="container-main flex">
+      <h1>Find Those Jobs!</h1>
+      <div class="container-get-listings">
+        <label
+          ><span>Keywords:</span>
+          <input
+            id="keywords"
+            class="keywords"
+            type="text"
+            placeholder="Instructor, Plumber, Etc."
+          />
+        </label>
+        <button
+          class="get-listings"
+          type="button"
+        >
+          <span
+            class="get-listings-text"
+            aria-label="Get Job Listings"
+            >Get Jobs</span
+          >
+          <span
+            class="spinner"
+            aria-hidden="true"
+          ></span>
+        </button>
+      </div>
+      <div class="container-content flex">
+        <details class="container-advanced flex">
+          <summary>Advanced Settings</summary>
+          <label>
+            <span>Site Name:</span>
+            <input type="text" />
+          </label>
+          <label>
+            <span>Url:</span>
+            <input type="text" />
+          </label>
+          <label>
+            <span>Selector (1):</span>
+            <input
+              type="text"
+              placeholder="Consent Popup Element"
+            />
+          </label>
+          <label>
+            <span>Selector (2):</span>
+            <input
+              type="text"
+              placeholder="Job Listing Element"
+            />
+          </label>
+          <label>
+            <span>Selector (3):</span>
+            <input
+              type="text"
+              placeholder="Disabled Element"
+            />
+          </label>
+          <label>
+            <span>Selector (4):</span>
+            <input
+              type="text"
+              placeholder="Next Page Element"
+            />
+          </label>
+          <label>
+            <span>Selector (5):</span>
+            <input
+              type="text"
+              placeholder="Next Page Parent Element"
+            />
+          </label>
+          <label>
+            <span>Error:</span>
+            <input
+              type="text"
+              placeholder="Separate with commas"
+            />
+          </label>
+          <label>
+            <span>Anchor:</span>
+            <input type="checkbox" />
+          </label>
+        </details>
+        <div class="listings flex"></div>
+      </div>
+    </div>
+    <script
+      type="module"
+      src="app.js"
+    ></script>
+  </body>
 </html>

@@ -157,6 +157,7 @@ a:hover {
 
 .container-site {
   animation: fadeIn 1s ease-out;
+  border-top: 2px solid #f0f0f0;
 }
 
 .container-site h3 {
