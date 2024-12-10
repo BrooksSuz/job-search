@@ -59,14 +59,8 @@ label {
   min-height: 55px;
 }
 
-button:active {
-  background-color: var(--atomic-tangerine);
-}
-
-button:focus {
-  background-color: var(--atomic-tangerine);
-}
-
+button:active,
+button:focus,
 button:hover {
   background-color: var(--atomic-tangerine);
 }
@@ -75,7 +69,7 @@ button:disabled {
   background-color: hsla(12, 100%, 72%, 0.4);
 }
 
-input[type="text"] {
+input[type='text'] {
   all: unset;
   border: 1px solid #f0f0f0;
   padding: 4px;
@@ -83,14 +77,19 @@ input[type="text"] {
   cursor: text;
 }
 
-input[type="text"]:focus {
+input[type='text']:focus {
   outline: none;
   border-color: var(--atomic-tangerine);
-  box-shadow: 0 0 3px rgba(20, 100%, 76%, 0.5);
+}
+
+input:disabled {
+  filter: blur(1px);
+  cursor: default;
 }
 
 summary {
   text-align: center;
+  cursor: default;
 }
 
 label {
@@ -111,6 +110,10 @@ label > *:nth-child(2) {
 }
 
 a {
+  color: var(--aquamarine);
+}
+
+a:visited {
   color: var(--aquamarine);
 }
 
@@ -184,10 +187,6 @@ a:hover {
 .show-flex {
   display: flex;
   flex-direction: column;
-}
-
-a:visited {
-  color: transparent;
 }
 
 @media (max-width: 900px) {
