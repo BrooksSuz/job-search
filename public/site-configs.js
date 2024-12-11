@@ -74,6 +74,6 @@ const osu = {
 	url: 'https://osu.wd1.myworkdayjobs.com/OSUCareers',
 };
 
-const arrConfigs = [owens, bg];
+const arrConfigs = [um];
 
 export default arrConfigs;

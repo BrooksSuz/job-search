@@ -1,5 +1,5 @@
 import executeJobSearch from './helpers/execute-job-search.js';
-// import arrConfigs from './site-configs.js';
+import arrConfigs from './site-configs.js';
 
 // Run main program logic
 document
@@ -28,7 +28,7 @@ async function onBtnGetListingsClick() {
 	const stopSpinner = startSpinner(spanSpinner);
 
 	// Get configs from database
-	const arrConfigs = await fetchSiteConfigs();
+	// const arrConfigs = await fetchSiteConfigs();
 
 	// Alphabetize and consume API endpoint
 	const arrAlphabetizedConfigs = alphabetizeConfigs(arrConfigs);

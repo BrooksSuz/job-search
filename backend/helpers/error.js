@@ -35,7 +35,7 @@ const chooseErrorMessage = (err, boolIsExpectedError, strFunctionName) => {
 			`\nExpected error in function ${strFunctionName}.\nAssuming last page reached.`
 		);
 	} else {
-		throwErrorAndHalt(err, 'chooseErrorMessage');
+		throwErrorAndHalt(err, strFunctionName);
 	}
 };
 
