@@ -13,7 +13,7 @@ const buildListings = async (
 	if (objConfig.timeout) {
 		page.setDefaultTimeout(objConfig.timeout);
 	} else {
-		page.setDefaultTimeout(5000);
+		page.setDefaultTimeout(8000);
 	}
 
 	const { url, siteName, ...configPairs } = objConfig;
