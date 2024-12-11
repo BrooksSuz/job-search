@@ -69,7 +69,8 @@ button:disabled {
   background-color: hsla(12, 100%, 72%, 0.4);
 }
 
-input[type='text'] {
+input[type='text'],
+input[type='password'] {
   all: unset;
   border: 1px solid #f0f0f0;
   padding: 4px;

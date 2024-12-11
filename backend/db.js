@@ -1,6 +1,7 @@
 import { MongoClient, ServerApiVersion } from 'mongodb';
 import arrConfigs from '../public/site-configs.js';
 import dotenv from 'dotenv';
+import mongoose from 'mongoose';
 dotenv.config();
 
 const uri = process.env.MONGO_URI;
@@ -157,6 +158,17 @@ async function updateData() {
   }
 }
 
+async function connectToDb() {
+  try {
+    await mongoose.connect(uri);
+
+    console.log('Connected to MongoDB successfully');
+  } catch (err) {
+    console.error('Error connecting to MongoDB:', err);
+    process.exit(1);
+  }
+}
+
 async function getSiteConfigs() {
   try {
     await client.connect();
@@ -171,4 +183,6 @@ async function getSiteConfigs() {
   }
 }
 
-export { getSiteConfigs };
+connectToDb();
+
+export { connectToDb, getSiteConfigs };

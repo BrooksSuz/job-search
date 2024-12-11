@@ -1,10 +1,13 @@
 import executeJobSearch from './helpers/execute-job-search.js';
 // import arrConfigs from './site-configs.js';
 
-// Run main program logic
-document
-  .querySelector('.get-listings')
-  .addEventListener('click', onBtnGetListingsClick);
+// Run main program logic on click
+const btnGetListings = document.querySelector('.get-listings');
+btnGetListings.addEventListener('click', onBtnGetListingsClick);
+
+// Register account on click
+const btnRegister = document.querySelector('.register');
+btnRegister.addEventListener('click', onClickRegister);
 
 async function onBtnGetListingsClick() {
   // Remove children from previous search
@@ -50,6 +53,38 @@ async function onBtnGetListingsClick() {
   });
 }
 
+async function onClickRegister() {
+  const inputEmail = document.querySelector('.email');
+  const inputPassword = document.querySelector('.password');
+  const strEmailValue = inputEmail.value.trim();
+  const strPasswordValue = inputPassword.value.trim();
+
+  if (!strEmailValue || !strPasswordValue) {
+    console.error('Email and password cannot be empty.');
+    return;
+  }
+
+  try {
+    const response = await fetch('/auth/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: strEmailValue,
+        password: strPasswordValue,
+      }),
+    });
+
+    if (response.ok) {
+      inputEmail.value = '';
+      inputPassword.value = '';
+    }
+  } catch (err) {
+    console.error('Error in function register', err);
+  }
+}
+
 const startSpinner = (spanSpinner) => {
   const spinnerChars = ['|', '/', '-', '\\'];
   spanSpinner.classList.add('show');
@@ -90,11 +125,7 @@ const sendListingsHTML = async () => {
       body: JSON.stringify({ html: divToString }),
     });
 
-    if (response.ok) {
-      console.log('HTML sent successfully');
-    } else {
-      console.error('Error sending HTML', error);
-    }
+    if (response.ok) console.log('HTML sent successfully');
   } catch (err) {
     console.error('Error in function sendListingHTML', err);
   }
