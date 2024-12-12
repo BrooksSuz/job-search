@@ -3,13 +3,25 @@ import executeJobSearch from './helpers/execute-job-search.js';
 
 // Run main program logic on click
 const btnGetListings = document.querySelector('.get-listings');
-btnGetListings.addEventListener('click', onBtnGetListingsClick);
+btnGetListings.addEventListener('click', onGetListingsClick);
 
-// Register account on click
+// Log in on click
+const btnLogin = document.querySelector('.login');
+btnLogin.addEventListener('click', onLoginClick);
+
+// Register on click
 const btnRegister = document.querySelector('.register');
-btnRegister.addEventListener('click', onClickRegister);
+btnRegister.addEventListener('click', onRegisterClick);
 
-async function onBtnGetListingsClick() {
+async function onLoginClick() {
+  handleAccountClick('login');
+}
+
+async function onRegisterClick() {
+  handleAccountClick('register');
+}
+
+async function onGetListingsClick() {
   // Remove children from previous search
   const divListings = document.querySelector('.listings');
   if (divListings.firstChild) divListings.replaceChildren();
@@ -53,37 +65,40 @@ async function onBtnGetListingsClick() {
   });
 }
 
-async function onClickRegister() {
+const handleAccountClick = async (strRoute) => {
   const inputEmail = document.querySelector('.email');
   const inputPassword = document.querySelector('.password');
-  const strEmailValue = inputEmail.value.trim();
-  const strPasswordValue = inputPassword.value.trim();
+  const email = inputEmail.value.trim();
+  const password = inputPassword.value.trim();
 
-  if (!strEmailValue || !strPasswordValue) {
+  if (!email || !password) {
     console.error('Email and password cannot be empty.');
     return;
   }
 
   try {
-    const response = await fetch('/auth/register', {
+    const response = await fetch(`/auth/${strRoute}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        email: strEmailValue,
-        password: strPasswordValue,
+        email,
+        password,
       }),
     });
 
     if (response.ok) {
       inputEmail.value = '';
       inputPassword.value = '';
+    } else {
+      const responseText = await response.text();
+      console.log(responseText);
     }
   } catch (err) {
-    console.error('Error in function register', err);
+    console.error(`Error in function handleAccountClick`, err);
   }
-}
+};
 
 const startSpinner = (spanSpinner) => {
   const spinnerChars = ['|', '/', '-', '\\'];

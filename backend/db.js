@@ -1,7 +1,7 @@
-import { MongoClient, ServerApiVersion } from 'mongodb';
-import arrConfigs from '../public/site-configs.js';
 import dotenv from 'dotenv';
+import { MongoClient, ServerApiVersion } from 'mongodb';
 import mongoose from 'mongoose';
+import arrConfigs from '../public/site-configs.js';
 dotenv.config();
 
 const uri = process.env.MONGO_URI;
@@ -182,7 +182,5 @@ async function getSiteConfigs() {
     await client.close();
   }
 }
-
-connectToDb();
 
 export { connectToDb, getSiteConfigs };

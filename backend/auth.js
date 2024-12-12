@@ -1,7 +1,6 @@
 import express from 'express';
-import passport from 'passport';
 import User from './User.js';
-import { connectToDb } from './db.js';
+import passport from './passport-config.js';
 
 const router = express.Router();
 
@@ -20,6 +19,7 @@ router.post('/register', async (req, res) => {
 
 // Login
 router.post('/login', passport.authenticate('local'), (req, res) => {
+  console.log('User authenticated:', req.user);
   res.send('Logged in');
 });
 

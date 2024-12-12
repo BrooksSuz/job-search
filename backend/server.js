@@ -1,26 +1,31 @@
+import MongoStore from 'connect-mongo';
 import express from 'express';
 import session from 'express-session';
-import MongoStore from 'connect-mongo';
-import passport from 'passport';
-import configurePassport from './passport.js';
-import authRoutes from './auth.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import authRoutes from './auth.js';
+import { connectToDb, getSiteConfigs } from './db.js';
 import findListings from './find-listings.js';
 import sendMail from './helpers/send-mail.js';
-import { getSiteConfigs } from './db.js';
+import passport from './passport-config.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 const fileName = fileURLToPath(import.meta.url);
 const dirName = path.dirname(fileName);
+const uri = process.env.MONGO_URI;
+const secret = process.env.SECRET;
 
+// Connect to the database
+connectToDb();
+
+// Middleware
 app.use(express.static(path.join(dirName, '../public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-const uri = process.env.MONGO_URI;
-const secret = process.env.SECRET;
+app.use(passport.initialize());
 app.use(
   session({
     secret: secret,
@@ -29,10 +34,9 @@ app.use(
     store: MongoStore.create({ mongoUrl: uri }),
   })
 );
-
-configurePassport(passport);
-app.use(passport.initialize());
 app.use(passport.session());
+
+// Routes
 app.use('/auth', authRoutes);
 
 app.get('/', (req, res) => {
@@ -68,8 +72,3 @@ app.post('/api/send-mail', async (req, res) => {
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
-
-function ensureAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) return next();
-  res.status(401).send('Unauthorized');
-}
