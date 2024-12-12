@@ -131,8 +131,16 @@ a:hover {
   min-width: 80%;
 }
 
-.container-content {
-  background-color: var(--dark-slate-gray);
+.container-account {
+  display: flex;
+}
+
+.container-account > :first-child {
+  flex: 4;
+}
+
+.container-account > :last-child {
+  flex: 1;
 }
 
 .container-get-listings {
@@ -140,7 +148,6 @@ a:hover {
   gap: 0.5rem;
   position: sticky;
   top: 0;
-  background-color: darkslategrey;
 }
 
 .container-get-listings > label {
@@ -151,9 +158,14 @@ a:hover {
   flex: 1;
 }
 
+.container-main {
+  background-color: var(--soft-black);
+}
+
 .container-main > * {
   border: 1px solid var(--aquamarine);
   width: clamp(375px, 60%, 800px);
+  background-color: var(--dark-slate-gray)
 }
 
 .container-site {
