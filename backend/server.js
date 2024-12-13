@@ -31,7 +31,12 @@ app.use(
 		secret: secret,
 		resave: false,
 		saveUninitialized: false,
-		store: MongoStore.create({ mongoUrl: uri, collectionName: 'sessions' }),
+		cookie: { maxAge: 3600000 },
+		store: MongoStore.create({
+			mongoUrl: uri,
+			collectionName: 'sessions',
+			dbName: 'job_scraper',
+		}),
 	})
 );
 app.use(passport.session());
