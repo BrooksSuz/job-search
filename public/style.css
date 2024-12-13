@@ -16,11 +16,11 @@ body {
   font-family: inherit;
   font-size: inherit;
   line-height: inherit;
+  overflow-y: scroll;
 }
 
 body * {
   border-radius: 0.2rem;
-  margin-bottom: 0.2rem;
 }
 
 h1,
@@ -47,16 +47,14 @@ button {
   display: inline-block;
   background-color: var(--cambridge-blue);
   color: var(--dark-slate-gray);
-  padding: 0 10px;
   border-radius: 10px;
   cursor: pointer;
   text-align: center;
-  min-width: 70px;
 }
 
 button,
 label {
-  min-height: 55px;
+  min-height: 50px;
 }
 
 button:active,
@@ -98,12 +96,11 @@ label {
   background-color: var(--soft-black);
   color: var(--aquamarine);
   display: flex;
-  padding: 0.5rem;
-  min-width: 80%;
+  padding: 0.3rem;
 }
 
 label > span {
-  min-width: 150px;
+  min-width: 130px;
 }
 
 label > *:nth-child(2) {
@@ -123,54 +120,53 @@ a:hover {
 }
 
 [class^='container'] {
-  align-items: center;
   padding: 0.3rem;
 }
 
-.container-advanced {
-  min-width: 80%;
+.container-advanced > label {
+  margin-bottom: 0.5rem;
 }
 
 .container-account {
   display: flex;
 }
 
-.container-account > :first-child {
-  flex: 4;
+.container-input {
+  gap: 0.5rem;
+  flex: 1;
 }
 
-.container-account > :last-child {
-  flex: 1;
+.container-button {
+  gap: 0.5rem;
+  min-width: 130px;
 }
 
 .container-get-listings {
   display: flex;
-  gap: 0.5rem;
   position: sticky;
   top: 0;
 }
 
-.container-get-listings > label {
-  flex: 4;
-}
-
-.container-get-listings > button {
-  flex: 1;
-}
-
 .container-main {
-  background-color: var(--soft-black);
+  gap: 1rem;
 }
 
-.container-main > * {
-  border: 1px solid var(--aquamarine);
+.container-content {
+  align-self: center;
+  gap: 0.5rem;
   width: clamp(375px, 60%, 800px);
-  background-color: var(--dark-slate-gray)
+}
+
+.container-content > * {
+  border: 1px solid var(--aquamarine);
+  background-color: var(--dark-slate-gray);
+  min-width: 100%;
 }
 
 .container-site {
   animation: fadeIn 1s ease-out;
   border-top: 2px solid #f0f0f0;
+  margin: 0.5rem 0;
 }
 
 .container-site h3 {
@@ -183,9 +179,10 @@ a:hover {
 }
 
 .listings {
+  align-self: center;
   background-color: var(--soft-black);
-  margin-bottom: 0.5rem;
-  min-width: 90%;
+  border: 1px solid var(--aquamarine);
+  width: clamp(375px, 80%, 1000px);
 }
 
 .spinner {
@@ -210,12 +207,20 @@ a:hover {
   }
 
   button {
-    padding: 0 5px;
-    min-width: 50px;
+    padding: 0 0.2rem;
   }
 
   label > span {
-    min-width: 115px;
+    min-width: 95px;
+  }
+
+  .container-input {
+    flex: 4;
+  }
+
+  .container-button {
+    min-width: 0;
+    flex: 1;
   }
 }
 
