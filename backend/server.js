@@ -4,7 +4,7 @@ import session from 'express-session';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import authRoutes from './auth.js';
-import { connectToDb, getPremadeConfigs } from './db.js';
+import { connectToDb, getPremadeConfigs, getSelectedConfigs } from './db.js';
 import findListings from './find-listings.js';
 import sendMail from './helpers/send-mail.js';
 import passport from './passport-config.js';
@@ -64,6 +64,17 @@ app.get('/api/premade', async (req, res) => {
 	} catch (err) {
 		console.error('Error fetching configs:', err);
 		res.status(500).json({ error: 'Failed to fetch site configs' });
+	}
+});
+
+app.post('/api/selected-premade', async (req, res) => {
+	const { siteName } = req.body;
+	try {
+		const objConfig = await getSelectedConfigs(siteName);
+		res.json(objConfig);
+	} catch (err) {
+		console.error('Error fetching config', err);
+		res.status(500).json({ error: 'Failed to fetch site config' });
 	}
 });
 

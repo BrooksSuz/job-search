@@ -92,7 +92,8 @@ async function onGetListingsClick() {
 	const stopSpinner = startSpinner(spanSpinner);
 
 	// Get configs from database
-	const arrConfigs = await fetchSiteConfigs();
+	// const arrConfigs = await fetchSiteConfigs();
+	const arrConfigs = await useSelectedOptions();
 
 	// Alphabetize and consume API endpoint
 	const arrAlphabetizedConfigs = alphabetizeConfigs(arrConfigs);
@@ -126,7 +127,7 @@ const handleAccountClick = async (strRoute) => {
 	}
 
 	try {
-		const response = await fetch(`/auth/${strRoute}`, {
+		await fetch(`/auth/${strRoute}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -136,11 +137,6 @@ const handleAccountClick = async (strRoute) => {
 				password,
 			}),
 		});
-
-		if (!response.ok) {
-			const responseText = await response.text();
-			console.log(responseText);
-		}
 	} catch (err) {
 		console.error(`Error in function handleAccountClick`, err);
 	}
@@ -206,6 +202,29 @@ const getPremadeConfigs = async () => {
 		const response = await fetch('/api/premade');
 		if (!response.ok) throw new Error('Unauthorized');
 		return await response.json();
+	} catch (err) {
+		console.error(err);
+	}
+};
+
+const useSelectedOptions = async () => {
+	const selectPremade = document.getElementById('premade');
+	const arrPremade = Array.from(selectPremade.selectedOptions);
+	const arrSelected = [];
+	try {
+		for (let option of arrPremade) {
+			const value = option.value;
+			const response = await fetch('/api/selected-premade', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ siteName: value }),
+			});
+			arrSelected.push(await response.json());
+		}
+		console.log(arrSelected);
+		return arrSelected;
 	} catch (err) {
 		console.error(err);
 	}

@@ -184,4 +184,20 @@ async function getPremadeConfigs() {
 	}
 }
 
-export { connectToDb, getPremadeConfigs };
+async function getSelectedConfigs(siteName) {
+	try {
+		await client.connect();
+		const db = client.db('job_scraper');
+		const collection = db.collection('premade');
+		const query = { siteName: siteName };
+		const projection = { _id: 0 };
+		const objSite = await collection.findOne(query, { projection });
+		return objSite;
+	} catch (err) {
+		console.error('Error querying site config:', err);
+	} finally {
+		await client.close();
+	}
+}
+
+export { connectToDb, getPremadeConfigs, getSelectedConfigs };
