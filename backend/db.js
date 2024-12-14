@@ -125,7 +125,7 @@ async function deleteCollection() {
 		await client.connect();
 		const db = client.db('job_scraper');
 
-		const result = await db.collection('user_websites').drop();
+		const result = await db.collection('sites').drop();
 
 		console.log(result ? 'Collection deleted' : 'Collection not found');
 	} catch (err) {
@@ -170,11 +170,11 @@ async function connectToDb(strCollection = '') {
 	}
 }
 
-async function getSiteConfigs() {
+async function getPremadeConfigs() {
 	try {
 		await client.connect();
 		const db = client.db('job_scraper');
-		const collection = db.collection('sites');
+		const collection = db.collection('premade');
 		const arrConfigs = await collection.find({}).project({ _id: 0 }).toArray();
 		return arrConfigs;
 	} catch (err) {
@@ -184,4 +184,4 @@ async function getSiteConfigs() {
 	}
 }
 
-export { connectToDb, getSiteConfigs };
+export { connectToDb, getPremadeConfigs };

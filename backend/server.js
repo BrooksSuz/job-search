@@ -4,7 +4,7 @@ import session from 'express-session';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import authRoutes from './auth.js';
-import { connectToDb, getSiteConfigs } from './db.js';
+import { connectToDb, getPremadeConfigs } from './db.js';
 import findListings from './find-listings.js';
 import sendMail from './helpers/send-mail.js';
 import passport from './passport-config.js';
@@ -59,8 +59,8 @@ app.get('/api/listings', (req, res) => {
 
 app.get('/api/site-configs', async (req, res) => {
 	try {
-		const configs = await getSiteConfigs();
-		res.json(configs);
+		const arrConfigs = await getPremadeConfigs();
+		res.json(arrConfigs);
 	} catch (err) {
 		console.error('Error fetching configs:', err);
 		res.status(500).json({ error: 'Failed to fetch site configs' });
@@ -72,6 +72,14 @@ app.post('/api/send-mail', async (req, res) => {
 	console.log('Received HTML:', html);
 	res.status(200).send('HTML received');
 	sendMail(html);
+});
+
+app.get('/api/user', (req, res) => {
+	if (req.isAuthenticated()) {
+		res.json({ user: req.user });
+	} else {
+		res.status(401).json({ message: 'Unauthorized' });
+	}
 });
 
 app.listen(port, () => {

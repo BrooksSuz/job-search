@@ -1,5 +1,5 @@
 import express from 'express';
-import User from './User.js';
+import User from './schemas/User.js';
 import passport from './passport-config.js';
 
 const router = express.Router();
