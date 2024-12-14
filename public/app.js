@@ -1,6 +1,9 @@
 import executeJobSearch from './helpers/execute-job-search.js';
 // import arrConfigs from './site-configs.js';
 
+// Get premade configurations
+document.addEventListener('DOMContentLoaded', onLoadGetPremade);
+
 // Run main program logic
 const btnGetListings = document.querySelector('.get-listings');
 btnGetListings.addEventListener('click', onGetListingsClick);
@@ -16,6 +19,17 @@ btnLogout.addEventListener('click', onLogoutClick);
 // Register
 const btnRegister = document.querySelector('.register');
 btnRegister.addEventListener('click', onRegisterClick);
+
+async function onLoadGetPremade() {
+	const arrPremadeConfigs = await getPremadeConfigs();
+	const selectPremade = document.getElementById('premade');
+	arrPremadeConfigs.forEach((objConfig) => {
+		const newOption = document.createElement('option');
+		newOption.value = objConfig.siteName;
+		newOption.textContent = objConfig.siteName;
+		selectPremade.appendChild(newOption);
+	});
+}
 
 async function onLoginClick() {
 	const btnLogin = document.querySelector('.login');
@@ -184,5 +198,15 @@ const sendListingsHTML = async () => {
 		if (response.ok) console.log('HTML sent successfully');
 	} catch (err) {
 		console.error('Error in function sendListingHTML', err);
+	}
+};
+
+const getPremadeConfigs = async () => {
+	try {
+		const response = await fetch('/api/premade');
+		if (!response.ok) throw new Error('Unauthorized');
+		return await response.json();
+	} catch (err) {
+		console.error(err);
 	}
 };

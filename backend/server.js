@@ -57,7 +57,7 @@ app.get('/api/listings', (req, res) => {
 	);
 });
 
-app.get('/api/site-configs', async (req, res) => {
+app.get('/api/premade', async (req, res) => {
 	try {
 		const arrConfigs = await getPremadeConfigs();
 		res.json(arrConfigs);

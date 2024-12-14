@@ -68,15 +68,22 @@ button:disabled {
 }
 
 input[type='text'],
-input[type='password'] {
+input[type='password'],
+select {
   all: unset;
   border: 1px solid #f0f0f0;
   padding: 4px;
   border-radius: 4px;
+}
+
+input[type='text'],
+input[type='password'] {
   cursor: text;
 }
 
-input[type='text']:focus {
+input[type='text']:focus,
+input[type='password']:focus,
+select:focus {
   outline: none;
   border-color: var(--atomic-tangerine);
 }
@@ -119,7 +126,7 @@ a:hover {
   color: var(--atomic-tangerine);
 }
 
-[class^='container'] {
+.container-content > [class^='container'] {
   padding: 0.3rem;
 }
 
@@ -129,6 +136,7 @@ a:hover {
 
 .container-account {
   display: flex;
+  gap: 0.5rem;
 }
 
 .container-input {
@@ -143,6 +151,7 @@ a:hover {
 
 .container-get-listings {
   display: flex;
+  gap: 0.5rem;
   position: sticky;
   top: 0;
 }
