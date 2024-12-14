@@ -223,7 +223,6 @@ const useSelectedOptions = async () => {
 			});
 			arrSelected.push(await response.json());
 		}
-		console.log(arrSelected);
 		return arrSelected;
 	} catch (err) {
 		console.error(err);
