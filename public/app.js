@@ -95,25 +95,53 @@ async function onGetListingsClick() {
 	// const arrConfigs = await fetchSiteConfigs();
 	const arrConfigs = await useSelectedOptions();
 
+	// Guard clause: No provided configs
+	if (!arrConfigs.length) {
+		cleanupFrontend(
+			spanSpinner,
+			stopSpinner,
+			spanBtnListingsText,
+			btnGetListings,
+			inputsAdvanced
+		);
+		return;
+	}
+
 	// Alphabetize and consume API endpoint
 	const arrAlphabetizedConfigs = alphabetizeConfigs(arrConfigs);
 	await executeJobSearch(arrAlphabetizedConfigs).finally(() => {
-		// Remove/stop the spinner and display original text
-		spanSpinner.classList.remove('show');
-		stopSpinner();
-		spanBtnListingsText.style.display = 'inline';
-
-		// Re-enable search elements
-		btnGetListings.disabled = false;
-		inputsAdvanced.forEach((input) => {
-			input.disabled = false;
-		});
+		cleanupFrontend(
+			spanSpinner,
+			stopSpinner,
+			spanBtnListingsText,
+			btnGetListings,
+			inputsAdvanced
+		);
 
 		// Send mail
 		// TODO: Figure out what to do with this (it works)
 		// sendListingsHTML();
 	});
 }
+
+const cleanupFrontend = (
+	spanSpinner,
+	stopSpinner,
+	spanBtnListingsText,
+	btnGetListings,
+	inputsAdvanced
+) => {
+	// Remove/stop the spinner and display original text
+	spanSpinner.classList.remove('show');
+	stopSpinner();
+	spanBtnListingsText.style.display = 'inline';
+
+	// Re-enable search elements
+	btnGetListings.disabled = false;
+	inputsAdvanced.forEach((input) => {
+		input.disabled = false;
+	});
+};
 
 const handleAccountClick = async (strRoute) => {
 	const inputEmail = document.querySelector('.email');

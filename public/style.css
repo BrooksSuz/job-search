@@ -163,7 +163,7 @@ a:hover {
 .container-content {
   align-self: center;
   gap: 0.5rem;
-  width: clamp(375px, 60%, 800px);
+  width: clamp(375px, 60%, 600px);
 }
 
 .container-content > * {
@@ -176,6 +176,7 @@ a:hover {
   animation: fadeIn 1s ease-out;
   border-top: 2px solid #f0f0f0;
   margin: 0.5rem 0;
+  padding: 0.5rem
 }
 
 .container-site h3 {
