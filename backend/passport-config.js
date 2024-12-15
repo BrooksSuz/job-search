@@ -26,10 +26,10 @@ passport.use(
 	)
 );
 
-passport.serializeUser((user, done) => done(null, user.id));
+passport.serializeUser((user, done) => done(null, user._id));
 passport.deserializeUser(async (id, done) => {
 	try {
-		const user = await User.findById(id).exec();
+		const user = await User.findById(id).populate('sites');
 		done(null, user);
 	} catch (err) {
 		done(err);

@@ -18,8 +18,17 @@ router.post('/register', async (req, res) => {
 });
 
 // Login
-router.post('/login', passport.authenticate('local'), (req, res) => {
-	res.send('Logged in');
+router.post('/login', passport.authenticate('local'), async (req, res) => {
+	const projection = { _id: 0 };
+	try {
+		const user = await User.findById(req.user._id, projection)
+			.populate('sites', projection)
+			.exec();
+		res.json({ message: 'Logged in successfully', user: user });
+	} catch (err) {
+		console.error(err);
+		res.status(500).json({ error: 'An error occurred' });
+	}
 });
 
 // Logout

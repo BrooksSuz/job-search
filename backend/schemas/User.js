@@ -1,9 +1,11 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
+import Site from './Site.js';
 
 const userSchema = new mongoose.Schema({
 	email: { type: String, required: true, unique: true },
 	password: { type: String, required: true },
+	sites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Site' }],
 });
 
 userSchema.pre('save', async function (next) {

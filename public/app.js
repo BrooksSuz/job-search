@@ -22,7 +22,7 @@ btnRegister.addEventListener('click', onRegisterClick);
 
 async function onLoadGetPremade() {
 	const arrPremadeConfigs = await getPremadeConfigs();
-	const selectPremade = document.getElementById('premade');
+	const selectPremade = document.getElementById('premade-configs');
 	arrPremadeConfigs.forEach((objConfig) => {
 		const newOption = document.createElement('option');
 		newOption.value = objConfig.siteName;
@@ -35,7 +35,9 @@ async function onLoginClick() {
 	const btnLogin = document.querySelector('.login');
 	const btnLogout = document.querySelector('.logout');
 	try {
-		await handleAccountClick('login');
+		const response = await handleAccountClick('login');
+		const arrSites = await response.json().then((res) => res.user.sites);
+		changeSelectElement(arrSites);
 		await swapButtons(btnLogin, btnLogout);
 
 		const inputEmail = document.querySelector('.email');
@@ -91,13 +93,13 @@ async function onGetListingsClick() {
 	const spanSpinner = document.querySelector('.spinner');
 	const stopSpinner = startSpinner(spanSpinner);
 
-	// Get configs from database
 	// const arrConfigs = await fetchSiteConfigs();
+	// Get configs from database
 	const arrConfigs = await useSelectedOptions();
 
 	// Guard clause: No provided configs
 	if (!arrConfigs.length) {
-		cleanupFrontend(
+		cleanUpDOM(
 			spanSpinner,
 			stopSpinner,
 			spanBtnListingsText,
@@ -110,7 +112,7 @@ async function onGetListingsClick() {
 	// Alphabetize and consume API endpoint
 	const arrAlphabetizedConfigs = alphabetizeConfigs(arrConfigs);
 	await executeJobSearch(arrAlphabetizedConfigs).finally(() => {
-		cleanupFrontend(
+		cleanUpDOM(
 			spanSpinner,
 			stopSpinner,
 			spanBtnListingsText,
@@ -124,7 +126,7 @@ async function onGetListingsClick() {
 	});
 }
 
-const cleanupFrontend = (
+const cleanUpDOM = (
 	spanSpinner,
 	stopSpinner,
 	spanBtnListingsText,
@@ -155,7 +157,7 @@ const handleAccountClick = async (strRoute) => {
 	}
 
 	try {
-		await fetch(`/auth/${strRoute}`, {
+		const response = await fetch(`/auth/${strRoute}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -165,6 +167,7 @@ const handleAccountClick = async (strRoute) => {
 				password,
 			}),
 		});
+		if (strRoute === 'login') return response;
 	} catch (err) {
 		console.error(`Error in function handleAccountClick`, err);
 	}
@@ -235,9 +238,37 @@ const getPremadeConfigs = async () => {
 	}
 };
 
+const sliceId = () => {
+	const selectMenu = document.querySelector('[id$="configs"]');
+	const strSelectMenuId = selectMenu.id;
+	const intIdConfigsIndex = strSelectMenuId.indexOf('-');
+	const strSelectIdSliced = strSelectMenuId.slice(0, intIdConfigsIndex);
+	return strSelectIdSliced;
+};
+
+const changeSelectElement = async (arrSites) => {
+	const strSelectIdSliced = sliceId();
+	const strCurrentId = `${strSelectIdSliced}-configs`;
+	const selectElement = document.getElementById(strCurrentId);
+	const labelContainer = document.querySelector('.container-configs > label');
+	const newSelect = document.createElement('select');
+	newSelect.id = 'user-configs';
+	newSelect.name = 'user-configs';
+	arrSites.forEach((objConfig) => {
+		const newOption = document.createElement('option');
+		newOption.value = objConfig.siteName;
+		newOption.textContent = objConfig.siteName;
+		newSelect.appendChild(newOption);
+	});
+	selectElement.style.display = 'none';
+	labelContainer.appendChild(newSelect);
+};
+
 const useSelectedOptions = async () => {
-	const selectPremade = document.getElementById('premade');
-	const arrPremade = Array.from(selectPremade.selectedOptions);
+	const strSelectIdSliced = sliceId();
+	const strCurrentId = `${strSelectIdSliced}-configs`;
+	const selectElement = document.getElementById(strCurrentId);
+	const arrPremade = Array.from(selectElement.selectedOptions);
 	const arrSelected = [];
 	try {
 		for (let option of arrPremade) {

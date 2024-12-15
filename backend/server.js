@@ -85,14 +85,6 @@ app.post('/api/send-mail', async (req, res) => {
 	sendMail(html);
 });
 
-app.get('/api/user', (req, res) => {
-	if (req.isAuthenticated()) {
-		res.json({ user: req.user });
-	} else {
-		res.status(401).json({ message: 'Unauthorized' });
-	}
-});
-
 app.listen(port, () => {
 	console.log(`Server running at http://localhost:${port}`);
 });
