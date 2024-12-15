@@ -25,7 +25,7 @@ async function onLoadGetPremade() {
 	const selectPremade = document.getElementById('premade-configs');
 	arrPremadeConfigs.forEach((objConfig) => {
 		const newOption = document.createElement('option');
-		newOption.value = objConfig.siteName;
+		newOption.value = objConfig._id;
 		newOption.textContent = objConfig.siteName;
 		selectPremade.appendChild(newOption);
 	});
@@ -37,7 +37,7 @@ async function onLoginClick() {
 	try {
 		const response = await handleAccountClick('login');
 		const arrSites = await response.json().then((res) => res.user.sites);
-		changeSelectElement(arrSites);
+		await changeSelectElement(arrSites);
 		await swapButtons(btnLogin, btnLogout);
 
 		const inputEmail = document.querySelector('.email');
@@ -93,7 +93,6 @@ async function onGetListingsClick() {
 	const spanSpinner = document.querySelector('.spinner');
 	const stopSpinner = startSpinner(spanSpinner);
 
-	// const arrConfigs = await fetchSiteConfigs();
 	// Get configs from database
 	const arrConfigs = await useSelectedOptions();
 
@@ -178,8 +177,23 @@ const swapButtons = async (btnNone, btnBlock) => {
 	btnBlock.style.display = 'block';
 };
 
+// Hold premade select element in memory
+const selectPremade = document.getElementById('premade-configs');
+
 const handleLogOutClick = async () => {
-	await fetch('/auth/logout');
+	// Log the user out
+	try {
+		await fetch('/auth/logout');
+	} catch (err) {
+		console.error('Error logging user out', err);
+		return;
+	}
+
+	// Reinsert premade select element
+	const labelParent = document.querySelector('.container-configs > label');
+	const selectUser = document.getElementById('user-configs');
+	labelParent.removeChild(selectUser);
+	labelParent.appendChild(selectPremade);
 };
 
 const startSpinner = (spanSpinner) => {
@@ -193,16 +207,6 @@ const startSpinner = (spanSpinner) => {
 	}, 90);
 
 	return () => clearInterval(spinnerInterval);
-};
-
-const fetchSiteConfigs = async () => {
-	try {
-		const response = await fetch('/api/site-configs');
-		const arrConfigs = await response.json();
-		return arrConfigs;
-	} catch (err) {
-		console.error('Error fetching site configs:', err);
-	}
 };
 
 const alphabetizeConfigs = (arrConfigs) =>
@@ -250,38 +254,36 @@ const changeSelectElement = async (arrSites) => {
 	const strSelectIdSliced = sliceId();
 	const strCurrentId = `${strSelectIdSliced}-configs`;
 	const selectElement = document.getElementById(strCurrentId);
-	const labelContainer = document.querySelector('.container-configs > label');
+	const labelParent = document.querySelector('.container-configs > label');
 	const newSelect = document.createElement('select');
 	newSelect.id = 'user-configs';
 	newSelect.name = 'user-configs';
+	newSelect.multiple = true;
 	arrSites.forEach((objConfig) => {
 		const newOption = document.createElement('option');
-		newOption.value = objConfig.siteName;
+		newOption.value = objConfig._id;
 		newOption.textContent = objConfig.siteName;
 		newSelect.appendChild(newOption);
 	});
-	selectElement.style.display = 'none';
-	labelContainer.appendChild(newSelect);
+	labelParent.removeChild(selectElement);
+	labelParent.appendChild(newSelect);
 };
 
 const useSelectedOptions = async () => {
 	const strSelectIdSliced = sliceId();
 	const strCurrentId = `${strSelectIdSliced}-configs`;
 	const selectElement = document.getElementById(strCurrentId);
-	const arrPremade = Array.from(selectElement.selectedOptions);
-	const arrSelected = [];
+	const arrConfigs = Array.from(selectElement.selectedOptions);
+	const arrIds = arrConfigs.map((option) => option.value);
 	try {
-		for (let option of arrPremade) {
-			const value = option.value;
-			const response = await fetch('/api/selected-premade', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ siteName: value }),
-			});
-			arrSelected.push(await response.json());
-		}
+		const response = await fetch('/api/configs', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ arrIds: arrIds }),
+		});
+		const arrSelected = await response.json();
 		return arrSelected;
 	} catch (err) {
 		console.error(err);

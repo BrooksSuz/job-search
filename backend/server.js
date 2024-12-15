@@ -67,10 +67,10 @@ app.get('/api/premade', async (req, res) => {
 	}
 });
 
-app.post('/api/selected-premade', async (req, res) => {
-	const { siteName } = req.body;
+app.post('/api/configs', async (req, res) => {
+	const { arrIds } = req.body;
 	try {
-		const objConfig = await getSelectedConfigs(siteName);
+		const objConfig = await getSelectedConfigs(arrIds);
 		res.json(objConfig);
 	} catch (err) {
 		console.error('Error fetching config', err);

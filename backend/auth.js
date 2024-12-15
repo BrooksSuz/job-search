@@ -19,7 +19,7 @@ router.post('/register', async (req, res) => {
 
 // Login
 router.post('/login', passport.authenticate('local'), async (req, res) => {
-	const projection = { _id: 0 };
+	const projection = { _id: 1, siteName: 1 };
 	try {
 		const user = await User.findById(req.user._id, projection)
 			.populate('sites', projection)

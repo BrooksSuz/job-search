@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import { MongoClient, ServerApiVersion } from 'mongodb';
+import { MongoClient, ObjectId, ServerApiVersion } from 'mongodb';
 import mongoose from 'mongoose';
 import arrConfigs from '../public/site-configs.js';
 dotenv.config();
@@ -171,11 +171,22 @@ async function connectToDb(strCollection = '') {
 }
 
 async function getPremadeConfigs() {
+	const arrPremade = [
+		'6757a5bfe3bdb76056b5beac',
+		'6757a5bfe3bdb76056b5bead',
+		'6757a5bfe3bdb76056b5beae',
+		'6757a5bfe3bdb76056b5beaf',
+		'6757a5bfe3bdb76056b5beb0',
+		'67584b92e3bdb76056b635f7',
+	];
+	const arrConverted = arrPremade.map((id) => ObjectId.createFromHexString(id));
 	try {
 		await client.connect();
 		const db = client.db('job_scraper');
-		const collection = db.collection('premade');
-		const arrConfigs = await collection.find({}).project({ _id: 0 }).toArray();
+		const collection = db.collection('sites');
+		const arrConfigs = await collection
+			.find({ _id: { $in: arrConverted } })
+			.toArray();
 		return arrConfigs;
 	} catch (err) {
 		console.error('Error querying site configs:', err);
@@ -184,15 +195,17 @@ async function getPremadeConfigs() {
 	}
 }
 
-async function getSelectedConfigs(siteName) {
+async function getSelectedConfigs(arrIds) {
+	const arrConverted = arrIds.map((id) => ObjectId.createFromHexString(id));
 	try {
 		await client.connect();
 		const db = client.db('job_scraper');
-		const collection = db.collection('premade');
-		const query = { siteName: siteName };
+		const collection = db.collection('sites');
 		const projection = { _id: 0 };
-		const objSite = await collection.findOne(query, { projection });
-		return objSite;
+		const arrConfigs = await collection
+			.find({ _id: { $in: arrConverted } }, { projection })
+			.toArray();
+		return arrConfigs;
 	} catch (err) {
 		console.error('Error querying site config:', err);
 	} finally {
