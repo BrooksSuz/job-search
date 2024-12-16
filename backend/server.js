@@ -78,6 +78,8 @@ app.post('/api/configs', async (req, res) => {
   }
 });
 
+app.post('/api/add', async (req, res) => {});
+
 app.post('/api/send-mail', async (req, res) => {
   const { html } = req.body;
   console.log('Received HTML:', html);

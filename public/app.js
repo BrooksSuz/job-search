@@ -43,10 +43,11 @@ const addConfig = () => {
   const inputsAdvanced = document.querySelectorAll(
     '.container-advanced > label input'
   );
-  const arrInputsAdvanced = Array.from(inputsAdvanced, (input) => input).filter(
-    (input) => input.type !== 'checkbox'
-  );
-  const arrAdvancedValues = arrInputsAdvanced.map((input) => input.value);
+  const arrInputsAdvanced = Array.from(inputsAdvanced, (input) => input);
+  const arrAdvancedValues = arrInputsAdvanced.map((input) => {
+    if ((input.type = 'checkbox')) return input.checked;
+    return input.value;
+  });
 };
 
 const createConfigButton = () => {
