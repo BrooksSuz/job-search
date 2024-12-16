@@ -1,80 +1,79 @@
 import filterListings from './filter-listings.js';
-import { handleError } from './error.js';
 import navigateSite from './navigate-site.js';
 
 async function scrapeListings(
-	page,
-	arrSearchTerms,
-	objConfigPairs,
-	incrementCount,
-	arrAllScrapedListings = [] // Default array for recursion
+  page,
+  arrSearchTerms,
+  objConfigPairs,
+  incrementCount,
+  arrAllScrapedListings = [] // Default array for recursion
 ) {
-	// Destructure configPairs and disperse
-	const {
-		consent: strConsent,
-		errorMessages: arrErrorMessages,
-		isAnchor: strIsAnchor,
-		listing: strListing,
-		nextPageDisabled: strNextPageDisabled,
-		nextPageLink: strNextPageLink,
-		nextPageParent: strNextPageParent,
-	} = objConfigPairs;
+  // Destructure configPairs and disperse
+  const {
+    consent: strConsent,
+    errorMessages: arrErrorMessages,
+    isAnchor: strIsAnchor,
+    listing: strListing,
+    nextPageDisabled: strNextPageDisabled,
+    nextPageLink: strNextPageLink,
+    nextPageParent: strNextPageParent,
+  } = objConfigPairs;
 
-	// Check consent only on the first call
-	if (!arrAllScrapedListings.length)
-		await checkConsent(page, strConsent, arrErrorMessages);
+  // Check consent only on the first call
+  if (!arrAllScrapedListings.length)
+    await checkConsent(page, strConsent, arrErrorMessages);
 
-	// Scrape listings on the current page
-	const arrFilteredListings = await filterListings(
-		page,
-		arrSearchTerms,
-		strListing
-	);
-	arrAllScrapedListings.push(...arrFilteredListings);
+  // Scrape listings on the current page
+  const arrFilteredListings = await filterListings(
+    page,
+    arrSearchTerms,
+    strListing
+  );
+  arrAllScrapedListings.push(...arrFilteredListings);
 
-	// Attempt to navigate to the next page
-	const boolHasNextPage = await navigateSite(
-		page,
-		arrErrorMessages,
-		strIsAnchor,
-		strNextPageDisabled,
-		strNextPageLink,
-		strNextPageParent
-	);
+  // Attempt to navigate to the next page
+  const boolHasNextPage = await navigateSite(
+    page,
+    arrErrorMessages,
+    strIsAnchor,
+    strNextPageDisabled,
+    strNextPageLink,
+    strNextPageParent
+  );
 
-	// Increment page count
-	incrementCount();
+  // Increment page count
+  incrementCount();
 
-	// Base case: No next page
-	if (!boolHasNextPage)
-		return alphabetizeScrapedListings([...arrAllScrapedListings]);
+  // Base case: No next page
+  if (!boolHasNextPage)
+    return alphabetizeScrapedListings([...arrAllScrapedListings]);
 
-	// Recursive case: Scrape the next page
-	return scrapeListings(
-		page,
-		arrSearchTerms,
-		objConfigPairs,
-		incrementCount,
-		arrAllScrapedListings
-	);
+  // Recursive case: Scrape the next page
+  return scrapeListings(
+    page,
+    arrSearchTerms,
+    objConfigPairs,
+    incrementCount,
+    arrAllScrapedListings
+  );
 }
 
 const checkConsent = async (page, strConsent, arrErrorMessages) => {
-	if (strConsent) {
-		try {
-			await page.waitForSelector(strConsent);
-			await page.click(strConsent);
-		} catch (err) {
-			handleError(err, arrErrorMessages, 'checkConsent');
-		}
-	}
+  if (strConsent) {
+    try {
+      await page.waitForSelector(strConsent);
+      await page.click(strConsent);
+    } catch (err) {
+      console.log('\nAssuming no consent dialog. Continuing...');
+    }
+  }
 };
 
 const alphabetizeScrapedListings = (arrAllScrapedListings) =>
-	arrAllScrapedListings.sort((strTitle, strUrl) => {
-		const [strTitleKey] = Object.keys(strTitle);
-		const [strUrlKey] = Object.keys(strUrl);
-		return strTitleKey < strUrlKey ? -1 : strTitleKey > strUrlKey ? 1 : 0;
-	});
+  arrAllScrapedListings.sort((strTitle, strUrl) => {
+    const [strTitleKey] = Object.keys(strTitle);
+    const [strUrlKey] = Object.keys(strUrl);
+    return strTitleKey < strUrlKey ? -1 : strTitleKey > strUrlKey ? 1 : 0;
+  });
 
 export default scrapeListings;
