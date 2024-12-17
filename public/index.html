@@ -1,184 +1,184 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta
-			name="viewport"
-			content="width=device-width, initial-scale=1.0"
-		/>
-		<link
-			rel="shortcut icon"
-			href="#"
-		/>
-		<link
-			rel="stylesheet"
-			href="./styles/reset.css"
-		/>
-		<link
-			rel="stylesheet"
-			href="./styles/style.css"
-		/>
-		<title>Job Search</title>
-	</head>
-	<body>
-		<div class="container-main flex">
-			<div class="container-content flex">
-				<h1>Find Those Jobs!</h1>
-				<div class="container-account">
-					<div class="container-input flex">
-						<label>
-							<span>Email:</span>
-							<input
-								class="email"
-								type="text"
-							/>
-						</label>
-						<label>
-							<span>Password:</span>
-							<input
-								class="password"
-								type="password"
-							/>
-						</label>
-					</div>
-					<div class="container-button flex">
-						<button
-							class="login"
-							type="button"
-						>
-							Login
-						</button>
-						<button
-							class="logout"
-							type="button"
-							style="display: none"
-						>
-							Logout
-						</button>
-						<button
-							class="register"
-							type="button"
-						>
-							Register
-						</button>
-					</div>
-				</div>
-				<div class="container-configs">
-					<label
-						><span>Configs:</span>
-						<select
-							name="premade-configs"
-							id="premade-configs"
-							multiple
-						></select>
-					</label>
-				</div>
-				<div class="container-get-listings">
-					<div class="container-input flex">
-						<label
-							><span>Keywords:</span>
-							<input
-								id="keywords"
-								class="keywords"
-								type="text"
-								placeholder="Nurse, Plumber, ..."
-							/>
-						</label>
-					</div>
-					<div class="container-button flex">
-						<button
-							class="get-listings"
-							type="button"
-						>
-							<span
-								class="get-listings-text"
-								aria-label="Get Job Listings"
-								>Get Jobs</span
-							>
-							<span
-								class="spinner"
-								aria-hidden="true"
-							></span>
-						</button>
-					</div>
-				</div>
-				<details class="container-advanced flex">
-					<summary>Advanced Settings</summary>
-					<label>
-						<span>Site Name:</span>
-						<input
-							id="siteName"
-							type="text"
-						/>
-					</label>
-					<label>
-						<span>Url:</span>
-						<input
-							id="url"
-							type="text"
-						/>
-					</label>
-					<label>
-						<span>Selector (1):</span>
-						<input
-							id="consent"
-							type="text"
-							placeholder="Consent Popup Element"
-						/>
-					</label>
-					<label>
-						<span>Selector (2):</span>
-						<input
-							id="listing"
-							type="text"
-							placeholder="Job Listing Element"
-						/>
-					</label>
-					<label>
-						<span>Selector (3):</span>
-						<input
-							id="nextPageDisabled"
-							type="text"
-							placeholder="Disabled Element"
-						/>
-					</label>
-					<label>
-						<span>Selector (4):</span>
-						<input
-							id="nextPageLink"
-							type="text"
-							placeholder="Next Page Element"
-						/>
-					</label>
-					<label>
-						<span>Selector (5):</span>
-						<input
-							id="nextPageParent"
-							type="text"
-							placeholder="Next Page Parent Element"
-						/>
-					</label>
-					<label>
-						<span>Error:</span>
-						<input
-							id="errorMessages"
-							type="text"
-							placeholder="Separate with commas"
-						/>
-					</label>
-					<label>
-						<span>Anchor:</span>
-						<input
-							id="isAnchor"
-							type="checkbox"
-						/>
-					</label>
-				</details>
-			</div>
-		</div>
-		<script
-			type="module"
-			src="main.js"
-		></script>
-	</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <link
+      rel="shortcut icon"
+      href="#"
+    />
+    <link
+      rel="stylesheet"
+      href="./style/reset.css"
+    />
+    <link
+      rel="stylesheet"
+      href="./style.css"
+    />
+    <title>Job Search</title>
+  </head>
+  <body>
+    <div class="container-main flex">
+      <div class="container-content flex">
+        <h1>Find Those Jobs!</h1>
+        <div class="container-account">
+          <div class="container-input flex">
+            <label>
+              <span>Email:</span>
+              <input
+                class="email"
+                type="text"
+              />
+            </label>
+            <label>
+              <span>Password:</span>
+              <input
+                class="password"
+                type="password"
+              />
+            </label>
+          </div>
+          <div class="container-button flex">
+            <button
+              class="login"
+              type="button"
+            >
+              Login
+            </button>
+            <button
+              class="logout"
+              type="button"
+              style="display: none"
+            >
+              Logout
+            </button>
+            <button
+              class="register"
+              type="button"
+            >
+              Register
+            </button>
+          </div>
+        </div>
+        <div class="container-configs">
+          <label
+            ><span>Configs:</span>
+            <select
+              name="premade-configs"
+              id="premade-configs"
+              multiple
+            ></select>
+          </label>
+        </div>
+        <div class="container-get-listings">
+          <div class="container-input flex">
+            <label
+              ><span>Keywords:</span>
+              <input
+                id="keywords"
+                class="keywords"
+                type="text"
+                placeholder="Nurse, Plumber, ..."
+              />
+            </label>
+          </div>
+          <div class="container-button flex">
+            <button
+              class="get-listings"
+              type="button"
+            >
+              <span
+                class="get-listings-text"
+                aria-label="Get Job Listings"
+                >Get Jobs</span
+              >
+              <span
+                class="spinner"
+                aria-hidden="true"
+              ></span>
+            </button>
+          </div>
+        </div>
+        <details class="container-advanced flex">
+          <summary>Advanced Settings</summary>
+          <label>
+            <span>Site Name:</span>
+            <input
+              id="siteName"
+              type="text"
+            />
+          </label>
+          <label>
+            <span>Url:</span>
+            <input
+              id="url"
+              type="text"
+            />
+          </label>
+          <label>
+            <span>Selector (1):</span>
+            <input
+              id="consent"
+              type="text"
+              placeholder="Consent Popup Element"
+            />
+          </label>
+          <label>
+            <span>Selector (2):</span>
+            <input
+              id="listing"
+              type="text"
+              placeholder="Job Listing Element"
+            />
+          </label>
+          <label>
+            <span>Selector (3):</span>
+            <input
+              id="nextPageDisabled"
+              type="text"
+              placeholder="Disabled Element"
+            />
+          </label>
+          <label>
+            <span>Selector (4):</span>
+            <input
+              id="nextPageLink"
+              type="text"
+              placeholder="Next Page Element"
+            />
+          </label>
+          <label>
+            <span>Selector (5):</span>
+            <input
+              id="nextPageParent"
+              type="text"
+              placeholder="Next Page Parent Element"
+            />
+          </label>
+          <label>
+            <span>Error:</span>
+            <input
+              id="errorMessages"
+              type="text"
+              placeholder="Separate with commas"
+            />
+          </label>
+          <label>
+            <span>Anchor:</span>
+            <input
+              id="isAnchor"
+              type="checkbox"
+            />
+          </label>
+        </details>
+      </div>
+    </div>
+    <script
+      type="module"
+      src="main.js"
+    ></script>
+  </body>
 </html>

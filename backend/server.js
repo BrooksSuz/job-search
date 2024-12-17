@@ -1,16 +1,21 @@
 import MongoStore from 'connect-mongo';
+import dotenv from 'dotenv';
 import express from 'express';
 import session from 'express-session';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import findListings from '../scraper.js';
+import sendMail from '../scraper/send-mail.js';
 import authRoutes from './auth-backend.js';
-import { connectToDb, getPremadeConfigs, getSelectedConfigs } from './db.js';
-import findListings from './scraper.js';
-import sendMail from './scraper/send-mail.js';
+import {
+  connectToDb,
+  getPremadeConfigs,
+  getSelectedConfigs,
+  insertOneSite,
+} from './db.js';
 import passport from './passport-config.js';
-import dotenv from 'dotenv';
-dotenv.config();
 
+dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 const fileName = fileURLToPath(import.meta.url);
@@ -27,17 +32,17 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
 app.use(
-	session({
-		secret: secret,
-		resave: false,
-		saveUninitialized: false,
-		cookie: { maxAge: 3600000 },
-		store: MongoStore.create({
-			mongoUrl: uri,
-			collectionName: 'sessions',
-			dbName: 'job_scraper',
-		}),
-	})
+  session({
+    secret: secret,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 3600000 },
+    store: MongoStore.create({
+      mongoUrl: uri,
+      collectionName: 'sessions',
+      dbName: 'job_scraper',
+    }),
+  })
 );
 app.use(passport.session());
 
@@ -45,48 +50,56 @@ app.use(passport.session());
 app.use('/auth', authRoutes);
 
 app.get('/', (req, res) => {
-	res.sendFile(path.join(dirName, '../public', 'index.html'));
+  res.sendFile(path.join(dirName, '../public', 'index.html'));
 });
 
 app.get('/api/listings', (req, res) => {
-	const strSearchTerms = req.query.keywords;
-	const objConfig = { ...req.query };
-	delete objConfig.keywords;
-	findListings(strSearchTerms, objConfig).then((listings) =>
-		res.json(listings)
-	);
+  const strSearchTerms = req.query.keywords;
+  const objConfig = { ...req.query };
+  delete objConfig.keywords;
+  findListings(strSearchTerms, objConfig).then((listings) =>
+    res.json(listings)
+  );
 });
 
 app.get('/api/premade', async (req, res) => {
-	try {
-		const arrConfigs = await getPremadeConfigs();
-		res.json(arrConfigs);
-	} catch (err) {
-		console.error('Error fetching configs:', err);
-		res.status(500).json({ error: 'Failed to fetch site configs' });
-	}
+  try {
+    const arrConfigs = await getPremadeConfigs();
+    res.json(arrConfigs);
+  } catch (err) {
+    console.error('Error fetching configs:', err);
+    res.status(500).json({ error: 'Failed to fetch site configs.' });
+  }
 });
 
 app.post('/api/configs', async (req, res) => {
-	const { arrIds } = req.body;
-	try {
-		const objConfig = await getSelectedConfigs(arrIds);
-		res.json(objConfig);
-	} catch (err) {
-		console.error('Error fetching config', err);
-		res.status(500).json({ error: 'Failed to fetch site config' });
-	}
+  const { arrIds } = req.body;
+  try {
+    const objConfig = await getSelectedConfigs(arrIds);
+    res.json(objConfig);
+  } catch (err) {
+    console.error('Error fetching config', err);
+    res.status(500).json({ error: 'Failed to fetch site config.' });
+  }
 });
 
-app.post('/api/add', async (req, res) => {});
+app.post('/api/add', async (req, res) => {
+  const { objUserData } = req.body;
+  try {
+    await insertOneSite(objUserData);
+  } catch (err) {
+    console.error('Error adding site config.', err);
+    res.status(500).json({ error: 'Failed to insert site config.' });
+  }
+});
 
 app.post('/api/send-mail', async (req, res) => {
-	const { html } = req.body;
-	console.log('Received HTML:', html);
-	res.status(200).send('HTML received');
-	sendMail(html);
+  const { html } = req.body;
+  console.log('Received HTML:', html);
+  res.status(200).send('HTML received');
+  sendMail(html);
 });
 
 app.listen(port, () => {
-	console.log(`Server running at http://localhost:${port}`);
+  console.log(`Server running at http://localhost:${port}`);
 });

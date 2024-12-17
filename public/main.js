@@ -1,9 +1,9 @@
 import {
-	onLoginClick,
-	onLogoutClick,
-	onRegisterClick,
-} from './auth-frontend.js';
-import { onGetListingsClick, onLoadGetPremade } from './ui-controllers.js';
+  onLoginClick,
+  onLogoutClick,
+  onRegisterClick,
+} from './js/auth-frontend.js';
+import { onGetListingsClick, onLoadGetPremade } from './js/ui-controllers.js';
 
 // Get premade configurations
 document.addEventListener('DOMContentLoaded', onLoadGetPremade);
