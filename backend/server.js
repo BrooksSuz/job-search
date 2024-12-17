@@ -5,7 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import authRoutes from './auth-backend.js';
 import { connectToDb, getPremadeConfigs, getSelectedConfigs } from './db.js';
-import findListings from './find-listings.js';
+import findListings from './scraper.js';
 import sendMail from './scraper/send-mail.js';
 import passport from './passport-config.js';
 import dotenv from 'dotenv';

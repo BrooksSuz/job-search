@@ -153,7 +153,7 @@ const registerUser = async () => {
 		alert('Registration successful. Happy hunting!');
 		return true;
 	} catch (err) {
-		console.error('Error in function handleRegistration', err);
+		console.error('Error in function registerUser', err);
 	}
 };
 
