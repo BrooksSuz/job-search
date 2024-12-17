@@ -14,6 +14,7 @@ import {
   insertOneSite,
 } from './db.js';
 import passport from './passport-config.js';
+import mongoose from 'mongoose';
 
 dotenv.config();
 const app = express();
@@ -67,7 +68,7 @@ app.get('/api/premade', async (req, res) => {
     const arrConfigs = await getPremadeConfigs();
     res.json(arrConfigs);
   } catch (err) {
-    console.error('Error fetching configs:', err);
+    console.error('Error fetching configs.', err);
     res.status(500).json({ error: 'Failed to fetch site configs.' });
   }
 });
@@ -78,15 +79,25 @@ app.post('/api/configs', async (req, res) => {
     const objConfig = await getSelectedConfigs(arrIds);
     res.json(objConfig);
   } catch (err) {
-    console.error('Error fetching config', err);
+    console.error('Error fetching config.', err);
     res.status(500).json({ error: 'Failed to fetch site config.' });
   }
 });
 
-app.post('/api/add', async (req, res) => {
-  const { objUserData } = req.body;
+app.post('/api/add', ensureAuthenticated, async (req, res) => {
   try {
+    const user = req.user;
+    const { objUserData } = req.body;
+    const newSiteId = new mongoose.Types.ObjectId();
+    objUserData._id = newSiteId;
     await insertOneSite(objUserData);
+    user.sites.push(newSiteId);
+    await user.save();
+
+    res.json({
+      message: 'Site created successfully',
+      site: objUserData,
+    });
   } catch (err) {
     console.error('Error adding site config.', err);
     res.status(500).json({ error: 'Failed to insert site config.' });
@@ -103,3 +114,11 @@ app.post('/api/send-mail', async (req, res) => {
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
+
+// Middleware
+function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.redirect('/login');
+}
