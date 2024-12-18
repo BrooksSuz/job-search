@@ -113,7 +113,7 @@ app.post('/api/remove', ensureAuthenticated, async (req, res) => {
     for (const value of selectedValues) {
       await Site.deleteOne({ _id: value }, { session });
       await User.updateOne(
-        { _id: user.id },
+        { _id: user._id },
         { $pull: { sites: value } },
         { session }
       );
