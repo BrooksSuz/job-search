@@ -8,22 +8,21 @@ import scrapeListings from '../scrape-listings.js';
 import sendMail from '../scrape-listings/send-mail.js';
 import authRoutes from './auth-backend.js';
 import {
-  mongoose,
   connectToDb,
   getPremadeConfigs,
   getSelectedConfigs,
-  insertSite,
+  mongoose,
 } from './db.js';
 import passport from './passport-config.js';
 import Site from './schemas/Site.js';
 import User from './schemas/User.js';
 
 dotenv.config();
+
 const app = express();
 const port = process.env.PORT || 3000;
 const fileName = fileURLToPath(import.meta.url);
 const dirName = path.dirname(fileName);
-const uri = process.env.MONGO_URI;
 const secret = process.env.SECRET;
 
 // Connect to the database
@@ -41,7 +40,7 @@ app.use(
     saveUninitialized: false,
     cookie: { maxAge: 3600000 },
     store: MongoStore.create({
-      mongoUrl: uri,
+      client: mongoose.connection.getClient(),
       collectionName: 'sessions',
       dbName: 'job_scraper',
     }),
@@ -76,8 +75,8 @@ app.get('/api/premade', async (req, res) => {
 });
 
 app.post('/api/configs', async (req, res) => {
-  const { arrIds } = req.body;
   try {
+    const { arrIds } = req.body;
     const objConfig = await getSelectedConfigs(arrIds);
     res.json(objConfig);
   } catch (err) {
@@ -90,14 +89,13 @@ app.post('/api/add', ensureAuthenticated, async (req, res) => {
   try {
     const user = req.user;
     const { objUserData } = req.body;
-    const newSiteId = new mongoose.Types.ObjectId();
-    objUserData._id = newSiteId;
-    await insertSite(objUserData);
-    user.sites.push(newSiteId);
+    const newSite = new Site(objUserData);
+    await newSite.save();
+    user.sites.push(newSite._id);
     await user.save();
 
     res.json({
-      id: newSiteId,
+      id: newSite._id,
     });
   } catch (err) {
     console.error('Error adding site config.', err);
@@ -113,7 +111,7 @@ app.post('/api/remove', ensureAuthenticated, async (req, res) => {
     session.startTransaction();
 
     for (const value of selectedValues) {
-      await Site.deleteOne({ _id: selectedValues }, { session });
+      await Site.deleteOne({ _id: value }, { session });
       await User.updateOne(
         { _id: user.id },
         { $pull: { sites: value } },
@@ -123,10 +121,7 @@ app.post('/api/remove', ensureAuthenticated, async (req, res) => {
 
     await session.commitTransaction();
 
-    res.json({
-      message: 'Site(s) removed successfully',
-      siteId: selectedValues,
-    });
+    res.send();
   } catch (err) {
     await session.abortTransaction();
     console.error('Error removing site config.', err);
@@ -136,7 +131,7 @@ app.post('/api/remove', ensureAuthenticated, async (req, res) => {
   }
 });
 
-app.post('/api/send-mail', async (req, res) => {
+app.post('/api/mail', async (req, res) => {
   const { html } = req.body;
   console.log('Received HTML:', html);
   res.status(200).send('HTML received');
