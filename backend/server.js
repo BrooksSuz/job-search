@@ -11,10 +11,12 @@ import {
   connectToDb,
   getPremadeConfigs,
   getSelectedConfigs,
-  insertOneSite,
+  insertSite,
 } from './db.js';
 import passport from './passport-config.js';
 import mongoose from 'mongoose';
+import Site from './schemas/Site.js';
+import User from './schemas/User.js';
 
 dotenv.config();
 const app = express();
@@ -90,17 +92,47 @@ app.post('/api/add', ensureAuthenticated, async (req, res) => {
     const { objUserData } = req.body;
     const newSiteId = new mongoose.Types.ObjectId();
     objUserData._id = newSiteId;
-    await insertOneSite(objUserData);
+    await insertSite(objUserData);
     user.sites.push(newSiteId);
     await user.save();
 
     res.json({
-      message: 'Site created successfully',
-      site: objUserData,
+      id: newSiteId,
     });
   } catch (err) {
     console.error('Error adding site config.', err);
     res.status(500).json({ error: 'Failed to insert site config.' });
+  }
+});
+
+app.post('/api/remove', ensureAuthenticated, async (req, res) => {
+  const session = await mongoose.startSession();
+  try {
+    const user = req.user;
+    const { selectedValues } = req.body;
+    session.startTransaction();
+
+    for (const value of selectedValues) {
+      await Site.deleteOne({ _id: selectedValues }, { session });
+      await User.updateOne(
+        { _id: user.id },
+        { $pull: { sites: value } },
+        { session }
+      );
+    }
+
+    await session.commitTransaction();
+
+    res.json({
+      message: 'Site(s) removed successfully',
+      siteId: selectedValues,
+    });
+  } catch (err) {
+    await session.abortTransaction();
+    console.error('Error removing site config.', err);
+    res.status(500).json({ error: 'Failed to remove site config.' });
+  } finally {
+    session.endSession();
   }
 });
 

@@ -12,7 +12,19 @@ const client = new MongoClient(uri, {
   },
 });
 
-async function insertOneSite(objUserData) {
+async function connectToDb(strCollection = '') {
+  try {
+    await mongoose.connect(uri, {
+      dbName: strCollection,
+    });
+    console.log('Connected to MongoDB successfully');
+  } catch (err) {
+    console.error('Error connecting to MongoDB:', err);
+    process.exit(1);
+  }
+}
+
+async function insertSite(objUserData) {
   try {
     await client.connect();
     const db = client.db('job_scraper');
@@ -24,135 +36,6 @@ async function insertOneSite(objUserData) {
     console.error('Error inserting site:', err);
   } finally {
     await client.close();
-  }
-}
-
-async function insertManySites() {
-  try {
-    await client.connect();
-    const db = client.db('job_scraper');
-    const collection = db.collection('sites');
-
-    for (let objConfig of arrConfigs) {
-      await collection.updateOne(
-        { siteName: objConfig.siteName },
-        { $set: objConfig },
-        { upsert: true }
-      );
-    }
-    console.log(`${arrConfigs.length} site(s) inserted or updated.`);
-  } catch (err) {
-    console.error('Error inserting sites:', err);
-  } finally {
-    await client.close();
-  }
-}
-
-async function updateManySites() {
-  try {
-    await client.connect();
-    const db = client.db('job_scraper');
-    const collection = db.collection('sites');
-
-    for (let objConfig of arrConfigs) {
-      await collection.updateMany(
-        { siteName: objConfig.siteName },
-        { $unset: { timeout: 0 } }
-      );
-    }
-    console.log(`${arrConfigs.length} site(s) updated.`);
-  } catch (err) {
-    console.error('Error updating sites:', err);
-  } finally {
-    await client.close();
-  }
-}
-
-async function queryData() {
-  try {
-    await client.connect();
-    const db = client.db('job_scraper');
-    const collection = db.collection('sites');
-
-    const documents = await collection.find({}).toArray();
-    console.log('Documents found:');
-    console.log(documents);
-  } catch (err) {
-    console.error('Error querying data:', err);
-  } finally {
-    await client.close();
-  }
-}
-
-async function deleteData() {
-  try {
-    await client.connect();
-    const db = client.db('job_scraper');
-    const collection = db.collection('sites');
-
-    const result = await collection.deleteOne({
-      siteName: 'University of Michigan',
-    });
-
-    if (result.deletedCount === 1) {
-      console.log('Document deleted');
-    } else {
-      console.log('No document found with that name');
-    }
-  } catch (err) {
-    console.error('Error deleting document:', err);
-  } finally {
-    await client.close();
-  }
-}
-
-async function deleteCollection() {
-  try {
-    await client.connect();
-    const db = client.db('job_scraper');
-
-    const result = await db.collection('sites').drop();
-
-    console.log(result ? 'Collection deleted' : 'Collection not found');
-  } catch (err) {
-    console.error('Error deleting collection:', err);
-  } finally {
-    await client.close();
-  }
-}
-
-async function updateData() {
-  try {
-    await client.connect();
-    const db = client.db('job_scraper');
-    const collection = db.collection('sites');
-
-    const result = await collection.updateOne(
-      { siteName: 'University of Michigan' },
-      { $set: { timeout: 10000 } }
-    );
-
-    if (result.matchedCount === 1) {
-      console.log('Document updated');
-    } else {
-      console.log('No document found to update');
-    }
-  } catch (err) {
-    console.error('Error updating document:', err);
-  } finally {
-    await client.close();
-  }
-}
-
-async function connectToDb(strCollection = '') {
-  try {
-    await mongoose.connect(uri, {
-      dbName: strCollection,
-    });
-    console.log('Connected to MongoDB successfully');
-  } catch (err) {
-    console.error('Error connecting to MongoDB:', err);
-    process.exit(1);
   }
 }
 
@@ -199,4 +82,4 @@ async function getSelectedConfigs(arrIds) {
   }
 }
 
-export { connectToDb, getPremadeConfigs, getSelectedConfigs, insertOneSite };
+export { connectToDb, getPremadeConfigs, getSelectedConfigs, insertSite };

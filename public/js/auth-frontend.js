@@ -8,7 +8,7 @@ async function onLoginClick() {
     const arrSites = await response.json().then((res) => res.user.sites);
     await changeSelectElement(arrSites);
     await swapButtons(btnLogin, btnLogout);
-    await createConfigButton();
+    await createConfigButtons();
 
     const inputEmail = document.querySelector('.email');
     const inputPassword = document.querySelector('.password');
@@ -32,6 +32,9 @@ async function onLogoutClick() {
 
   const btnAdd = document.getElementById('btn-add');
   if (btnAdd) btnAdd.parentNode.removeChild(btnAdd);
+
+  const btnRemove = document.getElementById('btn-remove');
+  if (btnRemove) btnRemove.parentNode.removeChild(btnRemove);
 
   const inputEmail = document.querySelector('.email');
   const inputPassword = document.querySelector('.password');
@@ -182,26 +185,84 @@ const createDataObject = () => {
 const addConfig = async () => {
   const objUserData = createDataObject();
   try {
-    await fetch('/api/add', {
+    const response = await fetch('/api/add', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ objUserData: objUserData }),
     });
+
+    return response;
   } catch (err) {
     console.error('Error in function addConfig', err);
   }
 };
 
-const createConfigButton = async () => {
+const onAddClick = async () => {
+  const selectElement = document.getElementById('user-configs');
+  const inputName = document.getElementById('siteName');
+  const newOption = document.createElement('option');
+  newOption.textContent = inputName.value;
+  try {
+    const idJSON = await addConfig().then((res) => res.json());
+    const id = await idJSON.id;
+    newOption.value = id;
+    selectElement.appendChild(newOption);
+  } catch (err) {
+    console.error('Error in function populateSelect', err);
+  }
+};
+
+const createAddButton = () => {
   const btnAdd = document.createElement('button');
-  const divAdvanced = document.querySelector('.container-advanced');
   btnAdd.id = 'btn-add';
   btnAdd.type = 'button';
-  btnAdd.textContent = 'Add Config';
-  btnAdd.addEventListener('click', addConfig);
-  divAdvanced.appendChild(btnAdd);
+  btnAdd.textContent = 'Add';
+  btnAdd.addEventListener('click', onAddClick);
+  return btnAdd;
+};
+
+const removeConfig = async () => {
+  const selectElement = document.getElementById('user-configs');
+  const selectedOptions = Array.from(selectElement.options).filter(
+    (option) => option.selected
+  );
+  const selectedValues = selectedOptions.map((option) => option.value);
+  try {
+    await fetch('/api/remove', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ selectedValues: selectedValues }),
+    });
+
+    selectedOptions.forEach((option) => {
+      option.remove();
+    });
+  } catch (err) {
+    console.error('Error in function removeConfig', err);
+  }
+};
+
+const createDeleteButton = () => {
+  const btnRemove = document.createElement('button');
+  btnRemove.id = 'btn-remove';
+  btnRemove.type = 'button';
+  btnRemove.textContent = 'Remove';
+  btnRemove.addEventListener('click', removeConfig);
+  return btnRemove;
+};
+
+const createConfigButtons = async () => {
+  const divContainer = document.createElement('div');
+  const divAdvanced = document.querySelector('.container-advanced');
+  const btnAdd = createAddButton();
+  const btnRemove = createDeleteButton();
+  divContainer.classList.add('container-button');
+  divContainer.append(btnAdd, btnRemove);
+  divAdvanced.appendChild(divContainer);
 };
 
 export { onLoginClick, onLogoutClick, onRegisterClick };
