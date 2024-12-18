@@ -1,11 +1,12 @@
 import filterListings from './filter-listings.js';
 import navigateSite from './navigate-site.js';
 
-async function scrapeListings(
+async function findListings(
   page,
   arrSearchTerms,
   objConfigPairs,
   incrementCount,
+  getCount,
   arrAllScrapedListings = [] // Default array for recursion
 ) {
   // Destructure configPairs and disperse
@@ -20,8 +21,7 @@ async function scrapeListings(
   } = objConfigPairs;
 
   // Check consent only on the first call
-  if (!arrAllScrapedListings.length)
-    await checkConsent(page, strConsent, arrErrorMessages);
+  if (!getCount()) await checkConsent(page, strConsent, arrErrorMessages);
 
   // Scrape listings on the current page
   const arrFilteredListings = await filterListings(
@@ -49,11 +49,12 @@ async function scrapeListings(
     return alphabetizeScrapedListings([...arrAllScrapedListings]);
 
   // Recursive case: Scrape the next page
-  return scrapeListings(
+  return findListings(
     page,
     arrSearchTerms,
     objConfigPairs,
     incrementCount,
+    getCount,
     arrAllScrapedListings
   );
 }
@@ -64,7 +65,7 @@ const checkConsent = async (page, strConsent, arrErrorMessages) => {
       await page.waitForSelector(strConsent);
       await page.click(strConsent);
     } catch (err) {
-      console.log('\nAssuming no consent dialog. Continuing...');
+      console.error('Error in function checkConsent:', err);
     }
   }
 };
@@ -76,4 +77,4 @@ const alphabetizeScrapedListings = (arrAllScrapedListings) =>
     return strTitleKey < strUrlKey ? -1 : strTitleKey > strUrlKey ? 1 : 0;
   });
 
-export default scrapeListings;
+export default findListings;

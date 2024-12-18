@@ -1,21 +1,15 @@
 import dotenv from 'dotenv';
-import { MongoClient, ObjectId, ServerApiVersion } from 'mongodb';
 import mongoose from 'mongoose';
+import Site from './schemas/Site.js';
 dotenv.config();
 
 const uri = process.env.MONGO_URI;
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  },
-});
 
-async function connectToDb(strCollection = '') {
+const collection = process.env.COLLECTION;
+async function connectToDb() {
   try {
     await mongoose.connect(uri, {
-      dbName: strCollection,
+      dbName: collection,
     });
     console.log('Connected to MongoDB successfully');
   } catch (err) {
@@ -26,16 +20,11 @@ async function connectToDb(strCollection = '') {
 
 async function insertSite(objUserData) {
   try {
-    await client.connect();
-    const db = client.db('job_scraper');
-    const collection = db.collection('sites');
-
-    const result = await collection.insertOne(objUserData);
-    console.log('Site inserted with _id:', result.insertedId);
+    const site = new Site(objUserData);
+    const result = await site.save();
+    console.log('Site inserted with _id:', result.id);
   } catch (err) {
     console.error('Error inserting site:', err);
-  } finally {
-    await client.close();
   }
 }
 
@@ -48,38 +37,47 @@ async function getPremadeConfigs() {
     '6757a5bfe3bdb76056b5beb0',
     '67584b92e3bdb76056b635f7',
   ];
-  const arrConverted = arrPremade.map((id) => ObjectId.createFromHexString(id));
   try {
-    await client.connect();
-    const db = client.db('job_scraper');
-    const collection = db.collection('sites');
-    const arrConfigs = await collection
-      .find({ _id: { $in: arrConverted } })
-      .toArray();
+    const arrConfigs = Site.find({ _id: { $in: arrPremade } });
     return arrConfigs;
   } catch (err) {
     console.error('Error querying site configs:', err);
-  } finally {
-    await client.close();
   }
 }
 
 async function getSelectedConfigs(arrIds) {
-  const arrConverted = arrIds.map((id) => ObjectId.createFromHexString(id));
   try {
-    await client.connect();
-    const db = client.db('job_scraper');
-    const collection = db.collection('sites');
-    const projection = { _id: 0 };
-    const arrConfigs = await collection
-      .find({ _id: { $in: arrConverted } }, { projection })
-      .toArray();
+    const arrConfigs = await Site.find({ _id: { $in: arrIds } }, { _id: 0 });
     return arrConfigs;
   } catch (err) {
     console.error('Error querying site config:', err);
-  } finally {
-    await client.close();
   }
 }
 
-export { connectToDb, getPremadeConfigs, getSelectedConfigs, insertSite };
+// Connection events
+mongoose.connection.on('connected', () => {
+  console.log('Mongoose connected to ' + uri);
+});
+
+mongoose.connection.on('error', (err) => {
+  console.error('Mongoose connection error: ' + err);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('Mongoose disconnected');
+});
+
+process.on('SIGINT', () => {
+  mongoose.connection.close(() => {
+    console.log('Mongoose disconnected through app termination');
+    process.exit(0);
+  });
+});
+
+export {
+  connectToDb,
+  getPremadeConfigs,
+  getSelectedConfigs,
+  insertSite,
+  mongoose,
+};

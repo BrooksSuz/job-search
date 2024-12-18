@@ -4,17 +4,17 @@ import express from 'express';
 import session from 'express-session';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import findListings from '../scraper.js';
-import sendMail from '../scraper/send-mail.js';
+import scrapeListings from '../scrape-listings.js';
+import sendMail from '../scrape-listings/send-mail.js';
 import authRoutes from './auth-backend.js';
 import {
+  mongoose,
   connectToDb,
   getPremadeConfigs,
   getSelectedConfigs,
   insertSite,
 } from './db.js';
 import passport from './passport-config.js';
-import mongoose from 'mongoose';
 import Site from './schemas/Site.js';
 import User from './schemas/User.js';
 
@@ -27,7 +27,7 @@ const uri = process.env.MONGO_URI;
 const secret = process.env.SECRET;
 
 // Connect to the database
-connectToDb('job_scraper');
+connectToDb();
 
 // Middleware
 app.use(express.static(path.join(dirName, '../public')));
@@ -60,7 +60,7 @@ app.get('/api/listings', (req, res) => {
   const strSearchTerms = req.query.keywords;
   const objConfig = { ...req.query };
   delete objConfig.keywords;
-  findListings(strSearchTerms, objConfig).then((listings) =>
+  scrapeListings(strSearchTerms, objConfig).then((listings) =>
     res.json(listings)
   );
 });
