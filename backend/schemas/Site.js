@@ -10,7 +10,6 @@ const siteSchema = new mongoose.Schema({
   nextPageLink: { type: String },
   nextPageParent: { type: String },
   url: { type: String },
-  timeout: { type: Number },
 });
 
 export default mongoose.model('Site', siteSchema, 'sites');

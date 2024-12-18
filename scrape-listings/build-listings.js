@@ -10,20 +10,16 @@ const buildListings = async (
 ) => {
   const page = await browser.newPage();
 
-  // Set the default timeout (if needed)
-  if (objConfig.timeout) {
-    page.setDefaultTimeout(objConfig.timeout);
-  } else {
-    page.setDefaultTimeout(8000);
-  }
+  // Set the default timeout
+  page.setDefaultTimeout(10000);
 
   const { url, siteName, ...configPairs } = objConfig;
   try {
     // Go to the provided site
     await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 });
 
-    // Scrape those listings!
-    const arrScrapedListings = await findListings(
+    // Find those listings!
+    const arrFoundListings = await findListings(
       page,
       arrSearchTerms,
       configPairs,
@@ -32,7 +28,7 @@ const buildListings = async (
     );
 
     // Return only one of each listing into a new array
-    const arrNoDuplicates = removeDuplicates(arrScrapedListings);
+    const arrNoDuplicates = removeDuplicates(arrFoundListings);
 
     return arrNoDuplicates;
   } catch (err) {
@@ -42,8 +38,8 @@ const buildListings = async (
   }
 };
 
-const removeDuplicates = (arrScrapedListings, seenUrls = new Set()) =>
-  arrScrapedListings.filter((objScrapedListing) => {
+const removeDuplicates = (arrFoundListings, seenUrls = new Set()) =>
+  arrFoundListings.filter((objScrapedListing) => {
     const currentUrl = Object.values(objScrapedListing)[0];
     if (!seenUrls.has(currentUrl)) {
       seenUrls.add(currentUrl);
