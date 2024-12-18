@@ -127,7 +127,7 @@ app.post('/api/remove', ensureAuthenticated, async (req, res) => {
     console.error('Error removing site config.', err);
     res.status(500).json({ error: 'Failed to remove site config.' });
   } finally {
-    session.endSession();
+    await session.endSession();
   }
 });
 
