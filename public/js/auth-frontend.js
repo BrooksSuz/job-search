@@ -1,46 +1,130 @@
-import { getPrefix } from './helpers.js';
+import { selectPremade } from '../main.js';
 
-function changeSelectElement(arrSites) {
-  // Get the correct prefix
-  const strPrefix = getPrefix();
-  const strCurrentId = `${strPrefix}-configs`;
-
-  // Get/create select elements
-  const selectElement = document.getElementById(strCurrentId);
-  const newSelect = document.createElement('select');
-  newSelect.id = 'user-configs';
-  newSelect.name = 'user-configs';
-  newSelect.multiple = true;
-
-  // Populate select element with user-created configs
-  arrSites.forEach((objConfig) => {
-    const newOption = document.createElement('option');
-    newOption.value = objConfig._id;
-    newOption.textContent = objConfig.siteName;
-    newSelect.appendChild(newOption);
-  });
-
-  // Replace premade with user select element
-  selectElement.replaceWith(newSelect);
+async function addConfig() {
+  const objUserData = createUserDataObject();
+  try {
+    const response = await fetch('/api/add', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ objUserData }),
+    });
+    return await response.json().then((res) => res.id);
+  } catch (err) {
+    console.error('Error in function addConfig', err);
+  }
 }
 
-function createConfigButtons() {
-  const divContainer = document.createElement('div');
-  const divAdvanced = document.querySelector('.container-advanced');
-  const btnAdd = createAddButton();
-  const btnRemove = createRemoveButton();
-  divContainer.classList.add('container-button');
-  divContainer.append(btnAdd, btnRemove);
-  divAdvanced.appendChild(divContainer);
+async function removeConfig(selectedOptions) {
+  const selectedValues = selectedOptions.map((option) => option.value);
+  try {
+    await fetch('/api/remove', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ selectedValues }),
+    });
+  } catch (err) {
+    console.error('Error in function removeConfig', err);
+  }
 }
 
-function buttonFactory(btnClass, textContent, func) {
-  const newButton = document.createElement('button');
-  newButton.classList.add(btnClass);
-  newButton.type = 'button';
-  newButton.textContent = textContent;
-  newButton.addEventListener('click', func);
-  return newButton;
+async function logUserIn() {
+  const { email, password } = getUserCredentials();
+
+  // Guard clause: Empty inputs
+  if (!email || !password) {
+    alert('Email and password cannot be empty.');
+    return;
+  }
+
+  try {
+    // Log the user in and return the response
+    const response = await fetch('/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    });
+    return response;
+  } catch (err) {
+    console.error('Error in function logUserIn:', err);
+  }
+}
+
+async function registerUser() {
+  const { email, password } = getUserCredentials();
+
+  // Guard clause: Empty inputs
+  if (!email || !password) console.error('Email and password cannot be empty.');
+
+  try {
+    // Create the user's account
+    const response = await fetch('/auth/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    });
+
+    // Guard clause: Failed registration
+    if (!response.ok) {
+      const data = await response.json();
+      alert(data.message);
+
+      // Prevent user from logging in
+      return false;
+    }
+
+    // Log user in
+    alert('Registration successful. Happy hunting!');
+    return true;
+  } catch (err) {
+    console.error('Error in function registerUser', err);
+  }
+}
+
+async function logUserOut() {
+  try {
+    // Log the user out
+    await fetch('/auth/logout');
+
+    // Replace user with premade select element
+    const selectUser = document.getElementById('user-configs');
+    selectUser.replaceWith(selectPremade);
+  } catch (err) {
+    console.error('Error in function logUserOut:', err);
+  }
+}
+
+async function deleteUser() {
+  try {
+    const response = await fetch('/api/delete', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    // Guard clause: Account deletion failure
+    if (!response.ok) {
+      const error = await response.json();
+      console.error('Error deleting user:', error);
+      alert(`Failed to delete user:\n\n${error.message}`);
+    }
+  } catch (err) {
+    console.error('Error in function deleteUser:', err);
+  }
 }
 
 const createUserDataObject = () => {
@@ -61,65 +145,19 @@ const createUserDataObject = () => {
   return objUserData;
 };
 
-const addConfig = async () => {
-  const objUserData = createUserDataObject();
-  try {
-    const response = await fetch('/api/add', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ objUserData }),
-    });
-    return await response.json().then((res) => res.id);
-  } catch (err) {
-    console.error('Error in function addConfig', err);
-  }
+const getUserCredentials = () => {
+  const inputEmail = document.querySelector('.email');
+  const inputPassword = document.querySelector('.password');
+  const email = inputEmail.value.trim();
+  const password = inputPassword.value.trim();
+  return { email, password };
 };
 
-const handleAddClick = async () => {
-  const selectElement = document.getElementById('user-configs');
-  const inputName = document.getElementById('siteName');
-  const newOption = document.createElement('option');
-  newOption.textContent = inputName.value;
-  try {
-    const id = await addConfig();
-    newOption.value = id;
-    selectElement.appendChild(newOption);
-  } catch (err) {
-    console.error('Error in function handleAddClick', err);
-  }
+export {
+  addConfig,
+  deleteUser,
+  logUserIn,
+  logUserOut,
+  registerUser,
+  removeConfig,
 };
-
-const createAddButton = () => buttonFactory('btn-add', 'Add', handleAddClick);
-
-const createRemoveButton = () =>
-  buttonFactory('btn-remove', 'Remove', handleRemoveClick);
-
-const removeConfig = async (selectedOptions) => {
-  const selectedValues = selectedOptions.map((option) => option.value);
-  try {
-    await fetch('/api/remove', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ selectedValues }),
-    });
-  } catch (err) {
-    console.error('Error in function removeConfig', err);
-  }
-};
-
-const handleRemoveClick = async () => {
-  const selectElement = document.getElementById('user-configs');
-  const selectedOptions = Array.from(selectElement.options).filter(
-    (option) => option.selected
-  );
-  await removeConfig(selectedOptions);
-  selectedOptions.forEach((option) => {
-    option.remove();
-  });
-};
-
-export { buttonFactory, changeSelectElement, createConfigButtons };

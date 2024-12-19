@@ -1,10 +1,17 @@
-import * as authFrontend from './js/auth-frontend.js';
-import * as helpers from './js/helpers.js';
-import executeJobSearch from './js/job-search.js';
-import * as uiControllers from './js/ui-controllers.js';
-
-// Hold premade select element in memory
-const selectPremade = document.getElementById('premade-configs');
+import {
+  alphabetizeConfigs,
+  changeSelectElement,
+  cleanUpDOM,
+  createConfigButtons,
+  createDeleteAccountButton,
+  createLogoutButton,
+  executeJobSearch,
+  fetchPremadeConfigs,
+  fetchSelected,
+  logUserIn,
+  registerUser,
+  startSpinner,
+} from './js/index.js';
 
 // Get premade configurations
 document.addEventListener('DOMContentLoaded', handlePremadeLoad);
@@ -21,10 +28,13 @@ btnLogin.addEventListener('click', handleLogin);
 const btnRegister = document.querySelector('.btn-register');
 btnRegister.addEventListener('click', handleRegister);
 
+// Hold premade select element in memory
+const selectPremade = document.getElementById('premade-configs');
+
 async function handlePremadeLoad() {
   try {
     // Fetch premade configs
-    const arrPremadeConfigs = await uiControllers.fetchPremadeConfigs();
+    const arrPremadeConfigs = await fetchPremadeConfigs();
 
     // Populate the select element
     arrPremadeConfigs.forEach((objConfig) => {
@@ -58,15 +68,15 @@ async function handleListingsClick() {
   const spanBtnListingsText = document.querySelector('.get-listings-text');
   spanBtnListingsText.style.display = 'none';
   const spanSpinner = document.querySelector('.spinner');
-  const stopSpinner = helpers.startSpinner(spanSpinner);
+  const stopSpinner = startSpinner(spanSpinner);
 
   try {
     // Get configs from database
-    const arrConfigs = await uiControllers.fetchSelected();
+    const arrConfigs = await fetchSelected();
 
     // Guard clause: No provided configs
     if (!arrConfigs.length) {
-      helpers.cleanUpDOM(
+      cleanUpDOM(
         spanSpinner,
         stopSpinner,
         spanBtnListingsText,
@@ -77,9 +87,9 @@ async function handleListingsClick() {
     }
 
     // Alphabetize and consume API endpoint
-    const arrAlphabetizedConfigs = helpers.alphabetizeConfigs(arrConfigs);
+    const arrAlphabetizedConfigs = alphabetizeConfigs(arrConfigs);
     await executeJobSearch(arrAlphabetizedConfigs).finally(() => {
-      helpers.cleanUpDOM(
+      cleanUpDOM(
         spanSpinner,
         stopSpinner,
         spanBtnListingsText,
@@ -123,13 +133,12 @@ async function handleLogin() {
     // Update the DOM
     btnLogin.replaceWith(btnLogout);
     btnRegister.replaceWith(btnDeleteAccount);
-    authFrontend.changeSelectElement(arrSites);
-    authFrontend.createConfigButtons();
+    changeSelectElement(arrSites);
+    createConfigButtons();
     inputEmail.disabled = true;
     inputPassword.disabled = true;
   } catch (err) {
     console.error('Error in function handleLogin', err);
-    return;
   }
 }
 
@@ -141,205 +150,7 @@ async function handleRegister() {
     }
   } catch (err) {
     console.error('Error in function handleRegister', err);
-    return;
   }
 }
 
-const getUserCredentials = () => {
-  const inputEmail = document.querySelector('.email');
-  const inputPassword = document.querySelector('.password');
-  const email = inputEmail.value.trim();
-  const password = inputPassword.value.trim();
-  return { email, password };
-};
-
-const logUserIn = async () => {
-  const { email, password } = getUserCredentials();
-
-  // Guard clause: Empty inputs
-  if (!email || !password) {
-    alert('Email and password cannot be empty.');
-    return;
-  }
-
-  try {
-    // Log the user in and return the response
-    const response = await fetch('/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-    });
-    return response;
-  } catch (err) {
-    console.error('Error in function logUserIn:', err);
-    return;
-  }
-};
-
-const registerUser = async () => {
-  const { email, password } = getUserCredentials();
-
-  // Guard clause: Empty inputs
-  if (!email || !password) {
-    console.error('Email and password cannot be empty.');
-    return;
-  }
-
-  try {
-    // Create the user's account
-    const response = await fetch('/auth/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-    });
-
-    // Guard clause: Failed registration
-    if (!response.ok) {
-      const data = await response.json();
-      alert(data.message);
-
-      // Prevent user from logging in
-      return false;
-    }
-
-    // Log user in
-    alert('Registration successful. Happy hunting!');
-    return true;
-  } catch (err) {
-    console.error('Error in function registerUser', err);
-  }
-};
-
-const logUserOut = async () => {
-  try {
-    // Log the user out
-    await fetch('/auth/logout');
-
-    // Reinsert premade select element
-    const labelSelectParent = document.querySelector(
-      '.container-configs > label'
-    );
-    const selectUser = document.getElementById('user-configs');
-    selectUser.replaceWith(selectPremade);
-  } catch (err) {
-    console.error('Error in function logUserOut:', err);
-    return;
-  }
-};
-
-const handleLogout = async () => {
-  const btnLogout = document.querySelector('.btn-logout');
-  const btnDeleteUser = document.querySelector('.btn-delete-account');
-  const btnAdd = document.querySelector('.btn-add');
-  const btnRemove = document.querySelector('.btn-remove');
-  const inputEmail = document.querySelector('.email');
-  const inputPassword = document.querySelector('.password');
-
-  try {
-    // Log user out
-    await logUserOut();
-
-    // Replace logout with login button
-    btnLogout.replaceWith(btnLogin);
-
-    // Replace delete with register button
-    if (btnDeleteUser) btnDeleteUser.replaceWith(btnRegister);
-
-    // Remove the add configs button
-    btnAdd.parentNode.removeChild(btnAdd);
-
-    // Remove the remove configs button
-    btnRemove.parentNode.removeChild(btnRemove);
-
-    // Disable and reset email and password inputs
-    inputEmail.disabled = false;
-    inputPassword.disabled = false;
-    inputEmail.value = '';
-    inputPassword.value = '';
-  } catch (err) {
-    console.error('Error in function handleLogout', err);
-  }
-};
-
-const createLogoutButton = () =>
-  authFrontend.buttonFactory('btn-logout', 'Logout', handleLogout);
-
-const cleanUpAccountDeletion = () => {
-  // Get EVERYTHING
-  const inputOldEmail = document.querySelector('.email');
-  const inputOldPassword = document.querySelector('.password');
-  const btnLogout = document.querySelector('.btn-logout');
-  const btnDeleteAccount = document.querySelector('.btn-delete-account');
-  const selectUser = document.getElementById('user-configs');
-
-  // Create new user account inputs
-  const inputEmail = document.createElement('input');
-  const inputPassword = document.createElement('input');
-  inputEmail.type = 'email';
-  inputPassword.type = 'password';
-  inputEmail.classList.add('email');
-  inputPassword.classList.add('password');
-
-  // Replace user account inputs
-  inputOldEmail.replaceWith(inputEmail);
-  inputOldPassword.replaceWith(inputPassword);
-
-  // Replace logout with login button
-  btnLogout.replaceWith(btnLogin);
-
-  // Replace delete account with register button
-  btnDeleteAccount.replaceWith(btnRegister);
-
-  // Remove add/remove config buttons
-  const btnAdd = document.querySelector('.btn-add');
-  btnAdd.parentNode.removeChild(btnAdd);
-  const btnRemove = document.querySelector('.btn-remove');
-  btnRemove.parentNode.removeChild(btnRemove);
-
-  // Replace user with premade select element
-  selectUser.replaceWith(selectPremade);
-
-  // Leave 'em a happy message
-  alert('Account deleted successfully.\n\nI hope you enjoy your new job. :)');
-};
-
-const handleAccountDeletion = async () => {
-  try {
-    const response = await fetch('/api/delete', {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    // Guard clause: Account deletion failure
-    if (!response.ok) {
-      const error = await response.json();
-      console.error('Error deleting user:', error);
-      alert(`Failed to delete user:\n\n${error.message}`);
-      return;
-    }
-
-    // Clean up the DOM
-    cleanUpAccountDeletion();
-  } catch (err) {
-    console.error('Error in function handleAccountDeletion:', err);
-  }
-};
-
-const createDeleteAccountButton = () =>
-  authFrontend.buttonFactory(
-    'btn-delete-account',
-    'Delete Account',
-    handleAccountDeletion
-  );
+export { btnLogin, btnRegister, selectPremade };
