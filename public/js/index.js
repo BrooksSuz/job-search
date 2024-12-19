@@ -1,9 +1,11 @@
 // Simplify import statements
+import { logUserIn, registerUser } from './auth-frontend.js';
 import {
-  buttonFactory,
   changeSelectElement,
   createConfigButtons,
-} from './auth-frontend.js';
+  createDeleteAccountButton,
+  createLogoutButton,
+} from './dom-manipulation.js';
 import {
   alphabetizeConfigs,
   cleanUpDOM,
@@ -15,12 +17,15 @@ import executeJobSearch from './job-search.js';
 
 export {
   alphabetizeConfigs,
-  buttonFactory,
   changeSelectElement,
   cleanUpDOM,
   createConfigButtons,
+  createDeleteAccountButton,
+  createLogoutButton,
   executeJobSearch,
   fetchPremadeConfigs,
   fetchSelected,
+  logUserIn,
+  registerUser,
   startSpinner,
 };
