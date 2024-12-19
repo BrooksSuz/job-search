@@ -1,10 +1,14 @@
-import * as authFrontend from './js/auth-frontend.js';
-import * as helpers from './js/helpers.js';
-import executeJobSearch from './js/job-search.js';
-import * as uiControllers from './js/ui-controllers.js';
-
-// Hold premade select element in memory
-const selectPremade = document.getElementById('premade-configs');
+import {
+  alphabetizeConfigs,
+  buttonFactory,
+  changeSelectElement,
+  cleanUpDOM,
+  createConfigButtons,
+  executeJobSearch,
+  fetchPremadeConfigs,
+  fetchSelected,
+  startSpinner,
+} from './js/index.js';
 
 // Get premade configurations
 document.addEventListener('DOMContentLoaded', handlePremadeLoad);
@@ -21,10 +25,13 @@ btnLogin.addEventListener('click', handleLogin);
 const btnRegister = document.querySelector('.btn-register');
 btnRegister.addEventListener('click', handleRegister);
 
+// Hold premade select element in memory
+const selectPremade = document.getElementById('premade-configs');
+
 async function handlePremadeLoad() {
   try {
     // Fetch premade configs
-    const arrPremadeConfigs = await uiControllers.fetchPremadeConfigs();
+    const arrPremadeConfigs = await fetchPremadeConfigs();
 
     // Populate the select element
     arrPremadeConfigs.forEach((objConfig) => {
@@ -58,15 +65,15 @@ async function handleListingsClick() {
   const spanBtnListingsText = document.querySelector('.get-listings-text');
   spanBtnListingsText.style.display = 'none';
   const spanSpinner = document.querySelector('.spinner');
-  const stopSpinner = helpers.startSpinner(spanSpinner);
+  const stopSpinner = startSpinner(spanSpinner);
 
   try {
     // Get configs from database
-    const arrConfigs = await uiControllers.fetchSelected();
+    const arrConfigs = await fetchSelected();
 
     // Guard clause: No provided configs
     if (!arrConfigs.length) {
-      helpers.cleanUpDOM(
+      cleanUpDOM(
         spanSpinner,
         stopSpinner,
         spanBtnListingsText,
@@ -77,9 +84,9 @@ async function handleListingsClick() {
     }
 
     // Alphabetize and consume API endpoint
-    const arrAlphabetizedConfigs = helpers.alphabetizeConfigs(arrConfigs);
+    const arrAlphabetizedConfigs = alphabetizeConfigs(arrConfigs);
     await executeJobSearch(arrAlphabetizedConfigs).finally(() => {
-      helpers.cleanUpDOM(
+      cleanUpDOM(
         spanSpinner,
         stopSpinner,
         spanBtnListingsText,
@@ -123,13 +130,12 @@ async function handleLogin() {
     // Update the DOM
     btnLogin.replaceWith(btnLogout);
     btnRegister.replaceWith(btnDeleteAccount);
-    authFrontend.changeSelectElement(arrSites);
-    authFrontend.createConfigButtons();
+    changeSelectElement(arrSites);
+    createConfigButtons();
     inputEmail.disabled = true;
     inputPassword.disabled = true;
   } catch (err) {
     console.error('Error in function handleLogin', err);
-    return;
   }
 }
 
@@ -141,7 +147,6 @@ async function handleRegister() {
     }
   } catch (err) {
     console.error('Error in function handleRegister', err);
-    return;
   }
 }
 
@@ -177,7 +182,6 @@ const logUserIn = async () => {
     return response;
   } catch (err) {
     console.error('Error in function logUserIn:', err);
-    return;
   }
 };
 
@@ -185,10 +189,7 @@ const registerUser = async () => {
   const { email, password } = getUserCredentials();
 
   // Guard clause: Empty inputs
-  if (!email || !password) {
-    console.error('Email and password cannot be empty.');
-    return;
-  }
+  if (!email || !password) console.error('Email and password cannot be empty.');
 
   try {
     // Create the user's account
@@ -225,15 +226,11 @@ const logUserOut = async () => {
     // Log the user out
     await fetch('/auth/logout');
 
-    // Reinsert premade select element
-    const labelSelectParent = document.querySelector(
-      '.container-configs > label'
-    );
+    // Replace user with premade select element
     const selectUser = document.getElementById('user-configs');
     selectUser.replaceWith(selectPremade);
   } catch (err) {
     console.error('Error in function logUserOut:', err);
-    return;
   }
 };
 
@@ -272,7 +269,7 @@ const handleLogout = async () => {
 };
 
 const createLogoutButton = () =>
-  authFrontend.buttonFactory('btn-logout', 'Logout', handleLogout);
+  buttonFactory('btn-logout', 'Logout', handleLogout);
 
 const cleanUpAccountDeletion = () => {
   // Get EVERYTHING
@@ -327,7 +324,6 @@ const handleAccountDeletion = async () => {
       const error = await response.json();
       console.error('Error deleting user:', error);
       alert(`Failed to delete user:\n\n${error.message}`);
-      return;
     }
 
     // Clean up the DOM
@@ -338,8 +334,4 @@ const handleAccountDeletion = async () => {
 };
 
 const createDeleteAccountButton = () =>
-  authFrontend.buttonFactory(
-    'btn-delete-account',
-    'Delete Account',
-    handleAccountDeletion
-  );
+  buttonFactory('btn-delete-account', 'Delete Account', handleAccountDeletion);
