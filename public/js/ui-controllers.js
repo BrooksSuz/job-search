@@ -1,4 +1,4 @@
-import { sliceId } from './helpers.js';
+import { getPrefix } from './helpers.js';
 
 const fetchPremadeConfigs = async () => {
   try {
@@ -11,7 +11,7 @@ const fetchPremadeConfigs = async () => {
 };
 
 const fetchSelected = async () => {
-  const strSelectIdSliced = sliceId();
+  const strSelectIdSliced = getPrefix();
   const strCurrentId = `${strSelectIdSliced}-configs`;
   const selectElement = document.getElementById(strCurrentId);
   const arrConfigs = Array.from(selectElement.selectedOptions);

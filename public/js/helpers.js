@@ -1,4 +1,4 @@
-const sliceId = () => {
+const getPrefix = () => {
   const selectMenu = document.querySelector('[id$="configs"]');
   const strSelectMenuId = selectMenu.id;
   const intIdConfigsIndex = strSelectMenuId.indexOf('-');
@@ -63,4 +63,4 @@ const alphabetizeConfigs = (arrConfigs) =>
       a.siteName < b.siteName ? -1 : a.siteName > b.siteName ? 1 : 0
     );
 
-export { alphabetizeConfigs, cleanUpDOM, sliceId, startSpinner };
+export { alphabetizeConfigs, cleanUpDOM, getPrefix, startSpinner };

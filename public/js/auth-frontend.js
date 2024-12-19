@@ -1,61 +1,69 @@
-import { sliceId } from './helpers.js';
 import { handleRegister } from '../main.js';
+import { getPrefix } from './helpers.js';
+
+// Hold premade select element in memory
+const selectPremade = document.getElementById('premade-configs');
 
 const swapButtons = async (btnNone, btnBlock) => {
   btnNone.style.display = 'none';
   btnBlock.style.display = 'block';
 };
 
-// Hold premade select element in memory
-const selectPremade = document.getElementById('premade-configs');
+function changeSelectElement(arrSites) {
+  // Get the correct prefix
+  const strPrefix = getPrefix();
+  const strCurrentId = `${strPrefix}-configs`;
 
-const logUserOut = async () => {
-  // Log the user out
-  try {
-    await fetch('/auth/logout');
-  } catch (err) {
-    console.error('Error in function handleLogOutClick', err);
-    return;
-  }
-
-  // Reinsert premade select element
-  const labelParent = document.querySelector('.container-configs > label');
-  const selectUser = document.getElementById('user-configs');
-  labelParent.removeChild(selectUser);
-  labelParent.appendChild(selectPremade);
-};
-
-const changeSelectElement = async (arrSites) => {
-  const strSelectIdSliced = sliceId();
-  const strCurrentId = `${strSelectIdSliced}-configs`;
+  // Get/create select elements
   const selectElement = document.getElementById(strCurrentId);
-  const labelParent = document.querySelector('.container-configs > label');
   const newSelect = document.createElement('select');
   newSelect.id = 'user-configs';
   newSelect.name = 'user-configs';
   newSelect.multiple = true;
+
+  // Populate select element with user-created configs
   arrSites.forEach((objConfig) => {
     const newOption = document.createElement('option');
     newOption.value = objConfig._id;
     newOption.textContent = objConfig.siteName;
     newSelect.appendChild(newOption);
   });
-  labelParent.removeChild(selectElement);
-  labelParent.appendChild(newSelect);
-};
 
-const logUserIn = async () => {
-  const inputEmail = document.querySelector('.email');
-  const inputPassword = document.querySelector('.password');
-  const email = inputEmail.value.trim();
-  const password = inputPassword.value.trim();
+  // Replace premade with user select element
+  selectElement.replaceWith(newSelect);
+}
 
+function createConfigButtons() {
+  const divContainer = document.createElement('div');
+  const divAdvanced = document.querySelector('.container-advanced');
+  const btnAdd = createAddButton();
+  const btnRemove = createRemoveButton();
+  divContainer.classList.add('container-button');
+  divContainer.append(btnAdd, btnRemove);
+  divAdvanced.appendChild(divContainer);
+}
+
+function createDeleteAccountButton() {
+  const btnDeleteAccount = document.createElement('button');
+  const btnRegister = document.querySelector('.register');
+  btnDeleteAccount.id = 'btn-delete-account';
+  btnDeleteAccount.type = 'button';
+  btnDeleteAccount.textContent = 'Delete Account';
+  btnDeleteAccount.addEventListener('click', handleAccountDeletion);
+  btnRegister.replaceWith(btnDeleteAccount);
+}
+
+async function logUserIn() {
+  const { email, password } = getUserCredentials();
+
+  // Guard clause: Empty inputs
   if (!email || !password) {
     alert('Email and password cannot be empty.');
     return;
   }
 
   try {
+    // Log the user in and return the response
     const response = await fetch('/auth/login', {
       method: 'POST',
       headers: {
@@ -68,23 +76,40 @@ const logUserIn = async () => {
     });
     return response;
   } catch (err) {
-    console.error('Error in function logUserIn');
-    throw err;
+    console.error('Error in function logUserIn:', err);
+    return;
   }
-};
+}
 
-const registerUser = async () => {
-  const inputEmail = document.querySelector('.email');
-  const inputPassword = document.querySelector('.password');
-  const email = inputEmail.value.trim();
-  const password = inputPassword.value.trim();
+async function logUserOut() {
+  try {
+    // Log the user out
+    await fetch('/auth/logout');
 
+    // Reinsert premade select element
+    const labelSelectParent = document.querySelector(
+      '.container-configs > label'
+    );
+    const selectUser = document.getElementById('user-configs');
+    labelSelectParent.removeChild(selectUser);
+    labelSelectParent.appendChild(selectPremade);
+  } catch (err) {
+    console.error('Error in function logUserOut:', err);
+    return;
+  }
+}
+
+async function registerUser() {
+  const { email, password } = getUserCredentials();
+
+  // Guard clause: Empty inputs
   if (!email || !password) {
     console.error('Email and password cannot be empty.');
     return;
   }
 
   try {
+    // Create the user's account
     const response = await fetch('/auth/register', {
       method: 'POST',
       headers: {
@@ -96,20 +121,32 @@ const registerUser = async () => {
       }),
     });
 
+    // Guard clause: Failed registration
     if (!response.ok) {
       const data = await response.json();
       alert(data.message);
+
+      // Prevent user from logging in
       return false;
     }
 
+    // Log user in
     alert('Registration successful. Happy hunting!');
     return true;
   } catch (err) {
     console.error('Error in function registerUser', err);
   }
+}
+
+const getUserCredentials = () => {
+  const inputEmail = document.querySelector('.email');
+  const inputPassword = document.querySelector('.password');
+  const email = inputEmail.value.trim();
+  const password = inputPassword.value.trim();
+  return { email, password };
 };
 
-const createDataObject = () => {
+const createUserDataObject = () => {
   const inputsAdvanced = document.querySelectorAll(
     '.container-advanced > label input'
   );
@@ -128,51 +165,50 @@ const createDataObject = () => {
 };
 
 const addConfig = async () => {
-  const objUserData = createDataObject();
+  const objUserData = createUserDataObject();
   try {
     const response = await fetch('/api/add', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ objUserData: objUserData }),
+      body: JSON.stringify({ objUserData }),
     });
-
-    return response;
+    return await response.json().then((res) => res.id);
   } catch (err) {
     console.error('Error in function addConfig', err);
   }
 };
 
-const handleAdd = async () => {
+const handleAddClick = async () => {
   const selectElement = document.getElementById('user-configs');
   const inputName = document.getElementById('siteName');
   const newOption = document.createElement('option');
   newOption.textContent = inputName.value;
   try {
-    const idJSON = await addConfig().then((res) => res.json());
-    const id = await idJSON.id;
+    const id = await addConfig();
     newOption.value = id;
     selectElement.appendChild(newOption);
   } catch (err) {
-    console.error('Error in function populateSelect', err);
+    console.error('Error in function handleAddClick', err);
   }
 };
 
-const createAddButton = () => {
-  const btnAdd = document.createElement('button');
-  btnAdd.id = 'btn-add';
-  btnAdd.type = 'button';
-  btnAdd.textContent = 'Add';
-  btnAdd.addEventListener('click', handleAdd);
-  return btnAdd;
+const buttonFactory = (id, textContent, func) => {
+  const newButton = document.createElement('button');
+  newButton.id = id;
+  newButton.type = 'button';
+  newButton.textContent = textContent;
+  newButton.addEventListener('click', func);
+  return newButton;
 };
 
-const handleRemove = async () => {
-  const selectElement = document.getElementById('user-configs');
-  const selectedOptions = Array.from(selectElement.options).filter(
-    (option) => option.selected
-  );
+const createAddButton = () => buttonFactory('btn-add', 'Add', handleAddClick);
+
+const createRemoveButton = () =>
+  buttonFactory('btn-remove', 'Remove', handleRemoveClick);
+
+const removeConfig = async (selectedOptions) => {
   const selectedValues = selectedOptions.map((option) => option.value);
   try {
     await fetch('/api/remove', {
@@ -180,39 +216,72 @@ const handleRemove = async () => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ selectedValues: selectedValues }),
-    });
-
-    selectedOptions.forEach((option) => {
-      option.remove();
+      body: JSON.stringify({ selectedValues }),
     });
   } catch (err) {
-    console.error('Error in function onRemoveClick', err);
+    console.error('Error in function removeConfig', err);
   }
 };
 
-const createDeleteButton = () => {
-  const btnRemove = document.createElement('button');
-  btnRemove.id = 'btn-remove';
-  btnRemove.type = 'button';
-  btnRemove.textContent = 'Remove';
-  btnRemove.addEventListener('click', handleRemove);
-  return btnRemove;
+const handleRemoveClick = async () => {
+  const selectElement = document.getElementById('user-configs');
+  const selectedOptions = Array.from(selectElement.options).filter(
+    (option) => option.selected
+  );
+  await removeConfig(selectedOptions);
+  selectedOptions.forEach((option) => {
+    option.remove();
+  });
 };
 
-async function handleAccountDeletion() {
-  const inputEmail = document.createElement('input');
-  const inputPassword = document.createElement('input');
+const cleanUpAccountDeletion = () => {
+  // Get EVERYTHING
   const inputOldEmail = document.querySelector('.email');
   const inputOldPassword = document.querySelector('.password');
   const btnLogin = document.querySelector('.login');
   const btnLogout = document.querySelector('.logout');
   const btnDeleteAccount = document.getElementById('btn-delete-account');
   const selectUser = document.getElementById('user-configs');
+
+  // Create new user account inputs
+  const inputEmail = document.createElement('input');
+  const inputPassword = document.createElement('input');
   inputEmail.type = 'email';
-  inputEmail.classList.add('email');
   inputPassword.type = 'password';
+  inputEmail.classList.add('email');
   inputPassword.classList.add('password');
+
+  // Replace user account inputs
+  inputOldEmail.replaceWith(inputEmail);
+  inputOldPassword.replaceWith(inputPassword);
+
+  // Replace logout with login button
+  swapButtons(btnLogout, btnLogin);
+
+  // Create register button
+  const btnRegister = document.createElement('button');
+  btnRegister.type = 'button';
+  btnRegister.classList.add('register');
+  btnRegister.textContent = 'Register';
+  btnRegister.addEventListener('click', handleRegister);
+
+  // Replace delete account with register button
+  btnDeleteAccount.replaceWith(btnRegister);
+
+  // Remove add/remove config buttons
+  const btnAdd = document.getElementById('btn-add');
+  btnAdd.parentNode.removeChild(btnAdd);
+  const btnRemove = document.getElementById('btn-remove');
+  btnRemove.parentNode.removeChild(btnRemove);
+
+  // Replace user with premade select element
+  selectUser.replaceWith(selectPremade);
+
+  // Leave 'em a happy message
+  alert('Account deleted successfully.\n\nI hope you enjoy your new job. :)');
+};
+
+async function handleAccountDeletion() {
   try {
     const response = await fetch('/api/delete', {
       method: 'DELETE',
@@ -221,61 +290,27 @@ async function handleAccountDeletion() {
       },
     });
 
+    // Guard clause: Account deletion failure
     if (!response.ok) {
       const error = await response.json();
       console.error('Error deleting user:', error);
-      alert('Failed to delete user: ' + error.message);
+      alert(`Failed to delete user:\n\n${error.message}`);
       return;
     }
 
-    // Cleanup
-    alert('Account deleted successfully');
-    inputOldEmail.replaceWith(inputEmail);
-    inputOldPassword.replaceWith(inputPassword);
-    swapButtons(btnLogout, btnLogin);
-    const btnRegister = document.createElement('button');
-    btnRegister.type = 'button';
-    btnRegister.classList.add('register');
-    btnRegister.textContent = 'Register';
-    btnRegister.addEventListener('click', handleRegister);
-    btnDeleteAccount.replaceWith(btnRegister);
-    const btnAdd = document.getElementById('btn-add');
-    if (btnAdd) btnAdd.parentNode.removeChild(btnAdd);
-    const btnRemove = document.getElementById('btn-remove');
-    if (btnRemove) btnRemove.parentNode.removeChild(btnRemove);
-    selectUser.replaceWith(selectPremade);
+    // Clean up the DOM
+    cleanUpAccountDeletion();
   } catch (err) {
-    console.error('Network error:', err);
-    alert('An error userIdoccurred while deleting the user.');
+    console.error('Error in function handleAccountDeletion:', err);
   }
 }
 
-const createDeleteAccountButton = async () => {
-  const btnDeleteAccount = document.createElement('button');
-  const btnRegister = document.querySelector('.register');
-  btnDeleteAccount.id = 'btn-delete-account';
-  btnDeleteAccount.type = 'button';
-  btnDeleteAccount.textContent = 'Delete Account';
-  btnDeleteAccount.addEventListener('click', handleAccountDeletion);
-  btnRegister.replaceWith(btnDeleteAccount);
-};
-
-const createConfigButtons = async () => {
-  const divContainer = document.createElement('div');
-  const divAdvanced = document.querySelector('.container-advanced');
-  const btnAdd = createAddButton();
-  const btnRemove = createDeleteButton();
-  divContainer.classList.add('container-button');
-  divContainer.append(btnAdd, btnRemove);
-  divAdvanced.appendChild(divContainer);
-};
-
 export {
-  swapButtons,
+  changeSelectElement,
+  createConfigButtons,
+  createDeleteAccountButton,
   logUserIn,
   logUserOut,
-  changeSelectElement,
   registerUser,
-  createDeleteAccountButton,
-  createConfigButtons,
+  swapButtons,
 };
