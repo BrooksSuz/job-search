@@ -7,7 +7,8 @@ import {
   registerUser,
 } from './js/index.js';
 
-const persisted = { keywords: [] };
+// Restore inputs
+document.addEventListener('DOMContentLoaded', restoreInputs);
 
 // Get premade configurations
 document.addEventListener('DOMContentLoaded', handlePremadeLoad);
@@ -19,7 +20,17 @@ btnGetListings.addEventListener('click', handleListingsClick);
 // Persist keywords
 const inputKeywords = document.querySelector('.keywords');
 inputKeywords.addEventListener('input', () => {
-  inputKeywords.value.split(',');
+  setLocalItem('userKeywords', inputKeywords.value);
+});
+
+// Persist advanced inputs
+const inputsAdvanced = document.querySelectorAll(
+  '.container-advanced > label input'
+);
+inputsAdvanced.forEach((input) => {
+  input.addEventListener('input', () => {
+    setLocalItem(`user${input.id}`, input.value);
+  });
 });
 
 // Log in
@@ -32,6 +43,27 @@ btnRegister.addEventListener('click', handleRegister);
 
 // Hold premade select element reference
 const selectPremade = document.getElementById('premade-configs');
+
+function setLocalItem(strKey, strValue) {
+  localStorage.setItem(strKey, JSON.stringify(strValue));
+}
+
+function restoreInputs() {
+  const inputKeywords = document.querySelector('.keywords');
+  const inputsAdvanced = document.querySelectorAll(
+    '.container-advanced > label input'
+  );
+
+  // Restore user keywords input
+  const strUserKeywords = JSON.parse(localStorage.getItem('userKeywords'));
+  if (strUserKeywords) inputKeywords.value = strUserKeywords;
+
+  // Restore user advanced inputs
+  inputsAdvanced.forEach((input) => {
+    const strUserAdvanced = JSON.parse(localStorage.getItem(`user${input.id}`));
+    if (strUserAdvanced) input.value = strUserAdvanced;
+  });
+}
 
 async function handlePremadeLoad() {
   try {
