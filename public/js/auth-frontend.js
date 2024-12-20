@@ -1,5 +1,7 @@
 import { selectPremade } from '../main.js';
 
+document.addEventListener('DOMContentLoaded', () => {});
+
 async function addConfig() {
   const objSiteData = createUserDataObject();
   try {

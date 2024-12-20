@@ -33,26 +33,29 @@ connectToDb();
 app.use(express.static(path.join(dirName, '../public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(passport.initialize());
 app.use(
   session({
     secret: secret,
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 3600000 /* secure: true */ },
-
+    cookie: { maxAge: 3600000 /* sameSite: 'none', secure: true */ },
     store: MongoStore.create({
       client: mongoose.connection.getClient(),
       collectionName: 'sessions',
-      dbName: 'job_scraper',
+      dbName: process.env.DB,
     }),
   })
 );
+app.use(passport.initialize());
 app.use(passport.session());
 app.use('/auth', authRoutes);
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(dirName, '../public', 'index.html'));
+});
+
+app.get('/api/user', (req, res) => {
+  res.send(req.user);
 });
 
 app.get('/api/listings', (req, res) => {

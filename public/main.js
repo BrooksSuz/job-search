@@ -7,6 +7,41 @@ import {
   registerUser,
 } from './js/index.js';
 
+document.addEventListener('DOMContentLoaded', async () => {
+  const selectPremade = document.querySelector('#premade-configs');
+  const newSelect = document.createElement('select');
+  newSelect.id = 'user-configs';
+  newSelect.name = 'user-configs';
+  newSelect.multiple = true;
+  try {
+    const response = await fetch('/api/user', {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    if (response.ok) {
+      const user = await response.json();
+      console.log('Current user:', user);
+      // Populate select element with user-created configs
+      user.sites.forEach((objConfig) => {
+        const newOption = document.createElement('option');
+        newOption.value = objConfig._id;
+        newOption.textContent = objConfig.siteName;
+        newSelect.appendChild(newOption);
+      });
+      selectPremade.replaceWith(newSelect);
+      createConfigButtons();
+      return user;
+    } else {
+      console.log('User not authenticated');
+      return null;
+    }
+  } catch (err) {
+    console.error('Error fetching user:', err);
+    return null;
+  }
+});
+
 // Restore inputs
 document.addEventListener('DOMContentLoaded', restoreInputs);
 

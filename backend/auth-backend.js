@@ -27,7 +27,13 @@ authRoutes.post('/login', passport.authenticate('local'), async (req, res) => {
     const user = await User.findById(req.user._id, projection)
       .populate('sites', projection)
       .exec();
-    res.json({ message: 'Logged in successfully', user: user });
+
+    if (user) {
+      req.session.user = user;
+      res.json({ message: 'Logged in successfully', user: user });
+    } else {
+      res.status(401).json({ message: 'Invalid credentials' });
+    }
   } catch (err) {
     console.error('Error during login:', err);
     res.status(500).json({ error: 'An error occurred' });
