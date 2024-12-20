@@ -32,7 +32,7 @@ async function getPremadeConfigs() {
     });
     return arrConfigs;
   } catch (err) {
-    console.error('Error querying site configs:', err);
+    console.error('Error in function getPremadeConfigs:', err);
   }
 }
 
@@ -41,7 +41,7 @@ async function getSelectedConfigs(arrIds) {
     const arrConfigs = await Site.find({ _id: { $in: arrIds } }, { _id: 0 });
     return arrConfigs;
   } catch (err) {
-    console.error('Error querying site config:', err);
+    console.error('Error in function getSelectedConfigs:', err);
   }
 }
 
@@ -62,7 +62,7 @@ async function deleteUser(user) {
     await session.commitTransaction();
   } catch (err) {
     await session.abortTransaction();
-    console.error('Error deleting user:', err);
+    console.error('Error in function deleteUser:', err);
   } finally {
     await session.endSession();
   }

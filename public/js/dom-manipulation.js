@@ -52,9 +52,6 @@ function cleanUpAccountDeletion() {
 
   // Replace user with premade select element
   selectUser.replaceWith(selectPremade);
-
-  // Leave 'em a happy message
-  alert('Account deleted successfully.\n\nI hope you enjoy your new job. :)');
 }
 
 function createConfigButtons() {
@@ -116,11 +113,18 @@ const handleLogout = async () => {
 };
 
 const handleAccountDeletion = async () => {
-  try {
-    await deleteUser();
-    cleanUpAccountDeletion();
-  } catch (err) {
-    console.error('Error in function handleAccountDeletion:', err);
+  const strWarning =
+    'Are you sure you want to delete your account?\nAll user data will be lost. This includes: email, password, and site configurations.';
+  if (!confirm(strWarning)) {
+    alert('Account has not been deleted.');
+  } else {
+    try {
+      await deleteUser();
+      cleanUpAccountDeletion();
+      alert('Account deleted successfully.\nEnjoy your new job! :)');
+    } catch (err) {
+      console.error('Error in function handleAccountDeletion:', err);
+    }
   }
 };
 

@@ -7,12 +7,66 @@ import {
   registerUser,
 } from './js/index.js';
 
+document.addEventListener('DOMContentLoaded', async () => {
+  const selectPremade = document.querySelector('#premade-configs');
+  const newSelect = document.createElement('select');
+  newSelect.id = 'user-configs';
+  newSelect.name = 'user-configs';
+  newSelect.multiple = true;
+  try {
+    const response = await fetch('/api/user', {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    if (response.ok) {
+      const user = await response.json();
+      console.log('Current user:', user);
+      // Populate select element with user-created configs
+      user.sites.forEach((objConfig) => {
+        const newOption = document.createElement('option');
+        newOption.value = objConfig._id;
+        newOption.textContent = objConfig.siteName;
+        newSelect.appendChild(newOption);
+      });
+      selectPremade.replaceWith(newSelect);
+      createConfigButtons();
+      return user;
+    } else {
+      console.log('User not authenticated');
+      return null;
+    }
+  } catch (err) {
+    console.error('Error fetching user:', err);
+    return null;
+  }
+});
+
+// Restore inputs
+document.addEventListener('DOMContentLoaded', restoreInputs);
+
 // Get premade configurations
 document.addEventListener('DOMContentLoaded', handlePremadeLoad);
 
 // Run main program logic
 const btnGetListings = document.querySelector('.get-listings');
 btnGetListings.addEventListener('click', handleListingsClick);
+
+// Persist keywords
+const inputKeywords = document.querySelector('.keywords');
+inputKeywords.addEventListener('input', () => {
+  setLocalItem('userKeywords', inputKeywords.value);
+});
+
+// Persist advanced inputs
+const inputsAdvanced = document.querySelectorAll(
+  '.container-advanced > label input'
+);
+inputsAdvanced.forEach((input) => {
+  input.addEventListener('input', () => {
+    setLocalItem(`user${input.id}`, input.value);
+  });
+});
 
 // Log in
 const btnLogin = document.querySelector('.btn-login');
@@ -24,6 +78,27 @@ btnRegister.addEventListener('click', handleRegister);
 
 // Hold premade select element reference
 const selectPremade = document.getElementById('premade-configs');
+
+function setLocalItem(strKey, strValue) {
+  localStorage.setItem(strKey, JSON.stringify(strValue));
+}
+
+function restoreInputs() {
+  const inputKeywords = document.querySelector('.keywords');
+  const inputsAdvanced = document.querySelectorAll(
+    '.container-advanced > label input'
+  );
+
+  // Restore user keywords input
+  const strUserKeywords = JSON.parse(localStorage.getItem('userKeywords'));
+  if (strUserKeywords) inputKeywords.value = strUserKeywords;
+
+  // Restore user advanced inputs
+  inputsAdvanced.forEach((input) => {
+    const strUserAdvanced = JSON.parse(localStorage.getItem(`user${input.id}`));
+    if (strUserAdvanced) input.value = strUserAdvanced;
+  });
+}
 
 async function handlePremadeLoad() {
   try {
@@ -207,7 +282,7 @@ const cleanUpDOM = (
 
 const fetchPremade = async () => {
   try {
-    const response = await fetch('/api/premade');
+    const response = await fetch('/api/premade-configs');
     if (!response.ok) throw new Error('Unauthorized');
     return await response.json();
   } catch (err) {
@@ -222,7 +297,7 @@ const fetchSelected = async () => {
   const arrConfigs = Array.from(selectElement.selectedOptions);
   const arrIds = arrConfigs.map((option) => option.value);
   try {
-    const response = await fetch('/api/configs', {
+    const response = await fetch('/api/user-configs', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -240,7 +315,7 @@ const sendListingsHTML = async () => {
   const divListings = document.querySelector('.listings');
   const divToString = divListings.outerHTML;
   try {
-    const response = await fetch(`/api/mail`, {
+    const response = await fetch(`/api/listings-mail`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
