@@ -79,7 +79,7 @@ const handleLogout = async () => {
     inputEmail.value = '';
     inputPassword.value = '';
   } catch (err) {
-    console.error('Error in function handleLogout', err);
+    console.error('Error in function handleLogout:', err);
   }
 };
 
@@ -88,7 +88,7 @@ const handleAccountDeletion = async () => {
     await deleteUser();
     cleanUpAccountDeletion();
   } catch (err) {
-    console.error('Error in function handleAccountDeletion');
+    console.error('Error in function handleAccountDeletion:');
   }
 };
 
@@ -148,7 +148,7 @@ const handleAddClick = async () => {
     newOption.value = id;
     selectElement.appendChild(newOption);
   } catch (err) {
-    console.error('Error in function handleAddClick', err);
+    console.error('Error in function handleAddClick:', err);
   }
 };
 

@@ -6,7 +6,7 @@ import {
   createDeleteAccountButton,
   createLogoutButton,
   executeJobSearch,
-  fetchPremadeConfigs,
+  fetchPremade,
   fetchSelected,
   logUserIn,
   registerUser,
@@ -28,13 +28,13 @@ btnLogin.addEventListener('click', handleLogin);
 const btnRegister = document.querySelector('.btn-register');
 btnRegister.addEventListener('click', handleRegister);
 
-// Hold premade select element in memory
+// Hold premade select element reference
 const selectPremade = document.getElementById('premade-configs');
 
 async function handlePremadeLoad() {
   try {
     // Fetch premade configs
-    const arrPremadeConfigs = await fetchPremadeConfigs();
+    const arrPremadeConfigs = await fetchPremade();
 
     // Populate the select element
     arrPremadeConfigs.forEach((objConfig) => {
@@ -138,7 +138,7 @@ async function handleLogin() {
     inputEmail.disabled = true;
     inputPassword.disabled = true;
   } catch (err) {
-    console.error('Error in function handleLogin', err);
+    console.error('Error in function handleLogin:', err);
   }
 }
 
@@ -149,7 +149,7 @@ async function handleRegister() {
       await handleLogin();
     }
   } catch (err) {
-    console.error('Error in function handleRegister', err);
+    console.error('Error in function handleRegister:', err);
   }
 }
 

@@ -9,7 +9,7 @@ import {
 import {
   alphabetizeConfigs,
   cleanUpDOM,
-  fetchPremadeConfigs,
+  fetchPremade,
   fetchSelected,
   startSpinner,
 } from './helpers.js';
@@ -23,7 +23,7 @@ export {
   createDeleteAccountButton,
   createLogoutButton,
   executeJobSearch,
-  fetchPremadeConfigs,
+  fetchPremade,
   fetchSelected,
   logUserIn,
   registerUser,

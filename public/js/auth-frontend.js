@@ -12,7 +12,7 @@ async function addConfig() {
     });
     return await response.json().then((res) => res.id);
   } catch (err) {
-    console.error('Error in function addConfig', err);
+    console.error('Error in function addConfig:', err);
   }
 }
 
@@ -27,7 +27,7 @@ async function removeConfig(selectedOptions) {
       body: JSON.stringify({ selectedValues }),
     });
   } catch (err) {
-    console.error('Error in function removeConfig', err);
+    console.error('Error in function removeConfig:', err);
   }
 }
 
@@ -90,7 +90,7 @@ async function registerUser() {
     alert('Registration successful. Happy hunting!');
     return true;
   } catch (err) {
-    console.error('Error in function registerUser', err);
+    console.error('Error in function registerUser:', err);
   }
 }
 

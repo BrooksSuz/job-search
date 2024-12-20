@@ -26,13 +26,13 @@ function cleanUpDOM(
   });
 }
 
-async function fetchPremadeConfigs() {
+async function fetchPremade() {
   try {
     const response = await fetch('/api/premade');
     if (!response.ok) throw new Error('Unauthorized');
     return await response.json();
   } catch (err) {
-    console.error('Error in function fetchPremadeConfigs', err);
+    console.error('Error in function fetchPremade:', err);
   }
 }
 
@@ -53,7 +53,7 @@ async function fetchSelected() {
     const arrSelected = await response.json();
     return arrSelected;
   } catch (err) {
-    console.error('Error in function fetchSelected', err);
+    console.error('Error in function fetchSelected:', err);
   }
 }
 
@@ -92,14 +92,14 @@ async function sendListingsHTML() {
 
     if (response.ok) console.log('HTML sent successfully');
   } catch (err) {
-    console.error('Error in function sendListingHTML', err);
+    console.error('Error in function sendListingsHTML:', err);
   }
 }
 
 export {
   alphabetizeConfigs,
   cleanUpDOM,
-  fetchPremadeConfigs,
+  fetchPremade,
   fetchSelected,
   getPrefix,
   startSpinner,
