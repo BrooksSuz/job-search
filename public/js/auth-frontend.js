@@ -1,14 +1,14 @@
 import { selectPremade } from '../main.js';
 
 async function addConfig() {
-  const objUserData = createUserDataObject();
+  const objSiteData = createUserDataObject();
   try {
-    const response = await fetch('/api/add', {
+    const response = await fetch('/api/add-config', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ objUserData }),
+      body: JSON.stringify({ objSiteData }),
     });
     return await response.json().then((res) => res.id);
   } catch (err) {
@@ -19,7 +19,7 @@ async function addConfig() {
 async function removeConfig(selectedOptions) {
   const selectedValues = selectedOptions.map((option) => option.value);
   try {
-    await fetch('/api/remove', {
+    await fetch('/api/remove-config', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -109,7 +109,7 @@ async function logUserOut() {
 
 async function deleteUser() {
   try {
-    const response = await fetch('/api/delete', {
+    const response = await fetch('/api/delete-user', {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -131,18 +131,18 @@ const createUserDataObject = () => {
   const inputsAdvanced = document.querySelectorAll(
     '.container-advanced > label input'
   );
-  const objUserData = {};
+  const objSiteData = {};
 
   inputsAdvanced.forEach((input) => {
     const id = input.id;
     if (input.type === 'checkbox') {
-      objUserData[id] = input.checked;
+      objSiteData[id] = input.checked;
     } else {
-      objUserData[id] = input.value;
+      objSiteData[id] = input.value;
     }
   });
 
-  return objUserData;
+  return objSiteData;
 };
 
 const getUserCredentials = () => {

@@ -1,11 +1,10 @@
 import express from 'express';
-import User from './schemas/User.js';
 import passport from './passport-config.js';
+import User from './schemas/User.js';
 
-const router = express.Router();
+const authRoutes = express.Router();
 
-// Register
-router.post('/register', async (req, res) => {
+authRoutes.post('/register', async (req, res) => {
   const { email, password } = req.body;
   try {
     const existingUser = await User.findOne({ email });
@@ -17,13 +16,12 @@ router.post('/register', async (req, res) => {
     await user.save();
     res.status(201).send('User registered');
   } catch (err) {
-    console.error('Error during registration', err);
+    console.error('Error during registration:', err);
     res.status(400).send('Error registering user');
   }
 });
 
-// Login
-router.post('/login', passport.authenticate('local'), async (req, res) => {
+authRoutes.post('/login', passport.authenticate('local'), async (req, res) => {
   const projection = { _id: 1, siteName: 1 };
   try {
     const user = await User.findById(req.user._id, projection)
@@ -31,17 +29,16 @@ router.post('/login', passport.authenticate('local'), async (req, res) => {
       .exec();
     res.json({ message: 'Logged in successfully', user: user });
   } catch (err) {
-    console.error('Error during login', err);
+    console.error('Error during login:', err);
     res.status(500).json({ error: 'An error occurred' });
   }
 });
 
-// Logout
-router.get('/logout', (req, res, next) => {
+authRoutes.get('/logout', (req, res, next) => {
   req.logout((err) => {
     if (err) return next(err);
     res.send('Logged out');
   });
 });
 
-export default router;
+export default authRoutes;

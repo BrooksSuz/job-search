@@ -5,9 +5,20 @@ import {
   logUserOut,
   removeConfig,
 } from './auth-frontend.js';
-import { getPrefix } from './helpers.js';
 
-const cleanUpAccountDeletion = () => {
+function createLogoutButton() {
+  return buttonFactory('btn-logout', 'Logout', handleLogout);
+}
+
+function createDeleteAccountButton() {
+  return buttonFactory(
+    'btn-delete-account',
+    'Delete Account',
+    handleAccountDeletion
+  );
+}
+
+function cleanUpAccountDeletion() {
   // Get EVERYTHING
   const inputOldEmail = document.querySelector('.email');
   const inputOldPassword = document.querySelector('.password');
@@ -44,10 +55,31 @@ const cleanUpAccountDeletion = () => {
 
   // Leave 'em a happy message
   alert('Account deleted successfully.\n\nI hope you enjoy your new job. :)');
+}
+
+function createConfigButtons() {
+  const divContainer = document.createElement('div');
+  const divAdvanced = document.querySelector('.container-advanced');
+  const btnAdd = createAddButton();
+  const btnRemove = createRemoveButton();
+  divContainer.classList.add('container-button');
+  divContainer.append(btnAdd, btnRemove);
+  divAdvanced.appendChild(divContainer);
+}
+
+const buttonFactory = (btnClass, textContent, func) => {
+  const newButton = document.createElement('button');
+  newButton.classList.add(btnClass);
+  newButton.type = 'button';
+  newButton.textContent = textContent;
+  newButton.addEventListener('click', func);
+  return newButton;
 };
 
-const createLogoutButton = () =>
-  buttonFactory('btn-logout', 'Logout', handleLogout);
+const createAddButton = () => buttonFactory('btn-add', 'Add', handleAddClick);
+
+const createRemoveButton = () =>
+  buttonFactory('btn-remove', 'Remove', handleRemoveClick);
 
 const handleLogout = async () => {
   const btnLogout = document.querySelector('.btn-logout');
@@ -88,55 +120,9 @@ const handleAccountDeletion = async () => {
     await deleteUser();
     cleanUpAccountDeletion();
   } catch (err) {
-    console.error('Error in function handleAccountDeletion:');
+    console.error('Error in function handleAccountDeletion:', err);
   }
 };
-
-const createDeleteAccountButton = () =>
-  buttonFactory('btn-delete-account', 'Delete Account', handleAccountDeletion);
-
-function changeSelectElement(arrSites) {
-  // Get the correct prefix
-  const strPrefix = getPrefix();
-  const strCurrentId = `${strPrefix}-configs`;
-
-  // Get/create select elements
-  const selectElement = document.getElementById(strCurrentId);
-  const newSelect = document.createElement('select');
-  newSelect.id = 'user-configs';
-  newSelect.name = 'user-configs';
-  newSelect.multiple = true;
-
-  // Populate select element with user-created configs
-  arrSites.forEach((objConfig) => {
-    const newOption = document.createElement('option');
-    newOption.value = objConfig._id;
-    newOption.textContent = objConfig.siteName;
-    newSelect.appendChild(newOption);
-  });
-
-  // Replace premade with user select element
-  selectElement.replaceWith(newSelect);
-}
-
-function createConfigButtons() {
-  const divContainer = document.createElement('div');
-  const divAdvanced = document.querySelector('.container-advanced');
-  const btnAdd = createAddButton();
-  const btnRemove = createRemoveButton();
-  divContainer.classList.add('container-button');
-  divContainer.append(btnAdd, btnRemove);
-  divAdvanced.appendChild(divContainer);
-}
-
-function buttonFactory(btnClass, textContent, func) {
-  const newButton = document.createElement('button');
-  newButton.classList.add(btnClass);
-  newButton.type = 'button';
-  newButton.textContent = textContent;
-  newButton.addEventListener('click', func);
-  return newButton;
-}
 
 const handleAddClick = async () => {
   const selectElement = document.getElementById('user-configs');
@@ -152,8 +138,6 @@ const handleAddClick = async () => {
   }
 };
 
-const createAddButton = () => buttonFactory('btn-add', 'Add', handleAddClick);
-
 const handleRemoveClick = async () => {
   const selectElement = document.getElementById('user-configs');
   const selectedOptions = Array.from(selectElement.options).filter(
@@ -165,11 +149,7 @@ const handleRemoveClick = async () => {
   });
 };
 
-const createRemoveButton = () =>
-  buttonFactory('btn-remove', 'Remove', handleRemoveClick);
-
 export {
-  changeSelectElement,
   cleanUpAccountDeletion,
   createConfigButtons,
   createDeleteAccountButton,

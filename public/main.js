@@ -1,17 +1,13 @@
 import {
-  alphabetizeConfigs,
-  changeSelectElement,
-  cleanUpDOM,
   createConfigButtons,
   createDeleteAccountButton,
   createLogoutButton,
   executeJobSearch,
-  fetchPremade,
-  fetchSelected,
   logUserIn,
   registerUser,
-  startSpinner,
 } from './js/index.js';
+
+const persisted = { keywords: [] };
 
 // Get premade configurations
 document.addEventListener('DOMContentLoaded', handlePremadeLoad);
@@ -19,6 +15,12 @@ document.addEventListener('DOMContentLoaded', handlePremadeLoad);
 // Run main program logic
 const btnGetListings = document.querySelector('.get-listings');
 btnGetListings.addEventListener('click', handleListingsClick);
+
+// Persist keywords
+const inputKeywords = document.querySelector('.keywords');
+inputKeywords.addEventListener('input', () => {
+  inputKeywords.value.split(',');
+});
 
 // Log in
 const btnLogin = document.querySelector('.btn-login');
@@ -152,5 +154,125 @@ async function handleRegister() {
     console.error('Error in function handleRegister:', err);
   }
 }
+
+const alphabetizeConfigs = (arrConfigs) =>
+  arrConfigs
+    .slice()
+    .sort((a, b) =>
+      a.siteName < b.siteName ? -1 : a.siteName > b.siteName ? 1 : 0
+    );
+
+const getPrefix = () => {
+  const selectMenu = document.querySelector('[id$="configs"]');
+  const strSelectMenuId = selectMenu.id;
+  const intIdConfigsIndex = strSelectMenuId.indexOf('-');
+  const strSelectIdSliced = strSelectMenuId.slice(0, intIdConfigsIndex);
+  return strSelectIdSliced;
+};
+
+const changeSelectElement = (arrSites) => {
+  // Get the correct prefix
+  const strPrefix = getPrefix();
+  const strCurrentId = `${strPrefix}-configs`;
+
+  // Get/create select elements
+  const selectElement = document.getElementById(strCurrentId);
+  const newSelect = document.createElement('select');
+  newSelect.id = 'user-configs';
+  newSelect.name = 'user-configs';
+  newSelect.multiple = true;
+
+  // Populate select element with user-created configs
+  arrSites.forEach((objConfig) => {
+    const newOption = document.createElement('option');
+    newOption.value = objConfig._id;
+    newOption.textContent = objConfig.siteName;
+    newSelect.appendChild(newOption);
+  });
+
+  // Replace premade with user select element
+  selectElement.replaceWith(newSelect);
+};
+
+const cleanUpDOM = (
+  spanSpinner,
+  stopSpinner,
+  spanBtnListingsText,
+  btnGetListings,
+  inputsAdvanced
+) => {
+  // Remove/stop the spinner and display original text
+  spanSpinner.classList.remove('show');
+  stopSpinner();
+  spanBtnListingsText.style.display = 'inline';
+
+  // Re-enable search elements
+  btnGetListings.disabled = false;
+  inputsAdvanced.forEach((input) => {
+    input.disabled = false;
+  });
+};
+
+const fetchPremade = async () => {
+  try {
+    const response = await fetch('/api/premade-configs');
+    if (!response.ok) throw new Error('Unauthorized');
+    return await response.json();
+  } catch (err) {
+    console.error('Error in function fetchPremade:', err);
+  }
+};
+
+const fetchSelected = async () => {
+  const strSelectIdSliced = getPrefix();
+  const strCurrentId = `${strSelectIdSliced}-configs`;
+  const selectElement = document.getElementById(strCurrentId);
+  const arrConfigs = Array.from(selectElement.selectedOptions);
+  const arrIds = arrConfigs.map((option) => option.value);
+  try {
+    const response = await fetch('/api/user-configs', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ arrIds: arrIds }),
+    });
+    const arrSelected = await response.json();
+    return arrSelected;
+  } catch (err) {
+    console.error('Error in function fetchSelected:', err);
+  }
+};
+
+const sendListingsHTML = async () => {
+  const divListings = document.querySelector('.listings');
+  const divToString = divListings.outerHTML;
+  try {
+    const response = await fetch(`/api/listings-mail`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ html: divToString }),
+    });
+
+    if (response.ok) console.log('HTML sent successfully');
+  } catch (err) {
+    console.error('Error in function sendListingsHTML:', err);
+  }
+};
+
+const startSpinner = (spanSpinner) => {
+  const spinnerChars = ['|', '/', '-', '\\'];
+  spanSpinner.classList.add('show');
+
+  let i = 0;
+  const spinnerInterval = setInterval(() => {
+    spanSpinner.textContent = spinnerChars[i];
+    i = (i + 1) % spinnerChars.length;
+  }, 90);
+
+  return () => clearInterval(spinnerInterval);
+};
 
 export { btnLogin, btnRegister, selectPremade };
