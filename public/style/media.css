@@ -12,11 +12,19 @@
     min-width: 95px;
   }
 
+<<<<<<< HEAD
   .container-input {
     flex: 4;
   }
 
   .container-button {
+=======
+  .input-container {
+    flex: 4;
+  }
+
+  .button-container {
+>>>>>>> style
     min-width: 0;
     flex: 1;
   }

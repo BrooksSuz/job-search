@@ -11,22 +11,38 @@
   line-height: 1.5;
 }
 
+<<<<<<< HEAD
 .container-advanced > label {
   margin-bottom: 0.5rem;
 }
 
 .container-content > * {
+=======
+.advanced-container > label {
+  margin-bottom: 0.5rem;
+}
+
+.content-container > * {
+>>>>>>> style
   border: 1px solid var(--aquamarine);
   background-color: var(--dark-slate-gray);
   min-width: 100%;
 }
 
+<<<<<<< HEAD
 .container-site h3 {
+=======
+.site-container h3 {
+>>>>>>> style
   color: var(--burnt-salmon);
   font-size: 0.7rem;
 }
 
+<<<<<<< HEAD
 .container-site ul {
+=======
+.site-container ul {
+>>>>>>> style
   gap: 0.3rem;
 }
 

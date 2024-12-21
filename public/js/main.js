@@ -39,14 +39,14 @@ const selectPremade = document.getElementById('premade-configs');
 
 async function handleListingsClick() {
 	// Remove listings container from previous search
-	const divMain = document.querySelector('.container-main');
+	const divMain = document.querySelector('.main-container');
 	const divListings = document.querySelector('.listings');
 	if (divListings) divMain.removeChild(divListings);
 
 	// Disable search elements
 	const btnGetListings = document.querySelector('.get-listings');
 	const inputsAdvanced = document.querySelectorAll(
-		'.container-advanced > label input'
+		'.advanced-container > label input'
 	);
 	btnGetListings.disabled = true;
 	inputsAdvanced.forEach((input) => {
@@ -174,7 +174,7 @@ async function handlePersistUser() {
 function restoreInputs() {
 	const inputKeywords = document.querySelector('.keywords');
 	const inputsAdvanced = document.querySelectorAll(
-		'.container-advanced > label input'
+		'.advanced-container > label input'
 	);
 
 	// Restore user keywords input
