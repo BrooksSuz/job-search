@@ -146,10 +146,38 @@ select:focus {
   border-color: var(--atomic-tangerine);
 }
 
-input:disabled {
+input[type='text']:disabled {
   border: 2px solid var(--disabled);
   cursor: default;
 }
+
+input[type='checkbox'] {
+  appearance: none;
+  min-height: 20px;
+  min-width: 20px;
+  border: 2px solid var(--aquamarine);
+  border-radius: 4px;
+  background-color: var(--dark-slate-gray);
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+input[type='checkbox']:checked {
+  background-color: var(--cambridge-blue);
+  border-color: var(--atomic-tangerine);
+}
+
+input[type='checkbox']:focus {
+  outline: none;
+  box-shadow: 0 0 4px var(--atomic-tangerine);
+}
+
+input[type='checkbox']:disabled {
+  cursor: default;
+  background-color: var(--disabled);
+  border-color: var(--disabled);
+}
+
 
 select option:checked {
   background-color: transparent;
