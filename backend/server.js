@@ -4,7 +4,7 @@ import express from 'express';
 import session from 'express-session';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import scrapeListings from '../scrape-listings.js';
+import scrapeListings from '../scrape-listings/scrape-listings.js';
 import sendMail from '../scrape-listings/send-mail.js';
 import authRoutes from './auth-backend.js';
 import {

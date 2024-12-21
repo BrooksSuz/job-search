@@ -13,7 +13,7 @@ const createAnchor = (strTitle, strUrl) =>
 
 const createPopulatedDiv = (strsiteName, arrAnchors, getCount) =>
 	`
-		<div class='container-site'>
+		<div class='site-container'>
 			<h2>Results for ${strsiteName}</h2>
 			<h3>${getCount()} Pages Scraped</h3>
 			<ul class='flex'>
@@ -24,7 +24,7 @@ const createPopulatedDiv = (strsiteName, arrAnchors, getCount) =>
 
 const createEmptyDiv = (strsiteName, getCount) =>
 	`
-		<div class='container-site'>
+		<div class='site-container'>
 			<h2>Results for ${strsiteName}</h2>
 			<h3>${getCount()} Pages Scraped</h3>
 			<p>No results with provided keywords.</p>

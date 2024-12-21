@@ -11,6 +11,25 @@
   line-height: 1.5;
 }
 
+.advanced-container > label {
+  margin-bottom: 0.5rem;
+}
+
+.content-container > * {
+  border: 1px solid var(--aquamarine);
+  background-color: var(--dark-slate-gray);
+  min-width: 100%;
+}
+
+.site-container h3 {
+  color: var(--burnt-salmon);
+  font-size: 0.7rem;
+}
+
+.site-container ul {
+  gap: 0.3rem;
+}
+
 body {
   background-color: var(--soft-black);
   font-family: inherit;
@@ -132,123 +151,4 @@ a:visited {
 
 a:hover {
   color: var(--atomic-tangerine);
-}
-
-.container-content > [class^='container'] {
-  padding: 0.3rem;
-}
-
-.container-advanced > label {
-  margin-bottom: 0.5rem;
-}
-
-.container-account {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.container-input {
-  gap: 0.5rem;
-  flex: 1;
-}
-
-.container-button {
-  gap: 0.5rem;
-  min-width: 130px;
-}
-
-.container-get-listings {
-  display: flex;
-  gap: 0.5rem;
-  position: sticky;
-  top: 0;
-}
-
-.container-main {
-  gap: 1rem;
-}
-
-.container-content {
-  align-self: center;
-  gap: 0.5rem;
-  width: clamp(375px, 60%, 600px);
-}
-
-.container-content > * {
-  border: 1px solid var(--aquamarine);
-  background-color: var(--dark-slate-gray);
-  min-width: 100%;
-}
-
-.container-site {
-  animation: fadeIn 1s ease-out;
-  border-top: 2px solid #f0f0f0;
-  margin: 0.5rem 0;
-  padding: 0.5rem;
-}
-
-.container-site h3 {
-  color: var(--burnt-salmon);
-  font-size: 0.7rem;
-}
-
-.container-site ul {
-  gap: 0.3rem;
-}
-
-.listings {
-  align-self: center;
-  background-color: var(--soft-black);
-  border: 1px solid var(--aquamarine);
-  width: clamp(375px, 80%, 1000px);
-}
-
-.spinner {
-  display: none;
-  color: var(--cambridge-blue);
-  font-size: 1.8rem;
-}
-
-.show {
-  display: block;
-}
-
-.show-flex {
-  display: flex;
-  flex-direction: column;
-}
-
-@media (max-width: 900px) {
-  :root {
-    font-size: 0.7rem;
-    line-height: 2;
-  }
-
-  button {
-    padding: 0 0.2rem;
-  }
-
-  label > span {
-    min-width: 95px;
-  }
-
-  .container-input {
-    flex: 4;
-  }
-
-  .container-button {
-    min-width: 0;
-    flex: 1;
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
