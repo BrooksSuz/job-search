@@ -1,10 +1,13 @@
-import { btnLogin, btnRegister, selectPremade } from '../main.js';
+import { btnLogin, btnRegister } from '../main.js';
 import {
 	addConfig,
 	deleteUser,
 	logUserOut,
 	removeConfig,
 } from './auth-frontend.js';
+
+// Store selectPremade reference
+const selectPremade = document.querySelector('#premade-configs');
 
 function createLogoutButton() {
 	return buttonFactory('btn-logout', 'Logout', handleLogout);
@@ -53,6 +56,8 @@ function cleanUpAccountDeletion() {
 	// Replace user with premade select element
 	const btnGetJobs = document.querySelector('.get-listings');
 	selectUser.replaceWith(selectPremade);
+	const areSelectedOptions = selectPremade.selectedOptions.length;
+	if (areSelectedOptions) selectPremade.selectedIndex = -1;
 	changeButtonState(btnGetJobs, selectPremade);
 }
 
@@ -113,8 +118,9 @@ const handleLogout = async () => {
 		btnRemove.parentNode.removeChild(btnRemove);
 
 		// Update DOM
-
 		const selectPremade = document.querySelector('#premade-configs');
+		const areSelectedOptions = selectPremade.selectedOptions.length;
+		if (areSelectedOptions) selectPremade.selectedIndex = -1;
 		changeButtonState(btnGetJobs, selectPremade);
 
 		inputEmail.disabled = false;

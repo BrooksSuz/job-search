@@ -1,5 +1,7 @@
-import { selectPremade } from '../main.js';
 import { changeButtonState } from './dom-manipulation.js';
+
+// Store selectPremade reference
+const selectPremade = document.querySelector('#premade-configs');
 
 document.addEventListener('DOMContentLoaded', () => {});
 

@@ -1,12 +1,11 @@
+import { logUserIn, registerUser } from './js/auth-frontend.js';
 import {
+	changeButtonState,
 	createConfigButtons,
 	createDeleteAccountButton,
 	createLogoutButton,
-	executeJobSearch,
-	logUserIn,
-	registerUser,
-	changeButtonState,
-} from './js/index.js';
+} from './js/dom-manipulation.js';
+import executeJobSearch from './js/job-search.js';
 
 // Run main program logic
 const btnGetListings = document.querySelector('.get-listings');
@@ -345,4 +344,4 @@ const startSpinner = (spanSpinner) => {
 	return () => clearInterval(spinnerInterval);
 };
 
-export { btnLogin, btnRegister, selectPremade };
+export { btnLogin, btnRegister };
