@@ -5,6 +5,7 @@
   --aquamarine: hsla(161, 100%, 78%, 0.7);
   --atomic-tangerine: hsla(20, 100%, 76%, 1);
   --burnt-salmon: hsla(12, 100%, 72%, 0.8);
+  --disabled: hsla(12, 100%, 72%, 0.4);
 
   font-family: 'Courier New', monospace;
   font-size: 16px;
@@ -107,8 +108,14 @@ button:hover {
   background-color: var(--atomic-tangerine);
 }
 
+button:disabled,
+input:disabled {
+  cursor: default;
+  pointer-events: none;
+}
+
 button:disabled {
-  background-color: hsla(12, 100%, 72%, 0.4);
+  background-color: var(--disabled);
 }
 
 input[type='text'],
@@ -119,6 +126,10 @@ select {
   border: 1px solid #f0f0f0;
   padding: 4px;
   border-radius: 4px;
+}
+
+select {
+  overflow-y: auto;
 }
 
 input[type='text'],
@@ -136,9 +147,7 @@ select:focus {
 }
 
 input:disabled {
-  filter: blur(1px);
-  cursor: default;
-  pointer-events: none;
+  border: 2px solid var(--disabled);
 }
 
 select option:checked {
