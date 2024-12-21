@@ -124,8 +124,8 @@ input[type='password'],
 select {
   all: unset;
   border: 1px solid #f0f0f0;
-  padding: 4px;
   border-radius: 4px;
+  padding: 4px;
 }
 
 select {
@@ -151,7 +151,8 @@ input:disabled {
 }
 
 select option:checked {
-  background-color: var(--atomic-tangerine);
+  background-color: transparent;
+  color: var(--atomic-tangerine);
 }
 
 label > *:nth-child(2) {
