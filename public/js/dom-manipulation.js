@@ -51,7 +51,9 @@ function cleanUpAccountDeletion() {
 	btnRemove.parentNode.removeChild(btnRemove);
 
 	// Replace user with premade select element
+	const btnGetJobs = document.querySelector('.get-listings');
 	selectUser.replaceWith(selectPremade);
+	changeButtonState(btnGetJobs, selectPremade);
 }
 
 function createConfigButtons() {
@@ -63,6 +65,12 @@ function createConfigButtons() {
 	divContainer.appendChild(btnAdd);
 	divContainer.appendChild(btnRemove);
 	divAdvanced.appendChild(divContainer);
+}
+
+function changeButtonState(btnGetJobs, selectElement) {
+	if (!document.contains(selectElement)) return;
+	const noSelectedOptions = !selectElement.selectedOptions.length;
+	btnGetJobs.disabled = noSelectedOptions;
 }
 
 const buttonFactory = (btnClass, textContent, func) => {
@@ -84,6 +92,7 @@ const handleLogout = async () => {
 	const btnDeleteUser = document.querySelector('.btn-delete-account');
 	const btnAdd = document.querySelector('.btn-add');
 	const btnRemove = document.querySelector('.btn-remove');
+	const btnGetJobs = document.querySelector('.get-listings');
 	const inputEmail = document.querySelector('.email');
 	const inputPassword = document.querySelector('.password');
 
@@ -103,7 +112,11 @@ const handleLogout = async () => {
 		// Remove the remove configs button
 		btnRemove.parentNode.removeChild(btnRemove);
 
-		// Disable and reset email and password inputs
+		// Update DOM
+
+		const selectPremade = document.querySelector('#premade-configs');
+		changeButtonState(btnGetJobs, selectPremade);
+
 		inputEmail.disabled = false;
 		inputPassword.disabled = false;
 		inputEmail.value = '';
@@ -159,4 +172,5 @@ export {
 	createConfigButtons,
 	createDeleteAccountButton,
 	createLogoutButton,
+	changeButtonState,
 };

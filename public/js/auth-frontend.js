@@ -1,4 +1,5 @@
 import { selectPremade } from '../main.js';
+import { changeButtonState } from './dom-manipulation.js';
 
 document.addEventListener('DOMContentLoaded', () => {});
 
@@ -105,8 +106,10 @@ async function logUserOut() {
 		await fetch('/auth/logout');
 
 		// Replace user with premade select element
+		const btnGetJobs = document.querySelector('.get-listings');
 		const selectUser = document.getElementById('user-configs');
 		selectUser.replaceWith(selectPremade);
+		changeButtonState(btnGetJobs, selectPremade);
 	} catch (err) {
 		console.error('Error in function logUserOut:', err);
 	}

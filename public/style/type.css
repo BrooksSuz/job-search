@@ -148,6 +148,7 @@ select:focus {
 
 input:disabled {
   border: 2px solid var(--disabled);
+  cursor: default;
 }
 
 select option:checked {

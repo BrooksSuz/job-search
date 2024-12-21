@@ -5,6 +5,7 @@ import {
 	executeJobSearch,
 	logUserIn,
 	registerUser,
+	changeButtonState,
 } from './js/index.js';
 
 // Run main program logic
@@ -36,6 +37,10 @@ document.addEventListener('DOMContentLoaded', handlePremadeLoad);
 
 // Hold premade select element reference
 const selectPremade = document.getElementById('premade-configs');
+selectPremade.addEventListener('click', () => {
+	const btnGetJobs = document.querySelector('.get-listings');
+	changeButtonState(btnGetJobs, selectPremade);
+});
 
 async function handleListingsClick() {
 	// Remove listings container from previous search
@@ -98,6 +103,7 @@ async function handleListingsClick() {
 async function handleLogin(arrSites = []) {
 	const inputEmail = document.querySelector('.email');
 	const inputPassword = document.querySelector('.password');
+	const btnGetJobs = document.querySelector('.get-listings');
 	let btnLogout = null;
 	let btnDeleteAccount = null;
 	try {
@@ -230,21 +236,27 @@ const changeSelectElement = (arrSites) => {
 
 	// Get/create select elements
 	const selectElement = document.getElementById(strCurrentId);
-	const newSelect = document.createElement('select');
-	newSelect.id = 'user-configs';
-	newSelect.name = 'user-configs';
-	newSelect.multiple = true;
+	const selectUser = document.createElement('select');
+	selectUser.id = 'user-configs';
+	selectUser.name = 'user-configs';
+	selectUser.multiple = true;
+
+	const btnGetJobs = document.querySelector('.get-listings');
+	selectUser.addEventListener('click', () => {
+		changeButtonState(btnGetJobs, selectUser);
+	});
 
 	// Populate select element with user-created configs
 	arrSites.forEach((objConfig) => {
 		const newOption = document.createElement('option');
 		newOption.value = objConfig._id;
 		newOption.textContent = objConfig.siteName;
-		newSelect.appendChild(newOption);
+		selectUser.appendChild(newOption);
 	});
 
 	// Replace premade with user select element
-	selectElement.replaceWith(newSelect);
+	selectElement.replaceWith(selectUser);
+	changeButtonState(btnGetJobs, selectUser);
 };
 
 const cleanUpDOM = (
