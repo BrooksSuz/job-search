@@ -1,4 +1,4 @@
-.content-container [class$='container'] {
+.form-container [class$='container'] {
   padding: 0.3rem;
 }
 
@@ -35,11 +35,13 @@ details > .button-container > * {
 }
 
 .main-container {
+  min-height: 100vh;
+  justify-content: space-between;
   padding: 2rem;
   gap: 1rem;
 }
 
-.content-container {
+.form-container {
   align-self: center;
   gap: 0.5rem;
   width: clamp(375px, 60%, 600px);

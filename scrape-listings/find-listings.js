@@ -12,7 +12,7 @@ async function findListings(
 	// Destructure configPairs and disperse
 	const {
 		consent: strConsent,
-		errorMessages: arrErrorMessages,
+		errorMessages: strErrorMessages,
 		isAnchor: strIsAnchor,
 		listing: strListing,
 		nextPageDisabled: strNextPageDisabled,
@@ -20,14 +20,12 @@ async function findListings(
 		nextPageParent: strNextPageParent,
 	} = objConfigPairs;
 
-	let newErrorMessages;
-	if (typeof arrErrorMessages === 'string') {
-		newErrorMessages = arrErrorMessages.split(',');
-	} else {
-		newErrorMessages = arrErrorMessages;
-	}
+	// Change errorMessages type
+	const arrErrorMessages = strErrorMessages.split(', ');
+
 	// Check consent only on the first call
-	if (!getCount()) await checkConsent(page, strConsent);
+	const isFirstPage = !getCount();
+	if (strConsent && isFirstPage) await checkConsent(page, strConsent);
 
 	// Scrape listings on the current page
 	const arrFilteredListings = await filterListings(
@@ -40,7 +38,7 @@ async function findListings(
 	// Attempt to navigate to the next page
 	const boolHasNextPage = await navigateSite(
 		page,
-		newErrorMessages,
+		arrErrorMessages,
 		strIsAnchor,
 		strNextPageDisabled,
 		strNextPageLink,
@@ -66,11 +64,14 @@ async function findListings(
 }
 
 const checkConsent = async (page, strConsent) => {
-	if (strConsent) {
-		try {
-			await page.waitForSelector(strConsent);
-			await page.click(strConsent);
-		} catch (err) {
+	try {
+		await page.waitForSelector(strConsent, { timeout: 5000 });
+		console.log('Consent popup found.');
+		await page.click(strConsent);
+	} catch (err) {
+		if (err.name === 'TimeoutError') {
+			console.log('Consent popup not found.');
+		} else {
 			console.error('Error in function checkConsent:', err);
 		}
 	}

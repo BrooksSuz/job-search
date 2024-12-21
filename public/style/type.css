@@ -16,7 +16,7 @@
   margin-bottom: 0.5rem;
 }
 
-.content-container > * {
+.form-container > * {
   border: 1px solid var(--aquamarine);
   background-color: var(--dark-slate-gray);
   min-width: 100%;
@@ -102,6 +102,15 @@ a {
   color: var(--aquamarine);
 }
 
+footer {
+  font-size: 0.8rem;
+}
+
+strong {
+  font-weight: bold;
+}
+
+
 button:active,
 button:focus,
 button:hover {
@@ -120,6 +129,12 @@ button:disabled {
 
 input[type='text'],
 input[type='email'],
+input[type='password'] {
+  cursor: text;
+}
+
+input[type='text'],
+input[type='email'],
 input[type='password'],
 select {
   all: unset;
@@ -128,22 +143,17 @@ select {
   padding: 4px;
 }
 
-select {
-  overflow-y: auto;
-}
-
-input[type='text'],
-input[type='email'],
-input[type='password'] {
-  cursor: text;
-}
-
 input[type='text']:focus,
 input[type='email']:focus,
 input[type='password']:focus,
 select:focus {
   outline: none;
   border-color: var(--atomic-tangerine);
+}
+
+select {
+  max-height: 62px;
+  overflow-y: auto;
 }
 
 input[type='text']:disabled {
@@ -186,6 +196,7 @@ input[type='checkbox']:disabled {
 
 select option:checked {
   background-color: transparent;
+  text-decoration: underline;
   color: var(--atomic-tangerine);
 }
 
@@ -195,4 +206,21 @@ a:visited {
 
 a:hover {
   color: var(--atomic-tangerine);
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(128, 128, 128, 0.5);
+  border-radius: 6px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-track {
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
 }

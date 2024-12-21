@@ -65,7 +65,7 @@ async function handleListingsClick() {
 
 	try {
 		// Get configs from database
-		const arrConfigs = await fetchSelected();
+		const arrConfigs = await fetchUserCreated();
 
 		// Guard clause: No provided configs
 		if (!arrConfigs.length) {
@@ -79,7 +79,7 @@ async function handleListingsClick() {
 			return;
 		}
 
-		// Alphabetize and consume API endpoint
+		// Alphabetize and run job search
 		const arrAlphabetizedConfigs = alphabetizeConfigs(arrConfigs);
 		await executeJobSearch(arrAlphabetizedConfigs).finally(() => {
 			cleanUpDOM(
@@ -201,7 +201,7 @@ async function handlePremadeLoad() {
 		// Fetch premade configs
 		const arrPremadeConfigs = await fetchPremade();
 
-		// Populate the select element
+		// Fill the select element
 		for (const objConfig of arrPremadeConfigs) {
 			const newOption = document.createElement('option');
 			newOption.value = objConfig._id;
@@ -288,7 +288,7 @@ const fetchPremade = async () => {
 	}
 };
 
-const fetchSelected = async () => {
+const fetchUserCreated = async () => {
 	const strSelectIdSliced = getPrefix();
 	const strCurrentId = `${strSelectIdSliced}-configs`;
 	const selectElement = document.getElementById(strCurrentId);
@@ -302,10 +302,10 @@ const fetchSelected = async () => {
 			},
 			body: JSON.stringify({ arrIds: arrIds }),
 		});
-		const arrSelected = await response.json();
-		return arrSelected;
+		const arrUserCreated = await response.json();
+		return arrUserCreated;
 	} catch (err) {
-		console.error('Error in function fetchSelected:', err);
+		console.error('Error in function fetchUserCreated:', err);
 	}
 };
 

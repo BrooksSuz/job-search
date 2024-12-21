@@ -41,7 +41,7 @@ async function logUserIn() {
 
 	// Guard clause: Empty inputs
 	if (!email || !password) {
-		alert('Email and password cannot be empty.');
+		Swal.fire('Email and password cannot be empty.');
 		return;
 	}
 

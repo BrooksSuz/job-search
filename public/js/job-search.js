@@ -8,9 +8,9 @@ async function executeJobSearch(arrConfigs) {
 		// Encode user keywords
 		const inputKeywords = document.querySelector('.keywords');
 		const strKeywordsParam = encodeURIComponent(inputKeywords.value);
-		const arrConfigKeys = Object.keys(objConfig);
 
 		// Organize keys (safety measure)
+		const arrConfigKeys = Object.keys(objConfig);
 		const arrOrganizedKeys = organizeKeys(inputsAdvanced, arrConfigKeys);
 
 		// Fill search inputs
@@ -39,6 +39,8 @@ const populateInputs = (inputsAdvanced, objConfig) => {
 		const id = input.id;
 		if (id === 'isAnchor') {
 			input.checked = objConfig[id];
+		} else if (id === 'errorMessages') {
+			input.value = objConfig[id].join(', ');
 		} else {
 			input.value = objConfig[id];
 		}
@@ -71,9 +73,10 @@ const consumeAPI = async (inputKeywordsValue, strParams) => {
 		let divListings = document.querySelector('.listings');
 		if (!divListings) {
 			const divMain = document.querySelector('.main-container');
+			const footer = document.querySelector('footer');
 			divListings = document.createElement('div');
 			divListings.classList.add('listings', 'flex');
-			divMain.appendChild(divListings);
+			divMain.insertBefore(divListings, footer);
 		}
 
 		divListings.appendChild(htmlDoc.body.firstChild);
