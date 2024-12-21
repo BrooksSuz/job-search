@@ -5,7 +5,7 @@ import {
 	executeJobSearch,
 	logUserIn,
 	registerUser,
-} from './js/index.js';
+} from './index.js';
 
 // Run main program logic
 const btnGetListings = document.querySelector('.get-listings');

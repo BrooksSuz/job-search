@@ -1,0 +1,34 @@
+@media (max-width: 900px) {
+  :root {
+    font-size: 0.7rem;
+    line-height: 2;
+  }
+
+  button {
+    padding: 0 0.2rem;
+  }
+
+  label > span {
+    min-width: 95px;
+  }
+
+  .container-input {
+    flex: 4;
+  }
+
+  .container-button {
+    min-width: 0;
+    flex: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

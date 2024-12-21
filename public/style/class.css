@@ -1,0 +1,64 @@
+.container-content > [class^='container'] {
+  padding: 0.3rem;
+}
+
+.container-account {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.container-input {
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.container-button {
+  gap: 0.5rem;
+  min-width: 130px;
+}
+
+.container-get-listings {
+  display: flex;
+  gap: 0.5rem;
+  position: sticky;
+  top: 0;
+}
+
+.container-main {
+  gap: 1rem;
+}
+
+.container-content {
+  align-self: center;
+  gap: 0.5rem;
+  width: clamp(375px, 60%, 600px);
+}
+
+.container-site {
+  animation: fadeIn 1s ease-out;
+  border-top: 2px solid #f0f0f0;
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+}
+
+.listings {
+  align-self: center;
+  background-color: var(--soft-black);
+  border: 1px solid var(--aquamarine);
+  width: clamp(375px, 80%, 1000px);
+}
+
+.spinner {
+  display: none;
+  color: var(--cambridge-blue);
+  font-size: 1.8rem;
+}
+
+.show {
+  display: block;
+}
+
+.show-flex {
+  display: flex;
+  flex-direction: column;
+}
