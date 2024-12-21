@@ -20,6 +20,12 @@ async function findListings(
 		nextPageParent: strNextPageParent,
 	} = objConfigPairs;
 
+	let newErrorMessages;
+	if (typeof arrErrorMessages === 'string') {
+		newErrorMessages = arrErrorMessages.split(',');
+	} else {
+		newErrorMessages = arrErrorMessages;
+	}
 	// Check consent only on the first call
 	if (!getCount()) await checkConsent(page, strConsent);
 
@@ -34,7 +40,7 @@ async function findListings(
 	// Attempt to navigate to the next page
 	const boolHasNextPage = await navigateSite(
 		page,
-		arrErrorMessages,
+		newErrorMessages,
 		strIsAnchor,
 		strNextPageDisabled,
 		strNextPageLink,
