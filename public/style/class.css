@@ -1,72 +1,40 @@
-<<<<<<< HEAD
-.container-content > [class^='container'] {
-  padding: 0.3rem;
-}
-
-.container-account {
-=======
 .content-container > [class$='container'] {
   padding: 0.3rem;
 }
 
 .account-container {
->>>>>>> style
   display: flex;
   gap: 0.5rem;
 }
 
-<<<<<<< HEAD
-.container-input {
-=======
 .input-container {
->>>>>>> style
   gap: 0.5rem;
   flex: 1;
 }
 
-<<<<<<< HEAD
-.container-button {
-=======
 .button-container {
->>>>>>> style
   gap: 0.5rem;
   min-width: 130px;
 }
 
-<<<<<<< HEAD
-.container-get-listings {
-=======
 .get-listings-container {
->>>>>>> style
   display: flex;
   gap: 0.5rem;
   position: sticky;
   top: 0;
 }
 
-<<<<<<< HEAD
-.container-main {
-  gap: 1rem;
-}
-
-.container-content {
-=======
 .main-container {
   gap: 1rem;
 }
 
 .content-container {
->>>>>>> style
   align-self: center;
   gap: 0.5rem;
   width: clamp(375px, 60%, 600px);
 }
 
-<<<<<<< HEAD
-.container-site {
-=======
 .site-container {
->>>>>>> style
   animation: fadeIn 1s ease-out;
   border-top: 2px solid #f0f0f0;
   margin: 0.5rem 0;
