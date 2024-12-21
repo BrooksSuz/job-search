@@ -64,10 +64,13 @@ async function registerUser() {
 	const { email, password } = getUserCredentials();
 
 	// Guard clause: Empty inputs
-	if (!email || !password) console.error('Email and password cannot be empty.');
+	if (!email || !password) {
+		alert('Email and password cannot be empty.');
+		return;
+	}
 
 	try {
-		// Create the user's account
+		// Create user's account
 		const response = await fetch('/auth/register', {
 			method: 'POST',
 			headers: {
@@ -98,7 +101,7 @@ async function registerUser() {
 
 async function logUserOut() {
 	try {
-		// Log the user out
+		// Log user out
 		await fetch('/auth/logout');
 
 		// Replace user with premade select element

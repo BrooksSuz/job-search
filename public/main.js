@@ -5,7 +5,7 @@ import {
 	executeJobSearch,
 	logUserIn,
 	registerUser,
-} from './index.js';
+} from './js/index.js';
 
 // Run main program logic
 const btnGetListings = document.querySelector('.get-listings');
@@ -103,6 +103,9 @@ async function handleLogin(arrSites = []) {
 	try {
 		// Log user in
 		const response = await logUserIn();
+
+		// Guard clause: Falsy response
+		if (!response) return;
 
 		// Guard clause: No current user
 		if (!arrSites.length)

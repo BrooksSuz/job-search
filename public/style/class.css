@@ -1,4 +1,4 @@
-.content-container > [class$='container'] {
+.content-container [class$='container'] {
   padding: 0.3rem;
 }
 
@@ -14,7 +14,17 @@
 
 .button-container {
   gap: 0.5rem;
-  min-width: 130px;
+  min-width: 140px;
+}
+
+details > .button-container {
+  align-self: center;
+  display: flex;
+  padding: 0.5rem;
+}
+
+details > .button-container > * {
+  flex: 1;
 }
 
 .get-listings-container {

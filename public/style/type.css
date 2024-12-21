@@ -76,6 +76,31 @@ label {
   min-height: 50px;
 }
 
+summary {
+  text-align: center;
+  cursor: default;
+}
+
+details {
+  padding: 0 0.3rem;
+}
+
+label {
+  align-items: center;
+  background-color: var(--soft-black);
+  color: var(--aquamarine);
+  display: flex;
+  padding: 0.3rem;
+}
+
+label > span {
+  min-width: 130px;
+}
+
+a {
+  color: var(--aquamarine);
+}
+
 button:active,
 button:focus,
 button:hover {
@@ -120,29 +145,8 @@ select option:checked {
   background-color: var(--atomic-tangerine);
 }
 
-summary {
-  text-align: center;
-  cursor: default;
-}
-
-label {
-  align-items: center;
-  background-color: var(--soft-black);
-  color: var(--aquamarine);
-  display: flex;
-  padding: 0.3rem;
-}
-
-label > span {
-  min-width: 130px;
-}
-
 label > *:nth-child(2) {
   flex: 1;
-}
-
-a {
-  color: var(--aquamarine);
 }
 
 a:visited {

@@ -60,7 +60,8 @@ function createConfigButtons() {
 	const btnAdd = createAddButton();
 	const btnRemove = createRemoveButton();
 	divContainer.classList.add('button-container');
-	divContainer.append(btnAdd, btnRemove);
+	divContainer.appendChild(btnAdd);
+	divContainer.appendChild(btnRemove);
 	divAdvanced.appendChild(divContainer);
 }
 
