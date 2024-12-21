@@ -55,7 +55,12 @@ app.get('/', (req, res) => {
 });
 
 app.get('/api/user', (req, res) => {
-	res.send(req.user);
+	try {
+		res.send(req.user);
+	} catch (err) {
+		console.error('Error in request /api/user:', err);
+		res.status(500).json({ error: 'Failed to fetch user.' });
+	}
 });
 
 app.get('/api/listings', (req, res) => {
