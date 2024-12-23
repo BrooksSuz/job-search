@@ -18,7 +18,7 @@ function sendMail(html) {
   };
 
   transporter.sendMail(mailOptions, (err, info) => {
-    if (err) return console.error('Error in function sendMail:', err);
+    if (err) return logger.error('Error in function sendMail:', err);
     'Email sent:', info.response;
   });
 }

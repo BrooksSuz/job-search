@@ -15,7 +15,7 @@ function handleError(err, arrErrorMessages, strFunctionName) {
 }
 
 function throwErrorAndHalt(err, strFunctionName) {
-  console.error(
+  logger.error(
     `\nUnexpected error in function ${strFunctionName}:\n\n`,
     err.message
   );

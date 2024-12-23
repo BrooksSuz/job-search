@@ -16,7 +16,7 @@ authRoutes.post('/register', async (req, res) => {
     await user.save();
     res.status(201).send('User registered');
   } catch (err) {
-    console.error('Error during registration:', err);
+    logger.error('Error during registration:', err);
     res.status(400).send('Error registering user');
   }
 });
@@ -35,7 +35,7 @@ authRoutes.post('/login', passport.authenticate('local'), async (req, res) => {
       res.status(401).json({ message: 'Invalid credentials' });
     }
   } catch (err) {
-    console.error('Error during login:', err);
+    logger.error('Error during login:', err);
     res.status(500).json({ error: 'An error occurred' });
   }
 });
