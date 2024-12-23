@@ -1,4 +1,5 @@
 import { handleError } from './error.js';
+import logger from '../logger.js';
 
 async function navigateSite(
   page,
@@ -101,7 +102,7 @@ const stopRecursion = async (
   );
 
   if (boolIsDisabled) {
-    console.log(
+    logger.info(
       '\nNext page element is disabled.\nAssuming last page reached.'
     );
     return true;
@@ -110,7 +111,7 @@ const stopRecursion = async (
   // Stop if the element is an anchor and it has no href
   const boolHasNoHref = await checkHrefState(elNextPage);
   if (strIsAnchor === 'true' && boolHasNoHref) {
-    console.log('\nNext page anchor has no href.\nAssuming last page reached.');
+    logger.info('\nNext page anchor has no href.\nAssuming last page reached.');
     return true;
   }
 };
