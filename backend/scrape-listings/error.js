@@ -1,4 +1,4 @@
-import logger from '../logger.js';
+import logger from '../logger-backend.js';
 
 function handleError(err, arrErrorMessages, strFunctionName) {
   // Guard clause: No errors provided

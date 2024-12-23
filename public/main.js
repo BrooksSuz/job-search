@@ -6,6 +6,7 @@ import {
   createLogoutButton,
 } from './js/dom-manipulation.js';
 import executeJobSearch from './js/job-search.js';
+import logMessage from './js/logger-frontend.js';
 
 // Run main program logic
 const btnGetListings = document.querySelector('.get-listings');
@@ -106,13 +107,19 @@ async function handleLogin(arrSites = []) {
   let btnLogout = null;
   let btnDeleteAccount = null;
 
-  // Guard clause: Empty inputs
-  if (!inputEmail.value || !inputPassword.value) {
-    Swal.fire('Email and password cannot be empty.');
-    return;
-  }
-
   try {
+    // TODO: MAKE THIS WORK (check previous commit if you need to start over)
+    const user = await fetch('/api/user', {
+      method: 'GET',
+      credentials: 'include',
+    }).then((res) => res.json());
+
+    // Guard clause: No previous session
+    if (!user && (!inputEmail.value || !inputPassword.value)) {
+      Swal.fire('Email and password cannot be empty.');
+      return;
+    }
+
     // Log user in
     const response = await logUserIn();
 
@@ -146,7 +153,7 @@ async function handleLogin(arrSites = []) {
     inputEmail.disabled = true;
     inputPassword.disabled = true;
   } catch (err) {
-    console.error('Error in function handleLogin:', err);
+    await logMessage('error', 'asdf');
   }
 }
 

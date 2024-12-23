@@ -5,7 +5,7 @@ import {
   createHtml,
   throwErrorAndHalt,
 } from './index.js';
-import logger from '../logger.js';
+import logger from '../logger-backend.js';
 
 async function scrapeListings(strSearchTerms, objConfig) {
   const browser = await createBrowser();

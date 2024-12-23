@@ -17,7 +17,7 @@ import {
 import passport from './passport-config.js';
 import Site from './schemas/Site.js';
 import User from './schemas/User.js';
-import logger from './logger.js';
+import logger from './logger-backend.js';
 
 dotenv.config();
 
@@ -176,8 +176,11 @@ app.delete('/api/delete-user', async (req, res) => {
   }
 });
 
-app.get('/api/environment', (req, res) => {
-  res.json({ environment });
+app.post('/api/log', (req, res) => {
+  const { level, message } = req.body;
+
+  logger[level](message);
+  res.status(200).send('Log received');
 });
 
 app.listen(port, () => {

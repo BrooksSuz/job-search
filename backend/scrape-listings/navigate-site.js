@@ -1,5 +1,5 @@
 import { handleError } from './error.js';
-import logger from '../logger.js';
+import logger from '../logger-backend.js';
 
 async function navigateSite(
   page,

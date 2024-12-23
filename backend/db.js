@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import Site from './schemas/Site.js';
 import User from './schemas/User.js';
-import logger from './logger.js';
+import logger from './logger-backend.js';
 dotenv.config();
 
 const uri = process.env.MONGO_URI;
