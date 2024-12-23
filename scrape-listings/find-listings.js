@@ -1,6 +1,6 @@
 import filterListings from './filter-listings.js';
 import navigateSite from './navigate-site.js';
-import logger from '../logger.js';
+import logger from '../backend/logger.js';
 
 async function findListings(
   page,

@@ -17,7 +17,7 @@ import {
 import passport from './passport-config.js';
 import Site from './schemas/Site.js';
 import User from './schemas/User.js';
-import logger from '../logger.js';
+import logger from './logger.js';
 
 dotenv.config();
 
@@ -26,6 +26,7 @@ const port = process.env.PORT || 3000;
 const fileName = fileURLToPath(import.meta.url);
 const dirName = path.dirname(fileName);
 const secret = process.env.SECRET;
+const environment = process.env.NODE_ENV;
 
 // Connect to the database
 connectToDb();
@@ -57,10 +58,15 @@ app.get('/', (req, res) => {
 
 app.get('/api/user', (req, res) => {
   try {
-    res.send(req.user);
+    // Check for an active session
+    if (!req.user) {
+      res.send(false);
+    } else {
+      res.send(req.user);
+    }
   } catch (err) {
-    logger.error('Error in request /api/user:', err);
-    res.status(500).json({ error: 'Failed to fetch user.' });
+    logger.error(err);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
@@ -168,6 +174,10 @@ app.delete('/api/delete-user', async (req, res) => {
     logger.error('Error in request /api/delete-user:', err);
     res.status(500).json({ error: 'Error deleting user.' });
   }
+});
+
+app.get('/api/environment', (req, res) => {
+  res.json({ environment });
 });
 
 app.listen(port, () => {

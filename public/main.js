@@ -25,14 +25,14 @@ textInputs.addEventListener('input', (e) => {
   handlePersistTextInputs(e);
 });
 
-// Persist user (if there's a current session)
-document.addEventListener('DOMContentLoaded', handlePersistUser);
-
 // Restore inputs
-document.addEventListener('DOMContentLoaded', restoreInputs);
+document.addEventListener('DOMContentLoaded', handleRestoreInputs);
 
 // Get premade configurations
 document.addEventListener('DOMContentLoaded', handlePremadeLoad);
+
+// Persist user (if there's a current session)
+document.addEventListener('DOMContentLoaded', handlePersistUser);
 
 // Hold premade select element reference
 const selectPremade = document.getElementById('premade-configs');
@@ -95,24 +95,31 @@ async function handleListingsClick() {
       // sendListingsHTML();
     });
   } catch (err) {
-    console.error('Error in function handleListingsClick:', err);
+    log.error('Error in function handleListings', err);
   }
 }
 
 async function handleLogin(arrSites = []) {
   const inputEmail = document.querySelector('.email');
   const inputPassword = document.querySelector('.password');
-  const btnGetJobs = document.querySelector('.get-listings');
+  const divAdvancedContainer = document.querySelector('.advanced-container');
   let btnLogout = null;
   let btnDeleteAccount = null;
+
+  // Guard clause: Empty inputs
+  if (!inputEmail.value || !inputPassword.value) {
+    Swal.fire('Email and password cannot be empty.');
+    return;
+  }
+
   try {
     // Log user in
     const response = await logUserIn();
 
-    // Guard clause: Falsy response
-    if (!response) return;
+    // Guard clause: Failed response
+    if (!response.ok) return;
 
-    // Guard clause: No current user
+    // Fill arrSites
     if (!arrSites.length)
       arrSites = await response.json().then((res) => res.user.sites);
 
@@ -135,6 +142,7 @@ async function handleLogin(arrSites = []) {
     btnRegister.replaceWith(btnDeleteAccount);
     changeSelectElement(arrSites);
     createConfigButtons();
+    divAdvancedContainer.style.display = 'block';
     inputEmail.disabled = true;
     inputPassword.disabled = true;
   } catch (err) {
@@ -164,22 +172,22 @@ function handlePersistTextInputs(e) {
 
 async function handlePersistUser() {
   try {
-    const response = await fetch('/api/user', {
+    const user = await fetch('/api/user', {
       method: 'GET',
       credentials: 'include',
-    });
+    }).then((res) => res.json());
 
     // Guard clause: Failed response
-    if (!response.ok) return;
+    if (!user) return;
 
-    const arrSites = await response.json().then((res) => res.sites);
+    const arrSites = user.sites;
     await handleLogin(arrSites);
   } catch (err) {
-    console.debug('No session, or an error occurred:', err.message);
+    console.error('Error in function handlePersistUser', err);
   }
 }
 
-function restoreInputs() {
+function handleRestoreInputs() {
   const inputKeywords = document.querySelector('.keywords');
   const inputsAdvanced = document.querySelectorAll(
     '.advanced-container > label input'

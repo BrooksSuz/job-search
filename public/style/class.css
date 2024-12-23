@@ -2,6 +2,10 @@
   padding: 0.3rem;
 }
 
+.advanced-container {
+  display: none;
+}
+
 .account-container {
   display: flex;
   gap: 0.5rem;

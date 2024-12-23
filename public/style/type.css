@@ -75,6 +75,7 @@ button {
 button,
 label {
   min-height: 50px;
+  user-select: none;
 }
 
 summary {
@@ -84,6 +85,7 @@ summary {
 
 details {
   padding: 0 0.3rem;
+  user-select: none;
 }
 
 label {
@@ -110,7 +112,6 @@ strong {
   font-weight: bold;
 }
 
-
 button:active,
 button:focus,
 button:hover {
@@ -129,18 +130,18 @@ button:disabled {
 
 input[type='text'],
 input[type='email'],
-input[type='password'] {
-  cursor: text;
-}
-
-input[type='text'],
-input[type='email'],
 input[type='password'],
 select {
   all: unset;
   border: 1px solid #f0f0f0;
   border-radius: 4px;
   padding: 4px;
+}
+
+input[type='text'],
+input[type='email'],
+input[type='password'] {
+  cursor: text;
 }
 
 input[type='text']:focus,
@@ -192,7 +193,6 @@ input[type='checkbox']:disabled {
   background-color: var(--disabled);
   border-color: var(--disabled);
 }
-
 
 select option:checked {
   background-color: transparent;

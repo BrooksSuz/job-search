@@ -8,15 +8,16 @@ authRoutes.post('/register', async (req, res) => {
   const { email, password } = req.body;
   try {
     const existingUser = await User.findOne({ email });
-    if (existingUser) {
+
+    // Guard clause: Already has an account
+    if (existingUser)
       return res.status(400).json({ message: 'Email already in use.' });
-    }
 
     const user = new User({ email, password });
     await user.save();
     res.status(201).send('User registered');
   } catch (err) {
-    logger.error('Error during registration:', err);
+    logger.error('Error in request /register:', err);
     res.status(400).send('Error registering user');
   }
 });
@@ -35,7 +36,7 @@ authRoutes.post('/login', passport.authenticate('local'), async (req, res) => {
       res.status(401).json({ message: 'Invalid credentials' });
     }
   } catch (err) {
-    logger.error('Error during login:', err);
+    logger.error('Error in request /login:', err);
     res.status(500).json({ error: 'An error occurred' });
   }
 });
