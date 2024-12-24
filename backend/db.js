@@ -71,10 +71,6 @@ async function deleteUser(user) {
 }
 
 // Connection events
-mongoose.connection.on('connected', () => {
-  logger.info('Mongoose connected.');
-});
-
 mongoose.connection.on('error', (err) => {
   logger.error('Mongoose connection error:', err);
 });

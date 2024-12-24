@@ -3,8 +3,6 @@ import { changeButtonState } from './dom-manipulation.js';
 // Store selectPremade reference
 const selectPremade = document.querySelector('#premade-configs');
 
-document.addEventListener('DOMContentLoaded', () => {});
-
 async function addConfig() {
   const objSiteData = createUserDataObject();
   try {
@@ -36,9 +34,7 @@ async function removeConfig(selectedOptions) {
   }
 }
 
-async function logUserIn() {
-  const { email, password } = getUserCredentials();
-
+async function logUserIn(email, password) {
   try {
     // Log the user in and return the response
     const response = await fetch('/auth/login', {
@@ -62,10 +58,9 @@ async function registerUser() {
 
   // Guard clause: Empty inputs
   if (!email || !password) {
-    alert('Email and password cannot be empty.');
+    Swal.fire('Email and password cannot be empty.');
     return;
   }
-
   try {
     // Create user's account
     const response = await fetch('/auth/register', {
@@ -154,12 +149,14 @@ const getUserCredentials = () => {
   const inputPassword = document.querySelector('.password');
   const email = inputEmail.value.trim();
   const password = inputPassword.value.trim();
+  console.log(email, password);
   return { email, password };
 };
 
 export {
   addConfig,
   deleteUser,
+  getUserCredentials,
   logUserIn,
   logUserOut,
   registerUser,

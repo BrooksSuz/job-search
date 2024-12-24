@@ -1,4 +1,8 @@
-import { logUserIn, registerUser } from './js/auth-frontend.js';
+import {
+  getUserCredentials,
+  logUserIn,
+  registerUser,
+} from './js/auth-frontend.js';
 import {
   changeButtonState,
   createConfigButtons,
@@ -100,60 +104,71 @@ async function handleListingsClick() {
   }
 }
 
-async function handleLogin(arrSites = []) {
+const dealWithLogIn = async (email, password, arrSites = []) => {
+  const divAdvancedContainer = document.querySelector('.advanced-container');
   const inputEmail = document.querySelector('.email');
   const inputPassword = document.querySelector('.password');
-  const divAdvancedContainer = document.querySelector('.advanced-container');
   let btnLogout = null;
   let btnDeleteAccount = null;
 
+  // Log user in
+  const response = await logUserIn(email, password);
+
+  // Guard clause: Failed response
+  if (!response.ok) return;
+
+  // Fill arrSites
+  if (!arrSites.length)
+    arrSites = await response.json().then((res) => res.user.sites);
+
+  // Create/get logout button
+  if (!btnLogout) {
+    btnLogout = createLogoutButton();
+  } else {
+    btnLogout = document.querySelector('.btn-logout');
+  }
+
+  // Create/get delete button
+  if (!btnDeleteAccount) {
+    btnDeleteAccount = createDeleteAccountButton();
+  } else {
+    btnLogout = document.querySelector('.btn-delete-account');
+  }
+
+  // Update the DOM
+  btnLogin.replaceWith(btnLogout);
+  btnRegister.replaceWith(btnDeleteAccount);
+  changeSelectElement(arrSites);
+  createConfigButtons();
+  divAdvancedContainer.style.display = 'block';
+  inputEmail.disabled = true;
+  inputPassword.disabled = true;
+};
+
+async function handleLogin() {
+  const { email, password } = getUserCredentials();
+
   try {
-    // TODO: MAKE THIS WORK (check previous commit if you need to start over)
     const user = await fetch('/api/user', {
       method: 'GET',
       credentials: 'include',
     }).then((res) => res.json());
+    console.log(user);
 
-    // Guard clause: No previous session
-    if (!user && (!inputEmail.value || !inputPassword.value)) {
-      Swal.fire('Email and password cannot be empty.');
+    if (!user) {
+      // Guard clause: Email/password inputs are empty
+      if (!email || !password) {
+        Swal.fire('Email and password cannot be empty.');
+        return;
+      }
+
+      await dealWithLogIn(email, password);
       return;
     }
 
-    // Log user in
-    const response = await logUserIn();
-
-    // Guard clause: Failed response
-    if (!response.ok) return;
-
-    // Fill arrSites
-    if (!arrSites.length)
-      arrSites = await response.json().then((res) => res.user.sites);
-
-    // Create/get logout button
-    if (!btnLogout) {
-      btnLogout = createLogoutButton();
-    } else {
-      btnLogout = document.querySelector('.btn-logout');
-    }
-
-    // Create/get delete button
-    if (!btnDeleteAccount) {
-      btnDeleteAccount = createDeleteAccountButton();
-    } else {
-      btnLogout = document.querySelector('.btn-delete-account');
-    }
-
-    // Update the DOM
-    btnLogin.replaceWith(btnLogout);
-    btnRegister.replaceWith(btnDeleteAccount);
-    changeSelectElement(arrSites);
-    createConfigButtons();
-    divAdvancedContainer.style.display = 'block';
-    inputEmail.disabled = true;
-    inputPassword.disabled = true;
+    await dealWithLogIn(user.email, user.password);
   } catch (err) {
-    await logMessage('error', 'asdf');
+    await logMessage('error', err.message);
   }
 }
 
