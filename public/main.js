@@ -114,9 +114,6 @@ const dealWithLogIn = async (email, password, arrSites = []) => {
   // Log user in
   const response = await logUserIn(email, password);
 
-  // Guard clause: Failed response
-  if (!response.ok) return;
-
   // Fill arrSites
   if (!arrSites.length)
     arrSites = await response.json().then((res) => res.user.sites);
@@ -146,14 +143,13 @@ const dealWithLogIn = async (email, password, arrSites = []) => {
 };
 
 async function handleLogin() {
-  const { email, password } = getUserCredentials();
-
   try {
     const user = await fetch('/api/user', {
       method: 'GET',
       credentials: 'include',
     }).then((res) => res.json());
-    console.log(user);
+
+    console.log(`handleLogin, user:${user}`);
 
     if (!user) {
       // Guard clause: Email/password inputs are empty
@@ -162,6 +158,8 @@ async function handleLogin() {
         return;
       }
 
+      const { email, password } = getUserCredentials();
+      console.log(`handleLogin, email: ${email} & password ${password}}`);
       await dealWithLogIn(email, password);
       return;
     }
@@ -193,6 +191,11 @@ function handlePersistTextInputs(e) {
 }
 
 async function handlePersistUser() {
+  const divAdvancedContainer = document.querySelector('.advanced-container');
+  const inputEmail = document.querySelector('.email');
+  const inputPassword = document.querySelector('.password');
+  let btnLogout = null;
+  let btnDeleteAccount = null;
   try {
     const user = await fetch('/api/user', {
       method: 'GET',
@@ -202,8 +205,34 @@ async function handlePersistUser() {
     // Guard clause: Failed response
     if (!user) return;
 
-    const arrSites = user.sites;
-    await handleLogin(arrSites);
+    const arrIds = user.sites;
+    const arrSites = await fetch('/api/user-configs', {
+      method: 'POST',
+      body: JSON.stringify({ arrIds: arrIds }),
+    }).then((res) => res.json());
+
+    // Create/get logout button
+    if (!btnLogout) {
+      btnLogout = createLogoutButton();
+    } else {
+      btnLogout = document.querySelector('.btn-logout');
+    }
+
+    // Create/get delete button
+    if (!btnDeleteAccount) {
+      btnDeleteAccount = createDeleteAccountButton();
+    } else {
+      btnLogout = document.querySelector('.btn-delete-account');
+    }
+
+    // Update the DOM
+    btnLogin.replaceWith(btnLogout);
+    btnRegister.replaceWith(btnDeleteAccount);
+    changeSelectElement(arrSites);
+    createConfigButtons();
+    divAdvancedContainer.style.display = 'block';
+    inputEmail.disabled = true;
+    inputPassword.disabled = true;
   } catch (err) {
     console.error('Error in function handlePersistUser', err);
   }

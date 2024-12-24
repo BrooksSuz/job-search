@@ -1,13 +1,16 @@
 import express from 'express';
 import passport from './passport-config.js';
 import User from './schemas/User.js';
+import logger from './logger-backend.js';
 
 const authRoutes = express.Router();
 
 authRoutes.post('/register', async (req, res) => {
   const { email, password } = req.body;
+  logger.info(`/register, email:${email} & password: ${password}`);
   try {
     const existingUser = await User.findOne({ email });
+    logger.info(`/register, existingUser: ${existingUser}`);
 
     // Guard clause: Already has an account
     if (existingUser)
@@ -23,20 +26,24 @@ authRoutes.post('/register', async (req, res) => {
 });
 
 authRoutes.post('/login', passport.authenticate('local'), async (req, res) => {
+  const { email, password } = req.body;
+  logger.info(`/login, email:${email} & password: ${password}`);
   const projection = { _id: 1, siteName: 1 };
   try {
-    const user = await User.findById(req.user._id, projection)
-      .populate('sites', projection)
-      .exec();
-
-    if (user) {
-      req.session.user = user;
+    if (req.user) {
+      const user = await User.findById(req._doc.user._id, projection)
+        .populate('sites', projection)
+        .exec();
       res.json({ message: 'Logged in successfully', user: user });
+      return;
     } else {
-      res.status(401).json({ message: 'Invalid credentials' });
+      const user = await User.findById(req._doc.user._id, projection)
+        .populate('sites', projection)
+        .exec();
+      res.json({ message: 'Logged in successfully', user: user });
     }
+    res.status(401).json({ message: 'Invalid credentials' });
   } catch (err) {
-    logger.error('Error in request /login:', err);
     res.status(500).json({ error: 'An error occurred' });
   }
 });

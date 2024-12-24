@@ -36,18 +36,27 @@ async function removeConfig(selectedOptions) {
 
 async function logUserIn(email, password) {
   try {
-    // Log the user in and return the response
-    const response = await fetch('/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-    });
-    return response;
+    const user = await fetch('/api/user', {
+      method: 'GET',
+      credentials: 'include',
+    }).then((res) => res.json());
+
+    console.log(`logUserIn, email: ${email} & password: ${password}`);
+
+    if (user) {
+      // Log the user in and return the response
+      const response = await fetch('/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+      return response;
+    }
   } catch (err) {
     console.error('Error in function logUserIn:', err);
   }
@@ -149,7 +158,6 @@ const getUserCredentials = () => {
   const inputPassword = document.querySelector('.password');
   const email = inputEmail.value.trim();
   const password = inputPassword.value.trim();
-  console.log(email, password);
   return { email, password };
 };
 

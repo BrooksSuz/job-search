@@ -26,7 +26,6 @@ const port = process.env.PORT || 3000;
 const fileName = fileURLToPath(import.meta.url);
 const dirName = path.dirname(fileName);
 const secret = process.env.SECRET;
-const environment = process.env.NODE_ENV;
 
 // Connect to the database
 connectToDb();
@@ -40,7 +39,10 @@ app.use(
     secret: secret,
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 3600000 /* sameSite: 'none', secure: true */ },
+    cookie: {
+      secure: false,
+      maxAge: 3600000 /* sameSite: 'none', secure: true */,
+    },
     store: MongoStore.create({
       client: mongoose.connection.getClient(),
       collectionName: 'sessions',
@@ -65,7 +67,7 @@ app.get('/api/user', (req, res) => {
       res.send(req.user);
     }
   } catch (err) {
-    logger.error(err);
+    logger.error(`Error in request /api/user:\n${err}`);
     res.status(500).json({ error: 'Server error' });
   }
 });
@@ -96,7 +98,15 @@ app.get('/api/premade-configs', async (req, res) => {
 
 app.post('/api/user-configs', async (req, res) => {
   try {
-    const { arrIds } = req.body;
+    const currentUser = req.user;
+    let arrIds;
+    if (currentUser) {
+      arrIds = currentUser._doc.sites;
+    } else {
+      ({ arrIds } = req.body);
+    }
+    logger.info(req.body);
+    logger.info(arrIds);
     const objConfig = await getSelectedConfigs(arrIds);
     res.json(objConfig);
   } catch (err) {
