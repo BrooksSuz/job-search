@@ -7,10 +7,8 @@ const authRoutes = express.Router();
 
 authRoutes.post('/register', async (req, res) => {
 	const { email, password } = req.body;
-	logger.info(`/register, email:${email} & password: ${password}`);
 	try {
 		const existingUser = await User.findOne({ email });
-		logger.info(`/register, existingUser: ${existingUser}`);
 
 		// Guard clause: Already has an account
 		if (existingUser)
@@ -27,10 +25,8 @@ authRoutes.post('/register', async (req, res) => {
 
 authRoutes.post('/login', passport.authenticate('local'), async (req, res) => {
 	const { email, password } = req.body;
-	logger.info(`/login, email:${email} & password: ${password}`);
 	const projection = { _id: 1, siteName: 1 };
 	let user;
-	logger.info(`/login, user: ${req.user}`);
 	try {
 		if (req.user) {
 			user = await User.findById(req.user._id, projection)

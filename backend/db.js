@@ -41,7 +41,6 @@ async function getPremadeConfigs() {
 async function getSelectedConfigs(arrIds) {
 	try {
 		const arrConfigs = await Site.find({ _id: { $in: arrIds } });
-		logger.info(arrConfigs);
 		return arrConfigs;
 	} catch (err) {
 		logger.error('Error in function getSelectedConfigs:', err);

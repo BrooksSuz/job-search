@@ -81,7 +81,7 @@ const consumeAPI = async (inputKeywordsValue, strParams) => {
 
 		divListings.appendChild(htmlDoc.body.firstChild);
 	} catch (err) {
-		console.error('Error in function consumeAPI:', err);
+		await logMessage('error', err.message);
 	}
 };
 

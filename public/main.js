@@ -176,8 +176,8 @@ async function handleRegister() {
 		if (boolSuccessful) {
 			await handleLogin();
 		}
-	} catch (err) {
-		console.error('Error in function handleRegister:', err);
+	} catch {
+		await logMessage('error', err.message);
 	}
 }
 
@@ -206,7 +206,6 @@ async function handlePersistUser() {
 		if (!user) return;
 
 		const arrIds = user.sites;
-		console.log(arrIds);
 		const arrSites = await fetch('/api/user-configs', {
 			method: 'POST',
 			body: JSON.stringify({ arrIds: arrIds }),
@@ -235,7 +234,7 @@ async function handlePersistUser() {
 		inputEmail.disabled = true;
 		inputPassword.disabled = true;
 	} catch (err) {
-		console.error('Error in function handlePersistUser', err);
+		await logMessage('error', err.message);
 	}
 }
 
@@ -269,7 +268,7 @@ async function handlePremadeLoad() {
 			selectPremade.appendChild(newOption);
 		}
 	} catch (err) {
-		console.error('Error in function handlePremadeLoad:', err);
+		await logMessage('error', err.message);
 	}
 }
 
@@ -344,7 +343,7 @@ const fetchPremade = async () => {
 		const arrPremade = await response.json();
 		return arrPremade;
 	} catch (err) {
-		console.error('Error in function fetchPremade:', err);
+		await logMessage('error', err.message);
 	}
 };
 
@@ -353,7 +352,6 @@ const fetchUserCreated = async () => {
 	const strCurrentId = `${strSelectIdSliced}-configs`;
 	const selectElement = document.getElementById(strCurrentId);
 	const arrConfigs = Array.from(selectElement.selectedOptions);
-	console.log(arrConfigs);
 	const arrIds = arrConfigs.map((option) => option.value);
 	try {
 		const response = await fetch('/api/user-configs', {
@@ -366,7 +364,7 @@ const fetchUserCreated = async () => {
 		const arrUserCreated = await response.json();
 		return arrUserCreated;
 	} catch (err) {
-		console.error('Error in function fetchUserCreated:', err);
+		await logMessage('error', err.message);
 	}
 };
 
@@ -382,7 +380,7 @@ const sendListingsHTML = async () => {
 			body: JSON.stringify({ html: divToString }),
 		});
 	} catch (err) {
-		console.error('Error in function sendListingsHTML:', err);
+		await logMessage('error', err.message);
 	}
 };
 

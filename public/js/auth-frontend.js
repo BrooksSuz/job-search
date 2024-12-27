@@ -15,7 +15,7 @@ async function addConfig() {
 		});
 		return await response.json().then((res) => res.id);
 	} catch (err) {
-		console.error('Error in function addConfig:', err);
+		await logMessage('error', err.message);
 	}
 }
 
@@ -30,7 +30,7 @@ async function removeConfig(selectedOptions) {
 			body: JSON.stringify({ selectedValues }),
 		});
 	} catch (err) {
-		console.error('Error in function removeConfig:', err);
+		await logMessage('error', err.message);
 	}
 }
 
@@ -56,7 +56,7 @@ async function logUserIn(email, password) {
 			return response;
 		}
 	} catch (err) {
-		console.error('Error in function logUserIn:', err);
+		await logMessage('error', err.message);
 	}
 }
 
@@ -94,7 +94,7 @@ async function registerUser() {
 		alert('Registration successful. Happy hunting!');
 		return true;
 	} catch (err) {
-		console.error('Error in function registerUser:', err);
+		await logMessage('error', err.message);
 	}
 }
 
@@ -109,7 +109,7 @@ async function logUserOut() {
 		selectUser.replaceWith(selectPremade);
 		changeButtonState(btnGetJobs, selectPremade);
 	} catch (err) {
-		console.error('Error in function logUserOut:', err);
+		await logMessage('error', err.message);
 	}
 }
 
@@ -124,12 +124,14 @@ async function deleteUser() {
 
 		// Guard clause: Account deletion failure
 		if (!response.ok) {
-			const error = await response.json();
-			console.error('Error deleting user:', error);
-			alert(`Failed to delete user:\n\n${error.message}`);
+			Swal.fire({
+				icon: 'error',
+				title: 'Error',
+				text: 'Unable to delete user. Try again later.',
+			});
 		}
 	} catch (err) {
-		console.error('Error in function deleteUser:', err);
+		await logMessage('error', err.message);
 	}
 }
 

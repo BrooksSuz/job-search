@@ -105,7 +105,6 @@ app.post('/api/user-configs', async (req, res) => {
 			arrIds = user._doc.sites;
 		} else {
 			({ arrIds } = req.body);
-			logger.info(arrIds);
 		}
 
 		const objConfig = await getSelectedConfigs(arrIds);
@@ -165,7 +164,7 @@ app.post('/api/remove-config', async (req, res) => {
 
 app.post('/api/listings-mail', async (req, res) => {
 	const { html } = req.body;
-	logger.info('Received HTML:', html);
+	logger.info(`HTML received:\n${html}`);
 	res.status(200).send('HTML received');
 	sendMail(html);
 });
@@ -195,5 +194,5 @@ app.post('/api/log', (req, res) => {
 });
 
 app.listen(port, () => {
-	logger.info(`\nServer running at http://localhost:${port}`);
+	logger.info(`\nServer running at:\nhttp://localhost:${port}`);
 });
