@@ -142,18 +142,32 @@ const handleLogout = async () => {
 
 const handleAccountDeletion = async () => {
 	const strWarning =
-		'Are you sure you want to delete your account?\nAll user data will be lost. This includes: email, password, and site configurations.';
-	if (!confirm(strWarning)) {
-		alert('Account has not been deleted.');
-	} else {
-		try {
-			await deleteUser();
-			cleanUpAccountDeletion();
-			alert('Account deleted successfully.\nEnjoy your new job! :)');
-		} catch (err) {
-			await logMessage('error', err.message);
+		'All user data will be lost. This includes: email, password, and site configurations.';
+	Swal.fire({
+		title: 'Are you sure?',
+		text: strWarning,
+		icon: 'warning',
+		showCancelButton: true,
+		confirmButtonColor: '#3085d6',
+		cancelButtonColor: '#d33',
+		confirmButtonText: 'Delete',
+	}).then(async (result) => {
+		if (result.isConfirmed) {
+			const strDeleted =
+				'Account deleted successfully.\nEnjoy your new job! :)';
+			try {
+				await deleteUser();
+				cleanUpAccountDeletion();
+				Swal.fire({
+					title: 'See ya later!',
+					text: strDeleted,
+					icon: 'success',
+				});
+			} catch (err) {
+				await logMessage('error', err.message);
+			}
 		}
-	}
+	});
 };
 
 const handleAddClick = async () => {

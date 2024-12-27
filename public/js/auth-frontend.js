@@ -85,14 +85,22 @@ async function registerUser() {
 		// Guard clause: Failed registration
 		if (!response.ok) {
 			const data = await response.json();
-			alert(data.message);
+			Swal.fire({
+				icon: 'error',
+				title: 'Error',
+				text: 'Unable to register user. Try again later.',
+			});
 
-			// Prevent user from logging in
+			await logMessage('error', data.message);
 			return false;
 		}
 
 		// Log user in
-		alert('Registration successful. Happy hunting!');
+		Swal.fire({
+			title: 'Ready to go!',
+			text: 'Registration successful, happy hunting!',
+			icon: 'success',
+		});
 		return true;
 	} catch (err) {
 		await logMessage('error', err.message);
