@@ -1,4 +1,5 @@
 import { changeButtonState } from './dom-manipulation.js';
+import { logMessage } from '../main.js';
 
 // Store selectPremade reference
 const selectPremade = document.querySelector('#premade-configs');

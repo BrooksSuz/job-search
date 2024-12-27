@@ -100,7 +100,7 @@ async function handleListingsClick() {
 			// sendListingsHTML();
 		});
 	} catch (err) {
-		log.error('Error in function handleListings', err);
+		await logMessage('error', err.message);
 	}
 }
 
@@ -401,4 +401,4 @@ const startSpinner = (spanSpinner) => {
 	return () => clearInterval(spinnerInterval);
 };
 
-export { btnLogin, btnRegister };
+export { btnLogin, btnRegister, logMessage };

@@ -5,6 +5,7 @@ import {
 	logUserOut,
 	removeConfig,
 } from './auth-frontend.js';
+import { logMessage } from '../main.js';
 
 // Store selectPremade reference
 const selectPremade = document.querySelector('#premade-configs');

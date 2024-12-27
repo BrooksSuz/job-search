@@ -1,3 +1,5 @@
+import { logMessage } from '../main.js';
+
 async function executeJobSearch(arrConfigs) {
 	// Loop through each config
 	for (const objConfig of arrConfigs) {

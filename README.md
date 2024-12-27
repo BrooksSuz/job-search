@@ -48,6 +48,10 @@ Saved job listings will soon be supported in MongoDB, complementing existing con
 
 Integration with Nodemailer is underway to provide updates when new listings match user criteria.
 
+### Code Cleanup
+
+I've tried my best to keep the codebase clean along the way. That being said...I am far from perfect. I am actively cleaning up the codebase.
+
 ---
 
 ## Advanced Settings Guide
