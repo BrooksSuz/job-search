@@ -41,7 +41,7 @@ app.use(
 		saveUninitialized: false,
 		cookie: {
 			secure: false,
-			maxAge: 3600000 /* sameSite: 'none', secure: true */,
+			maxAge: 8640000 /* sameSite: 'none', secure: true */,
 		},
 		store: MongoStore.create({
 			client: mongoose.connection.getClient(),
@@ -164,7 +164,7 @@ app.post('/api/remove-config', async (req, res) => {
 
 app.post('/api/listings-mail', async (req, res) => {
 	const { html } = req.body;
-	logger.info(`HTML received:\n${html}`);
+	logger.info(`\nHTML received:\n${html}`);
 	res.status(200).send('HTML received');
 	sendMail(html);
 });
@@ -194,5 +194,5 @@ app.post('/api/log', (req, res) => {
 });
 
 app.listen(port, () => {
-	logger.info(`\nServer running at:\nhttp://localhost:${port}`);
+	logger.info(`\nServer running at: http://localhost:${port}`);
 });

@@ -67,11 +67,11 @@ async function findListings(
 const checkConsent = async (page, strConsent) => {
 	try {
 		await page.waitForSelector(strConsent, { timeout: 5000 });
-		logger.info('\nConsent popup found');
+		logger.info('\nConsent popup found.');
 		await page.click(strConsent);
 	} catch (err) {
 		if (err.name === 'TimeoutError') {
-			logger.info('\nConsent popup not found');
+			logger.info('\nConsent popup not found.');
 		} else {
 			logger.error('Error in function checkConsent:', err);
 		}

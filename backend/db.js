@@ -76,12 +76,12 @@ mongoose.connection.on('error', (err) => {
 });
 
 mongoose.connection.on('disconnected', () => {
-	logger.info('Mongoose disconnected');
+	logger.info('\nMongoose disconnected');
 });
 
 process.on('SIGINT', () => {
 	mongoose.connection.close(() => {
-		logger.info('Mongoose disconnected through app termination');
+		logger.info('\nMongoose disconnected through app termination');
 		process.exit(0);
 	});
 });
