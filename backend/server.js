@@ -98,15 +98,16 @@ app.get('/api/premade-configs', async (req, res) => {
 
 app.post('/api/user-configs', async (req, res) => {
 	try {
-		const currentUser = req.user;
+		const user = req.user;
 		let arrIds;
-		if (currentUser) {
-			arrIds = currentUser._doc.sites;
+
+		if (user) {
+			arrIds = user._doc.sites;
 		} else {
 			({ arrIds } = req.body);
+			logger.info(arrIds);
 		}
-		logger.info(req.body);
-		logger.info(arrIds);
+
 		const objConfig = await getSelectedConfigs(arrIds);
 		res.json(objConfig);
 	} catch (err) {
@@ -155,7 +156,7 @@ app.post('/api/remove-config', async (req, res) => {
 		res.send();
 	} catch (err) {
 		await session.abortTransaction();
-		logger.error('Error in request /api/remove-config:', err);
+		logger.error(`Error in request /api/remove-config:\n${err}`);
 		res.status(500).json({ error: 'Failed to remove site config.' });
 	} finally {
 		await session.endSession();
