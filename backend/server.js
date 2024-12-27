@@ -40,8 +40,9 @@ app.use(
 		resave: false,
 		saveUninitialized: false,
 		cookie: {
-			secure: false,
-			maxAge: 8640000 /* sameSite: 'none', secure: true */,
+			secure: process.env.NODE_ENV === 'production',
+			maxAge: 8640000,
+			sameSite: 'strict',
 		},
 		store: MongoStore.create({
 			client: mongoose.connection.getClient(),
@@ -191,6 +192,26 @@ app.post('/api/log', (req, res) => {
 
 	logger[level](message);
 	res.status(200).send('Log received');
+});
+
+app.use((err, req, res, next) => {
+	if (process.env.NODE_ENV === 'production') {
+		logger.error({ msg: err.message, stack: err.stack });
+		res.status(500).send('Something went wrong');
+	} else {
+		next(err);
+	}
+});
+
+process.on('SIGTERM', () => {
+	logger.info('SIGTERM received. Closing server...');
+	app.close(() => {
+		logger.info('Server closed.');
+		mongoose.connection.close(() => {
+			logger.info('MongoDB connection closed.');
+			process.exit(0);
+		});
+	});
 });
 
 app.listen(port, () => {

@@ -18,34 +18,32 @@ authRoutes.post('/register', async (req, res) => {
 		await user.save();
 		res.status(201).send('User registered');
 	} catch (err) {
-		logger.error('Error in request /register:', err);
-		res.status(400).send('Error registering user');
+		logger.error(`Error in request /register:\n${err}`);
+		res.status(500).send('Error registering user');
 	}
 });
 
-authRoutes.post('/login', passport.authenticate('local'), async (req, res) => {
-	const { email, password } = req.body;
-	const projection = { _id: 1, siteName: 1 };
-	let user;
-	try {
-		if (req.user) {
-			user = await User.findById(req.user._id, projection)
+authRoutes.post(
+	'/login',
+	passport.authenticate('local', { failureRedirect: '/auth/login-fail' }),
+	async (req, res) => {
+		try {
+			if (req.user) {
+				const projection = { _id: 1, siteName: 1 };
+				const user = await User.findById(req.user._id, projection)
+					.populate('sites', projection)
+					.exec();
 
-				.populate('sites', projection)
-				.exec();
-			res.json({ message: 'Logged in successfully', user: user });
-			return;
-		} else {
-			user = await User.findById(req._doc.user._id, projection)
-				.populate('sites', projection)
-				.exec();
-			res.json({ message: 'Logged in successfully', user: user });
+				return res.json({ message: 'Logged in successfully', user });
+			}
+
+			res.status(401).json({ message: 'Invalid credentials' });
+		} catch (err) {
+			logger.error(`Error in request /login:\n${err}`);
+			res.status(500).json({ error: 'An error occurred, please try again.' });
 		}
-		res.status(401).json({ message: 'Invalid credentials' });
-	} catch (err) {
-		res.status(500).json({ error: `An error occurred: ${err}` });
 	}
-});
+);
 
 authRoutes.get('/logout', (req, res, next) => {
 	req.logout((err) => {

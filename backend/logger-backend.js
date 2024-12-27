@@ -3,7 +3,7 @@ import pino from 'pino';
 dotenv.config();
 
 const logger = pino({
-	level: process.env.NODE_ENV === 'production' ? 'fatal' : 'debug',
+	level: process.env.NODE_ENV === 'production' ? 'warn' : 'debug',
 	transport: process.env.NODE_ENV !== 'production' && {
 		target: 'pino-pretty',
 		options: {
