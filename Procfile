@@ -1,1 +1,1 @@
-web: ./bin/fixie-wrench --socksConnectionString $FIXIE_URL & node ./backend/server.js
+web: ./bin/fixie-wrench -fixieSocksHost $FIXIE_URL & node ./backend/server.js
