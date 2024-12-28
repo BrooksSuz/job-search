@@ -208,17 +208,6 @@ app.use((err, req, res, next) => {
 	}
 });
 
-process.on('SIGTERM', () => {
-	logger.info('SIGTERM received. Closing server...');
-	app.close(() => {
-		logger.info('Server closed.');
-		mongoose.connection.close(() => {
-			logger.info('MongoDB connection closed.');
-			process.exit(0);
-		});
-	});
-});
-
 app.listen(port, () => {
 	logger.info(`\nServer running at: http://localhost:${port}`);
 });
