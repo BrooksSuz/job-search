@@ -105,4 +105,5 @@ export {
 	getPremadeConfigs,
 	getSelectedConfigs,
 	mongoose,
+	socksAgent,
 };

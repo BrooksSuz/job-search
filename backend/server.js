@@ -13,6 +13,7 @@ import {
 	getPremadeConfigs,
 	getSelectedConfigs,
 	mongoose,
+	socksAgent,
 } from './db.js';
 import passport from './passport-config.js';
 import Site from './schemas/Site.js';
@@ -48,6 +49,9 @@ app.use(
 			client: mongoose.connection.getClient(),
 			collectionName: 'sessions',
 			dbName: process.env.DB,
+			mongoOptions: {
+				agent: socksAgent,
+			},
 		}),
 	})
 );
