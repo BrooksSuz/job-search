@@ -38,7 +38,7 @@ async function getPremadeConfigs() {
 
 		return arrConfigs;
 	} catch (err) {
-		logger.error('Error in function getPremadeConfigs:', err);
+		logger.error(`Error in function getPremadeConfigs:\n${err}`);
 	}
 }
 
@@ -47,7 +47,7 @@ async function getSelectedConfigs(arrIds) {
 		const arrConfigs = await Site.find({ _id: { $in: arrIds } });
 		return arrConfigs;
 	} catch (err) {
-		logger.error('Error in function getSelectedConfigs:', err);
+		logger.error(`Error in function getSelectedConfigs:\n${err}`);
 	}
 }
 
@@ -68,7 +68,7 @@ async function deleteUser(user) {
 		await session.commitTransaction();
 	} catch (err) {
 		await session.abortTransaction();
-		logger.error('Error in function deleteUser:', err);
+		logger.error(`Error in function deleteUser:\n${err}`);
 	} finally {
 		await session.endSession();
 	}
@@ -76,7 +76,7 @@ async function deleteUser(user) {
 
 // Connection events
 mongoose.connection.on('error', (err) => {
-	logger.error('Mongoose connection error:', err);
+	logger.error(`Mongoose connection error: ${err}`);
 });
 
 mongoose.connection.on('disconnected', () => {

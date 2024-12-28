@@ -55,6 +55,15 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use('/auth', authRoutes);
 
+app.use((err, req, res, next) => {
+	if (process.env.NODE_ENV === 'production') {
+		logger.error(`Error in request ${req.method} ${req.originalUrl}:\n${err}`);
+		res.status(500).send('Something went wrong');
+	} else {
+		next(err);
+	}
+});
+
 app.get('/', (req, res) => {
 	res.sendFile(path.join(dirName, '../public', 'index.html'));
 });
@@ -82,7 +91,7 @@ app.get('/api/listings', (req, res) => {
 			res.json(listings)
 		);
 	} catch (err) {
-		logger.error('Error in request /api/listings:', err);
+		logger.error(`Error in request /api/listings:\n${err}`);
 		res.status(500).json({ error: 'Failed to fetch site listings.' });
 	}
 });
@@ -92,7 +101,7 @@ app.get('/api/premade-configs', async (req, res) => {
 		const arrConfigs = await getPremadeConfigs();
 		res.json(arrConfigs);
 	} catch (err) {
-		logger.error('Error in request /api/premade-configs:', err);
+		logger.error(`Error in request /api/premade-configs:\n${err}`);
 		res.status(500).json({ error: 'Failed to fetch site configs.' });
 	}
 });
@@ -111,7 +120,7 @@ app.post('/api/user-configs', async (req, res) => {
 		const objConfig = await getSelectedConfigs(arrIds);
 		res.json(objConfig);
 	} catch (err) {
-		logger.error('Error in request /api/user-configs:', err);
+		logger.error(`Error in request /api/user-configs:\n${err}`);
 		res.status(500).json({ error: 'Failed to fetch site config.' });
 	}
 });
@@ -130,7 +139,7 @@ app.post('/api/add-config', async (req, res) => {
 			id: newSite._id,
 		});
 	} catch (err) {
-		logger.error('Error in request /api/add-config:', err);
+		logger.error(`Error in request /api/add-config:\n${err}`);
 		res.status(500).json({ error: 'Failed to insert site config.' });
 	}
 });
@@ -182,7 +191,7 @@ app.delete('/api/delete-user', async (req, res) => {
 			res.status(200).json({ message: 'User deleted and logged out' });
 		});
 	} catch (err) {
-		logger.error('Error in request /api/delete-user:', err);
+		logger.error(`Error in request /api/delete-user:\n${err}`);
 		res.status(500).json({ error: 'Error deleting user.' });
 	}
 });
@@ -192,15 +201,6 @@ app.post('/api/log', (req, res) => {
 
 	logger[level](message);
 	res.status(200).send('Log received');
-});
-
-app.use((err, req, res, next) => {
-	if (process.env.NODE_ENV === 'production') {
-		logger.error({ msg: err.message, stack: err.stack });
-		res.status(500).send('Something went wrong');
-	} else {
-		next(err);
-	}
 });
 
 process.on('SIGTERM', () => {

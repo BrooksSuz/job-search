@@ -73,7 +73,7 @@ const checkConsent = async (page, strConsent) => {
 		if (err.name === 'TimeoutError') {
 			logger.info('\nConsent popup not found.');
 		} else {
-			logger.error('Error in function checkConsent:', err);
+			logger.error(`Error in function checkConsent:\n${err}`);
 		}
 	}
 };
