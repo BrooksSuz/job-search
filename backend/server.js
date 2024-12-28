@@ -132,6 +132,7 @@ app.post('/api/add-config', async (req, res) => {
 		objSiteData.errorMessages = objSiteData.errorMessages.split(',');
 		const newSite = new Site(objSiteData);
 		await newSite.save();
+		logger.error(`User: ${user}`);
 		user.sites.push(newSite._id);
 		await user.save();
 
