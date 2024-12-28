@@ -1,4 +1,3 @@
-// db.js
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import Site from './schemas/Site.js';
@@ -9,20 +8,23 @@ dotenv.config();
 
 const uri = process.env.MONGO_URI;
 const db = process.env.DB;
-const fixieData = process.env.FIXIE_SOCKS_HOST.split(new RegExp('[/(:\\/@/]+'));
-
-const fixieUrl = `socks5://${fixieData[0]}:${fixieData[1]}@${fixieData[2]}:${fixieData[3]}`;
+const fixieUrl = process.env.FIXIE_URL;
 const socksAgent = new SocksProxyAgent(fixieUrl);
+const environment = process.env.NODE_ENV;
 
-// Connect to MongoDB without passing the agent
 async function connectToDb() {
 	try {
-		await mongoose.connect(uri, {
-			useNewUrlParser: true,
-			useUnifiedTopology: true,
+		const options = {
+			agent: environment === 'production' ? socksAgent : null,
 			dbName: db,
-		});
-		logger.info('Connected to MongoDB');
+		};
+
+		await mongoose.connect(uri, options);
+		logger.info(
+			environment === 'production'
+				? 'Connected to MongoDB via SOCKS proxy'
+				: 'Connected to MongoDB'
+		);
 	} catch (err) {
 		logger.error(`Error connecting to MongoDB: ${err}`);
 		process.exit(1);
@@ -114,5 +116,4 @@ export {
 	getPremadeConfigs,
 	getSelectedConfigs,
 	mongoose,
-	socksAgent,
 };
