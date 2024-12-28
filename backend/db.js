@@ -7,7 +7,7 @@ dotenv.config();
 
 const uri = process.env.MONGO_URI;
 const db = process.env.DB;
-const fixieData = process.env.FIXIE_HOST.split(new RegExp('[/(:\\/@)/]+'));
+const fixieData = process.env.FIXIE_SOCKS_HOST.split(new RegExp('[/(:\\/@/]+'));
 const environment = process.env.NODE_ENV;
 
 async function connectToDb() {
