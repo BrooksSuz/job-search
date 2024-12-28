@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import Site from './schemas/Site.js';
 import User from './schemas/User.js';
 import logger from './logger-backend.js';
+import { SocksProxyAgent } from 'socks-proxy-agent';
 dotenv.config();
 
 const uri = process.env.MONGO_URI;
@@ -10,17 +11,15 @@ const db = process.env.DB;
 const fixieData = process.env.FIXIE_SOCKS_HOST.split(new RegExp('[/(:\\/@/]+'));
 const environment = process.env.NODE_ENV;
 
+const fixieUrl = `socks5://${fixieData[0]}:${fixieData[1]}@${fixieData[2]}:${fixieData[3]}`;
+const socksAgent = new SocksProxyAgent(fixieUrl);
+
 async function connectToDb() {
 	try {
-		const options = {
-			proxyUsername: fixieData[0],
-			proxyPassword: fixieData[1],
-			proxyHost: fixieData[2],
-			proxyPort: fixieData[3],
+		await mongoose.connect(uri, {
 			dbName: db,
-		};
-
-		await mongoose.connect(uri, options);
+			agent: socksAgent,
+		});
 		logger.info(
 			environment === 'production'
 				? 'Connected to MongoDB via SOCKS proxy'
