@@ -16,11 +16,6 @@ async function connectToDb() {
 		};
 
 		await mongoose.connect(uri, options);
-		logger.info(
-			environment === 'production'
-				? 'Connected to MongoDB via SOCKS proxy'
-				: 'Connected to MongoDB'
-		);
 	} catch (err) {
 		logger.error(`Error connecting to MongoDB: ${err}`);
 		process.exit(1);
