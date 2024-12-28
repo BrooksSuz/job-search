@@ -196,13 +196,6 @@ app.delete('/api/delete-user', async (req, res) => {
 	}
 });
 
-app.post('/api/log', (req, res) => {
-	const { level, message } = req.body;
-
-	logger[level](message);
-	res.status(200).send('Log received');
-});
-
 process.on('SIGTERM', () => {
 	logger.info('SIGTERM received. Closing server...');
 	app.close(() => {
