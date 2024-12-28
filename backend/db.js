@@ -14,17 +14,18 @@ const environment = process.env.NODE_ENV;
 const fixieUrl = `socks5://${fixieData[0]}:${fixieData[1]}@${fixieData[2]}:${fixieData[3]}`;
 const socksAgent = new SocksProxyAgent(fixieUrl);
 
+// Connect to MongoDB with the SOCKS proxy
 async function connectToDb() {
 	try {
 		await mongoose.connect(uri, {
-			dbName: db,
+			useNewUrlParser: true,
+			useUnifiedTopology: true,
+			// SOCKS proxy integration
 			agent: socksAgent,
+			dbName: db,
 		});
-		logger.info(
-			environment === 'production'
-				? 'Connected to MongoDB via SOCKS proxy'
-				: 'Connected to MongoDB'
-		);
+
+		logger.info('Connected to MongoDB');
 	} catch (err) {
 		logger.error(`Error connecting to MongoDB: ${err}`);
 		process.exit(1);

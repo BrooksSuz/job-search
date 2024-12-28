@@ -46,11 +46,12 @@ app.use(
 			sameSite: 'strict',
 		},
 		store: MongoStore.create({
-			client: mongoose.connection.getClient(),
+			mongoUrl: process.env.MONGO_URI, // Use the same MongoDB URI here
 			collectionName: 'sessions',
 			dbName: process.env.DB,
+			// Apply SOCKS proxy to session store if needed
 			mongoOptions: {
-				agent: socksAgent,
+				agent: socksAgent, // Pass the SOCKS agent
 			},
 		}),
 	})
