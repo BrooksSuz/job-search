@@ -3,17 +3,30 @@ import mongoose from 'mongoose';
 import Site from './schemas/Site.js';
 import User from './schemas/User.js';
 import logger from './logger-backend.js';
+import { SocksProxyAgent } from 'socks-proxy-agent';
 dotenv.config();
 
 const uri = process.env.MONGO_URI;
 const db = process.env.DB;
+const fixieUrl = process.env.FIXIE_URL;
+const socksAgent = new SocksProxyAgent(fixieUrl);
+const environment = process.env.NODE_ENV;
+
 async function connectToDb() {
 	try {
-		await mongoose.connect(uri, {
+		const options = {
+			agent: environment === 'production' ? socksAgent : null,
 			dbName: db,
-		});
+		};
+
+		await mongoose.connect(uri, options);
+		logger.info(
+			environment === 'production'
+				? 'Connected to MongoDB via SOCKS proxy'
+				: 'Connected to MongoDB'
+		);
 	} catch (err) {
-		logger.error('Error connecting to MongoDB:', err);
+		logger.error(`Error connecting to MongoDB: ${err}`);
 		process.exit(1);
 	}
 }

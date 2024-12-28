@@ -25,7 +25,8 @@
     "pino": "^9.6.0",
     "puppeteer": "^22.11.1",
     "puppeteer-core": "22.11.1",
-    "recast": "^0.23.9"
+    "recast": "^0.23.9",
+    "socks-proxy-agent": "^8.0.5"
   },
   "type": "module",
   "devDependencies": {
