@@ -27,6 +27,9 @@ const fileName = fileURLToPath(import.meta.url);
 const dirName = path.dirname(fileName);
 const secret = process.env.SECRET;
 
+// Trust all proxies, including Cloudflare
+app.set('trust proxy', true);
+
 // Connect to the database
 connectToDb();
 
@@ -62,6 +65,13 @@ app.use((err, req, res, next) => {
 	} else {
 		next(err);
 	}
+});
+
+app.post('/api/log', (req, res) => {
+	const { level, message } = req.body;
+
+	logger[level](message);
+	res.status(200).send('Log received');
 });
 
 app.get('/', (req, res) => {
