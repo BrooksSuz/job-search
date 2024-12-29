@@ -1,1 +1,1 @@
-web: ./bin/fixie-wrench -v 1080:$MONGO_HOST_1:27017 -v 1081:$MONGO_HOST_2:27017 -v 1082:$MONGO_HOST_3:27017 & node ./backend/server.js
+web: ./bin/fixie-wrench -v 1080:$MONGO_HOST:27017 & node ./backend/server.js
