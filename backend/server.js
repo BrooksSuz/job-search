@@ -28,11 +28,11 @@ const fileName = fileURLToPath(import.meta.url);
 const dirName = path.dirname(fileName);
 const secret = process.env.SECRET;
 
-// Trust all proxies
-app.set('trust proxy', true);
-
 // Connect to the database
 connectToDb();
+
+// Trust all proxies
+app.set('trust proxy', true);
 
 // Middleware
 app.use(express.static(path.join(dirName, '../public')));
@@ -44,10 +44,9 @@ app.use(
 		resave: false,
 		saveUninitialized: false,
 		cookie: {
-			secure: true /* process.env.NODE_ENV === 'production' */,
+			secure: process.env.NODE_ENV === 'production',
 			maxAge: 24 * 60 * 60 * 1000,
-			sameSite:
-				'none' /* process.env.NODE_ENV === 'production' ? 'none' : 'strict' */,
+			sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
 		},
 		store: MongoStore.create({
 			client: mongoose.connection.getClient(),
@@ -65,7 +64,6 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 app.use('/auth', authRoutes);
-
 app.use((err, req, res, next) => {
 	if (process.env.NODE_ENV === 'production') {
 		logger.error(`Error in request ${req.method} ${req.originalUrl}:\n${err}`);
@@ -150,7 +148,6 @@ app.post('/api/add-config', async (req, res) => {
 		objSiteData.errorMessages = objSiteData.errorMessages.split(',');
 		const newSite = new Site(objSiteData);
 		await newSite.save();
-		logger.error(`User: ${user}`);
 		user.sites.push(newSite._id);
 		await user.save();
 
