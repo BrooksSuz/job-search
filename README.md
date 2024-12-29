@@ -10,6 +10,10 @@ Built on Node.js with MongoDB integration, the application provides user account
 
 ---
 
+## Disclaimer
+
+This project requires proper website configurations and a fully functional website to operate correctly. Please ensure you comply with the terms of service of any website you use this tool on. If unsure about the terms, contact the webmaster or IT team to confirm compliance.
+
 ## Features
 
 ### Keyword Search
