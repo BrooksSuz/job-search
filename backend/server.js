@@ -18,6 +18,7 @@ import passport from './passport-config.js';
 import Site from './schemas/Site.js';
 import User from './schemas/User.js';
 import logger from './logger-backend.js';
+import cors from 'cors';
 
 dotenv.config();
 
@@ -27,7 +28,7 @@ const fileName = fileURLToPath(import.meta.url);
 const dirName = path.dirname(fileName);
 const secret = process.env.SECRET;
 
-// Trust all proxies, including Cloudflare
+// Trust all proxies
 app.set('trust proxy', true);
 
 // Connect to the database
@@ -43,15 +44,22 @@ app.use(
 		resave: false,
 		saveUninitialized: false,
 		cookie: {
-			secure: process.env.NODE_ENV === 'production',
+			secure: true /* process.env.NODE_ENV === 'production' */,
 			maxAge: 24 * 60 * 60 * 1000,
-			sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+			sameSite:
+				'none' /* process.env.NODE_ENV === 'production' ? 'none' : 'strict' */,
 		},
 		store: MongoStore.create({
 			client: mongoose.connection.getClient(),
 			collectionName: 'sessions',
 			dbName: process.env.DB,
 		}),
+	})
+);
+app.use(
+	cors({
+		origin: [process.env.FRONTEND_URL_1, process.env.FRONTEND_URL_2],
+		credentials: true,
 	})
 );
 app.use(passport.initialize());
@@ -199,7 +207,11 @@ app.delete('/api/delete-user', async (req, res) => {
 
 		req.logout((err) => {
 			if (err) throw err;
-			res.status(200).json({ message: 'User deleted and logged out' });
+			req.session.destroy((sessionErr) => {
+				if (sessionErr) return next(sessionErr);
+				res.clearCookie('connect.sid');
+				res.status(200).json({ message: 'User deleted and logged out' });
+			});
 		});
 	} catch (err) {
 		logger.error(`Error in request /api/delete-user:\n${err}`);

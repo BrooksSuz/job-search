@@ -48,7 +48,11 @@ authRoutes.post(
 authRoutes.get('/logout', (req, res, next) => {
 	req.logout((err) => {
 		if (err) return next(err);
-		res.send('Logged out');
+		req.session.destroy((sessionErr) => {
+			if (sessionErr) return next(sessionErr);
+			res.clearCookie('connect.sid');
+			res.send('Logged out');
+		});
 	});
 });
 
