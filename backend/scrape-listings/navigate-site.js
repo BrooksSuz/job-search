@@ -4,7 +4,7 @@ import logger from '../logger-backend.js';
 async function navigateSite(
 	page,
 	arrErrMessages,
-	strIsAnchor,
+	boolIsAnchor,
 	strNextPageDisabled,
 	strNextPageLink,
 	strNextPageParent
@@ -20,7 +20,7 @@ async function navigateSite(
 	const boolCanStopRecursion = await stopRecursion(
 		page,
 		elNextPage,
-		strIsAnchor,
+		boolIsAnchor,
 		strNextPageDisabled,
 		strNextPageParent
 	);
@@ -54,8 +54,8 @@ const checkHrefState = async (elNextPage) =>
 		return false;
 	});
 
-const checkDisabledState = async (element, strNextPageDisabled) =>
-	await element.evaluate((el, strNextPageDisabled) => {
+const checkDisabledState = async (element, strNextPageDisabled) => {
+	return await element.evaluate((el, strNextPageDisabled) => {
 		if (strNextPageDisabled) {
 			// Check for a custom disabled style
 			const boolHasDisabledSelector =
@@ -67,6 +67,7 @@ const checkDisabledState = async (element, strNextPageDisabled) =>
 			return boolHasDisabledSelector || boolHasDisabledAttribute;
 		}
 	}, strNextPageDisabled);
+};
 
 const populateCheckDisabledState = async (
 	page,
@@ -85,7 +86,7 @@ const populateCheckDisabledState = async (
 const stopRecursion = async (
 	page,
 	elNextPage,
-	strIsAnchor,
+	boolIsAnchor,
 	strNextPageDisabled,
 	strNextPageParent
 ) => {
@@ -108,10 +109,13 @@ const stopRecursion = async (
 
 	// Stop if the element is an anchor and it has no href
 	const boolHasNoHref = await checkHrefState(elNextPage);
-	if (strIsAnchor === 'true' && boolHasNoHref) {
+	if (boolIsAnchor && boolHasNoHref) {
 		logger.info('\nNext page anchor has no href. Assuming last page reached.');
 		return true;
 	}
+
+	// Continue recursion
+	return false;
 };
 
 const clickAndWait = async (page, elNextPage) => {

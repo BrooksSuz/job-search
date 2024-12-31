@@ -14,7 +14,7 @@ async function findListings(
 	const {
 		consent: strConsent,
 		errorMessages: strErrorMessages,
-		isAnchor: strIsAnchor,
+		isAnchor: boolIsAnchor,
 		listing: strListing,
 		nextPageDisabled: strNextPageDisabled,
 		nextPageLink: strNextPageLink,
@@ -40,7 +40,7 @@ async function findListings(
 	const boolHasNextPage = await navigateSite(
 		page,
 		arrErrorMessages,
-		strIsAnchor,
+		boolIsAnchor,
 		strNextPageDisabled,
 		strNextPageLink,
 		strNextPageParent

@@ -9,7 +9,7 @@ async function executeJobSearch(arrConfigs) {
 
 		// Encode user keywords
 		const inputKeywords = document.querySelector('.keywords');
-		const strKeywordsParam = encodeURIComponent(inputKeywords.value);
+		const keywordsValue = inputKeywords.value.trim();
 
 		// Organize keys (safety measure)
 		const arrConfigKeys = Object.keys(objConfig);
@@ -18,11 +18,11 @@ async function executeJobSearch(arrConfigs) {
 		// Fill search inputs
 		populateInputs(inputsAdvanced, objConfig);
 
-		// Encode input values for query string
-		const strParams = encodeInputs(arrOrganizedKeys, inputsAdvanced).join('&');
+		// Create new config with organized inputs
+		const newConfig = createNewConfig(arrOrganizedKeys, inputsAdvanced);
 
 		// Feed the config to the API
-		await consumeAPI(strKeywordsParam, strParams);
+		await consumeAPI(keywordsValue, newConfig);
 	}
 }
 
@@ -49,22 +49,30 @@ const populateInputs = (inputsAdvanced, objConfig) => {
 	});
 };
 
-const encodeInputs = (arrConfigKeys, inputsAdvanced) =>
-	Array.from(inputsAdvanced).map((input, i) => {
-		const encodedKey = encodeURIComponent(arrConfigKeys[i]);
-		const encodedValue =
-			arrConfigKeys[i] === 'isAnchor'
-				? encodeURIComponent(input.checked)
-				: encodeURIComponent(input.value);
-		return `${encodedKey}=${encodedValue}`;
-	});
+const createNewConfig = (arrConfigKeys, inputsAdvanced) => {
+	const newConfig = {};
+	inputsAdvanced.forEach((input, i) => {
+		const key = arrConfigKeys[i];
+		const value = arrConfigKeys[i] === 'isAnchor' ? input.checked : input.value;
 
-const consumeAPI = async (inputKeywordsValue, strParams) => {
+		newConfig[key] = value;
+	});
+	return newConfig;
+};
+
+const consumeAPI = async (inputKeywordsValue, objConfig) => {
 	try {
 		// Fetch listings
-		const response = await fetch(
-			`/api/listings?keywords=${inputKeywordsValue}&${strParams}`
-		);
+		const response = await fetch('api/listings', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				keywords: inputKeywordsValue,
+				objConfig,
+			}),
+		});
 
 		// Parse the response
 		const strHtml = await response.json();

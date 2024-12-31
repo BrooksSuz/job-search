@@ -98,20 +98,6 @@ app.get('/api/user', (req, res) => {
 	}
 });
 
-app.get('/api/listings', (req, res) => {
-	try {
-		const strSearchTerms = req.query.keywords;
-		const objConfig = { ...req.query };
-		delete objConfig.keywords;
-		scrapeListings(strSearchTerms, objConfig).then((listings) =>
-			res.json(listings)
-		);
-	} catch (err) {
-		logger.error(`Error in request /api/listings:\n${err}`);
-		res.status(500).json({ error: 'Failed to fetch site listings.' });
-	}
-});
-
 app.get('/api/premade-configs', async (req, res) => {
 	try {
 		const arrConfigs = await getPremadeConfigs();
@@ -119,6 +105,16 @@ app.get('/api/premade-configs', async (req, res) => {
 	} catch (err) {
 		logger.error(`Error in request /api/premade-configs:\n${err}`);
 		res.status(500).json({ error: 'Failed to fetch site configs.' });
+	}
+});
+
+app.post('/api/listings', (req, res) => {
+	try {
+		const { keywords, objConfig } = req.body;
+		scrapeListings(keywords, objConfig).then((listings) => res.json(listings));
+	} catch (err) {
+		logger.error(`Error in request /api/listings:\n${err}`);
+		res.status(500).json({ error: 'Failed to fetch site listings.' });
 	}
 });
 
