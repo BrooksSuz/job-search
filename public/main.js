@@ -39,6 +39,14 @@ document.addEventListener('DOMContentLoaded', handlePremadeLoad);
 // Persist user (if there's a current session)
 document.addEventListener('DOMContentLoaded', handlePersistUser);
 
+// Update footer date
+document.addEventListener('DOMContentLoaded', () => {
+	const footerYear = document.getElementById('footer-year');
+	if (footerYear) {
+		footerYear.textContent = new Date().getFullYear();
+	}
+});
+
 // Hold premade select element reference
 const selectPremade = document.getElementById('premade-configs');
 selectPremade.addEventListener('click', () => {
