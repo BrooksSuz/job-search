@@ -23,9 +23,10 @@
     "nodemailer": "^6.9.16",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
+    "path-to-regexp": "^8.2.0",
     "pino": "^9.6.0",
-    "puppeteer": "^22.11.1",
-    "puppeteer-core": "22.11.1",
+    "puppeteer": "^23.11.1",
+    "puppeteer-core": "^23.11.1",
     "recast": "^0.23.9",
     "socks-proxy-agent": "^8.0.5"
   },
