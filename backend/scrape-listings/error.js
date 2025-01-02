@@ -16,8 +16,7 @@ function handleError(err, arrErrorMessages, strFunctionName) {
 
 function throwErrorAndHalt(err, strFunctionName) {
 	logger.error(
-		`\nUnexpected error in function ${strFunctionName}:\n\n`,
-		err.message
+		`\nUnexpected error in function ${strFunctionName}:\n\n${err.message}`
 	);
 	process.exit(1);
 }

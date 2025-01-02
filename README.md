@@ -31,7 +31,6 @@ Now live! Users can customize the scraper by entering CSS selectors for any webs
 Preconfigured support is available for:
 
 - Bowling Green State University
-- Eastern Michigan University
 - University of Michigan
 
 ### User Accounts
