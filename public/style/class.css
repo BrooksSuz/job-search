@@ -1,0 +1,81 @@
+.form-container [class$='container'] {
+  padding: 0.3rem;
+}
+
+.advanced-container {
+  display: none;
+}
+
+.account-container {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.input-container {
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.button-container {
+  gap: 0.5rem;
+  min-width: 140px;
+}
+
+details > .button-container {
+  align-self: center;
+  display: flex;
+  padding: 0.5rem;
+}
+
+details > .button-container > * {
+  flex: 1;
+}
+
+.get-listings-container {
+  display: flex;
+  gap: 0.5rem;
+  position: sticky;
+  top: 0;
+}
+
+.main-container {
+  min-height: 100vh;
+  justify-content: space-between;
+  padding: 2rem;
+  gap: 1rem;
+}
+
+.form-container {
+  align-self: center;
+  gap: 0.5rem;
+  width: clamp(375px, 60%, 600px);
+}
+
+.site-container {
+  animation: fadeIn 1s ease-out;
+  border-top: 2px solid #f0f0f0;
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+}
+
+.listings {
+  align-self: center;
+  background-color: var(--soft-black);
+  border: 1px solid var(--aquamarine);
+  width: clamp(375px, 80%, 1000px);
+}
+
+.spinner {
+  display: none;
+  color: var(--cambridge-blue);
+  font-size: 1.8rem;
+}
+
+.show {
+  display: block;
+}
+
+.show-flex {
+  display: flex;
+  flex-direction: column;
+}

@@ -2,23 +2,37 @@
   "name": "job-search",
   "version": "1.0.0",
   "description": "",
-  "main": "./server.js",
+  "main": "./backend/server.js",
   "scripts": {
-    "start": "node ./server.js",
+    "start": "node ./backend/server.js",
+    "dev": "nodemon ./backend/server.js",
     "heroku-postbuild": "mkdir ./.cache && mv /app/.cache/puppeteer ./.cache"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.21.1",
+    "bcryptjs": "^2.4.3",
+    "connect-mongo": "^5.1.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
     "mongodb": "^6.11.0",
+    "mongoose": "^8.8.4",
     "nodemailer": "^6.9.16",
-    "puppeteer": "^22.11.1",
-    "puppeteer-core": "22.11.1"
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0",
+    "path-to-regexp": "^8.2.0",
+    "pino": "^9.6.0",
+    "puppeteer": "^23.11.1",
+    "puppeteer-core": "^23.11.1",
+    "recast": "^0.23.9",
+    "socks-proxy-agent": "^8.0.5"
   },
   "type": "module",
   "devDependencies": {
-    "nodemon": "^3.1.7"
+    "nodemon": "^3.1.7",
+    "pino-pretty": "^13.0.0"
   }
 }

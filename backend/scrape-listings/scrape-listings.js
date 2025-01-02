@@ -4,21 +4,23 @@ import {
 	createCount,
 	createHtml,
 	throwErrorAndHalt,
-} from './helpers/index.js';
+} from './index.js';
+import logger from '../logger-backend.js';
 
-async function findListings(strSearchTerms, objConfig) {
+async function scrapeListings(strSearchTerms, objConfig) {
 	const browser = await createBrowser();
 	const arrFormattedTerms = formatArguments(strSearchTerms);
 	const { getCount, incrementCount } = createCount();
 
-	console.log(`\nBegin scraping ${objConfig.siteName}`);
+	logger.info(`\nBegin scraping ${objConfig.siteName}`);
 	try {
 		// Get desired listings (individual listing object: { title: url })
 		const arrDesiredListings = await buildListings(
 			browser,
 			arrFormattedTerms,
 			objConfig,
-			incrementCount
+			incrementCount,
+			getCount
 		);
 
 		// Create div containers
@@ -30,10 +32,10 @@ async function findListings(strSearchTerms, objConfig) {
 
 		return strDivListings;
 	} catch (err) {
-		throwErrorAndHalt(err, 'findListings');
+		throwErrorAndHalt(err, 'scrapeListings');
 	} finally {
 		await browser.close();
-		console.log(`\nFinished scraping ${objConfig.siteName}`);
+		logger.info(`\nFinished scraping ${objConfig.siteName}`);
 	}
 }
 
@@ -43,10 +45,10 @@ const formatArguments = (strSearchTerms) =>
 const createBrowser = () =>
 	puppeteer
 		.launch({
-			args: ['--no-sandbox', '--disable-setuid-sandbox'],
+			args: ['--no-sandbox', '--disable-setuid-sandbox', '--incognito'],
 		})
 		.catch((err) => {
 			throwErrorAndHalt(err, 'createBrowser');
 		});
 
-export default findListings;
+export default scrapeListings;

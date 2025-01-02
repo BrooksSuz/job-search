@@ -1,43 +1,136 @@
-# Job Search (A Web Scraping Application)
+# Job Search: A Web Scraping Application
 
 ## Overview
 
-This personal project was born out of a desire to create something meaningful and helpful for those around me. A tool to streamline the job search process. The result is a web application that uses Puppeteer, a JavaScript library, to scrape job listings from career pages.
+This project began as a way to simplify the job search process and make it more accessible. The result is a web application that uses Puppeteer, a powerful JavaScript library, to scrape job listings from career pages.
 
-Currently, it supports the University of Toledo's career page, but the vision is to expand its capabilities to scrape a variety of websites based on user-provided input. Users will be able to input keywords and target sites, and the scraper will return job listings that match the criteria.
+Initially designed to support the University of Michigan's career page, the application has since evolved to allow users to input their own CSS selectors and scrape any website of their choice. This flexibility opens up a world of possibilities for job seekers.
 
-The application runs on Node.js, and integration with MongoDB is planned to manage user data, saved job listings, and more.
+Built on Node.js with MongoDB integration, the application provides user account functionality, ensuring scraper configurations are securely stored and easily managed.
+
+---
+
+## Disclaimer
+
+This project requires proper website configurations and a fully functional website to operate correctly. Please ensure you comply with the terms of service of any website you use this tool on. If unsure about the terms, contact the webmaster or IT team to confirm compliance.
+
+---
 
 ## Features
 
 ### Keyword Search
 
-Enter your desired keywords into the "Keywords" input field. Click the "Get Jobs" button and let the scraper do the rest!
+Users can input keywords and click "Get Jobs" to retrieve matching listings.
 
-### Advanced Settings (Coming Soon)
+### Advanced Settings
 
-This feature will allow you to configure the scraper for different websites. Once complete, detailed instructions will be added here.
+Now live! Users can customize the scraper by entering CSS selectors for any website they wish to target. This feature requires account creation. I discuss each input below.
 
-## Roadmap & Future Enhancements
+### Premade Configurations
+
+Preconfigured support is available for:
+
+- Bowling Green State University
+- University of Michigan
+
+### User Accounts
+
+Account creation enables personalized configurations and advanced feature access.
+
+### Enhanced UI/UX
+
+A full-fledged interface ensures a clean, intuitive experience for all users.
+
+---
+
+## Roadmap
 
 ### Data Persistence
 
-Integration with MongoDB to store user data, saved jobs, and scraper configurations.
+Saved job listings will soon be supported in MongoDB, complementing existing configuration storage.
 
-### Email Notifcations
+### Email Notifications
 
-A Nodemailer setup to send automated updates when new jobs are found for your keywords.
+Integration with Nodemailer is underway to provide updates when new listings match user criteria.
 
-### Expanded Scraping Capabilities
+### Code Cleanup
 
-Support for multiple job boards and custom website configurations.
+I've tried my best to keep the codebase clean along the way. That being said...I am far from perfect. I am actively cleaning up the codebase.
 
-### Improved User Experience
+---
 
-Enhanced UI/UX for easier navigation and functionality.
+## Advanced Settings Guide
+
+To scrape websites, Puppeteer requires HTML elements to interact with. This is done via CSS selectors. I'll discuss each input briefly:
+
+### Site Name
+
+The name of the configuration. The name itself doesn't matter.
+
+That being said, it's the only required input. This is to make interacting and sorting configurations easier.
+
+### URL
+
+The exact URL of the website to be scraped. This should be the first page of the website. If no URL is provided, the tool will not work.
+
+### Selector (1): Consent Popup
+
+The first CSS selector checks the site for a consent popup.
+
+The tool is looking for a clickable element. For example, a button: button#consent_agree.
+
+### Selector (2): Listings
+
+The second CSS selector checks for all the listings that contain at least one of the provided keywords (if no keywords, it will return all listings).
+
+The tool is looking for a clickable element. For example, an anchor: h3.card-title > a#link_job_title.
+
+### Selector (3): Next Page Disabled
+
+The third selector checks if the "next page" (or "next page" equivalent) element is disabled.
+
+This can be the HTML attribute disabled (in which case, simply type: disabled) or a custom CSS class such as: element-disabled.
+
+### Selector (4): Next Page Element
+
+The fourth selector checks for the "next page" (or "next page" equivalent) element.
+
+The tool is looking for a clickable element. For example, an anchor: li.next_page > a.
+
+### Selector (5): Parent Element of Next Page
+
+The fifth selector checks for a parent element of the "next page" (or "next page" equivalent). Most of the time, this selector should be left empty. It's only provided for websites that are a bit finicky with their HTML.
+
+Only use this input if the current configuration isn't working.
+
+The tool is looking for any kind of container element. Likely, it will be the div element. For example: li.PagedList-skipToNext:has(> a[aria-label="Go to Next Page"]).
+
+### Error(s): End of Scraping
+
+This input is to tell Puppeteer when it needs to stop. Puppeteer can't predict where the site ends at. It will throw an error when it is unable to find the "next page" (or "next page" equivalent) element.
+
+When the provided error(s) occur, the tool will assume the website has reached the final page and will conclude the scraping.
+
+It is recommended to fill this input with the following:
+
+> Waiting for selector, Failed to execute, Node is detached, Execution context was destroyed, Session closed. Most likely the page has been closed., Node is either not clickable or not an Element.
+
+### Anchor Tag Checkbox
+
+Check this box if the "next page" element is an anchor tag. Otherwise, leave the box unchecked.
+
+### Final Steps
+
+Once all of the required inputs are filled out, simply:
+
+1. Click the "Add" button.
+2. Select the configuration.
+3. Click the "Get Jobs" button to run the tool!
+
+---
 
 ## Why This Project?
 
-Job searching can be overwhelming, and I wanted to create a tool that simplifies it, saving people time and energy. While this application is still in its early stages, it's built with scalability and user convenience in mind.
+Job searching is often time-consuming and overwhelming. This application was designed to streamline the process, making it easier for users to focus on finding the right opportunities. While still a work in progress, the project emphasizes scalability, usability, and adaptability.
 
-Whether you're a job seeker or just exploring what's possible with web scraping, I hope you find this project helpful!
+Whether you're actively seeking a job or simply exploring the possibilities of web scraping, I hope this tool proves valuable!

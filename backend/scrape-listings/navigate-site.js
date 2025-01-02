@@ -1,10 +1,10 @@
 import { handleError } from './error.js';
+import logger from '../logger-backend.js';
 
 async function navigateSite(
 	page,
-	strCanWait,
 	arrErrMessages,
-	strIsAnchor,
+	boolIsAnchor,
 	strNextPageDisabled,
 	strNextPageLink,
 	strNextPageParent
@@ -20,7 +20,7 @@ async function navigateSite(
 	const boolCanStopRecursion = await stopRecursion(
 		page,
 		elNextPage,
-		strIsAnchor,
+		boolIsAnchor,
 		strNextPageDisabled,
 		strNextPageParent
 	);
@@ -31,7 +31,6 @@ async function navigateSite(
 	// Check for successful navigation
 	const boolIsSuccessfulNavigation = await runNavigationActions(
 		page,
-		strCanWait,
 		elNextPage,
 		arrErrMessages,
 		urlPrevious
@@ -55,8 +54,8 @@ const checkHrefState = async (elNextPage) =>
 		return false;
 	});
 
-const checkDisabledState = async (element, strNextPageDisabled) =>
-	await element.evaluate((el, strNextPageDisabled) => {
+const checkDisabledState = async (element, strNextPageDisabled) => {
+	return await element.evaluate((el, strNextPageDisabled) => {
 		if (strNextPageDisabled) {
 			// Check for a custom disabled style
 			const boolHasDisabledSelector =
@@ -68,6 +67,7 @@ const checkDisabledState = async (element, strNextPageDisabled) =>
 			return boolHasDisabledSelector || boolHasDisabledAttribute;
 		}
 	}, strNextPageDisabled);
+};
 
 const populateCheckDisabledState = async (
 	page,
@@ -86,7 +86,7 @@ const populateCheckDisabledState = async (
 const stopRecursion = async (
 	page,
 	elNextPage,
-	strIsAnchor,
+	boolIsAnchor,
 	strNextPageDisabled,
 	strNextPageParent
 ) => {
@@ -103,27 +103,23 @@ const stopRecursion = async (
 	);
 
 	if (boolIsDisabled) {
-		console.log(
-			'\nNext page element is disabled.\nAssuming last page reached.'
-		);
+		logger.info('\nNext page element is disabled. Assuming last page reached.');
 		return true;
 	}
 
 	// Stop if the element is an anchor and it has no href
 	const boolHasNoHref = await checkHrefState(elNextPage);
-	if (strIsAnchor === 'true' && boolHasNoHref) {
-		console.log('\nNext page anchor has no href.\nAssuming last page reached.');
+	if (boolIsAnchor && boolHasNoHref) {
+		logger.info('\nNext page anchor has no href. Assuming last page reached.');
 		return true;
 	}
+
+	// Continue recursion
+	return false;
 };
 
-const clickAndWait = async (page, strCanWait, elNextPage) => {
-	await Promise.all([
-		elNextPage.click(),
-		strCanWait === 'true'
-			? page.waitForNavigation({ timeout: 10000 })
-			: page.waitForNetworkIdle({ timeout: 10000 }),
-	]);
+const clickAndWait = async (page, elNextPage) => {
+	await Promise.all([elNextPage.click(), page.waitForNetworkIdle()]);
 };
 
 const waitForNewUrl = async (page, urlPrevious) => {
@@ -135,13 +131,12 @@ const waitForNewUrl = async (page, urlPrevious) => {
 
 const runNavigationActions = async (
 	page,
-	strCanWait,
 	elNextPage,
 	arrErrorMessages,
 	urlPrevious
 ) => {
 	try {
-		await clickAndWait(page, strCanWait, elNextPage, arrErrorMessages);
+		await clickAndWait(page, elNextPage, arrErrorMessages);
 		await waitForNewUrl(page, arrErrorMessages, urlPrevious);
 		return true;
 	} catch (err) {

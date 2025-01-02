@@ -1,29 +1,32 @@
 import filterListings from './filter-listings.js';
-import { handleError } from './error.js';
 import navigateSite from './navigate-site.js';
+import logger from '../logger-backend.js';
 
-async function scrapeListings(
+async function findListings(
 	page,
 	arrSearchTerms,
 	objConfigPairs,
 	incrementCount,
+	getCount,
 	arrAllScrapedListings = [] // Default array for recursion
 ) {
 	// Destructure configPairs and disperse
 	const {
-		canWait: strCanWait,
 		consent: strConsent,
-		errorMessages: arrErrorMessages,
-		isAnchor: strIsAnchor,
+		errorMessages: strErrorMessages,
+		isAnchor: boolIsAnchor,
 		listing: strListing,
 		nextPageDisabled: strNextPageDisabled,
 		nextPageLink: strNextPageLink,
 		nextPageParent: strNextPageParent,
 	} = objConfigPairs;
 
+	// Change errorMessages type
+	const arrErrorMessages = strErrorMessages.split(', ');
+
 	// Check consent only on the first call
-	if (!arrAllScrapedListings.length)
-		await checkConsent(page, strConsent, arrErrorMessages);
+	const isFirstPage = !getCount();
+	if (strConsent && isFirstPage) await checkConsent(page, strConsent);
 
 	// Scrape listings on the current page
 	const arrFilteredListings = await filterListings(
@@ -36,9 +39,8 @@ async function scrapeListings(
 	// Attempt to navigate to the next page
 	const boolHasNextPage = await navigateSite(
 		page,
-		strCanWait,
 		arrErrorMessages,
-		strIsAnchor,
+		boolIsAnchor,
 		strNextPageDisabled,
 		strNextPageLink,
 		strNextPageParent
@@ -52,24 +54,27 @@ async function scrapeListings(
 		return alphabetizeScrapedListings([...arrAllScrapedListings]);
 
 	// Recursive case: Scrape the next page
-	return scrapeListings(
+	return findListings(
 		page,
 		arrSearchTerms,
 		objConfigPairs,
 		incrementCount,
+		getCount,
 		arrAllScrapedListings
 	);
 }
 
-const checkConsent = async (page, strConsent, arrErrorMessages) => {
-	if (strConsent) {
-		const arrPromises = [
-			page.click(strConsent),
-			page.waitForSelector(strConsent),
-		];
-		await Promise.all(arrPromises).catch((err) => {
-			handleError(err, arrErrorMessages, 'checkConsent');
-		});
+const checkConsent = async (page, strConsent) => {
+	try {
+		await page.waitForSelector(strConsent, { timeout: 5000 });
+		logger.info('\nConsent popup found.');
+		await page.click(strConsent);
+	} catch (err) {
+		if (err.name === 'TimeoutError') {
+			logger.info('\nConsent popup not found.');
+		} else {
+			logger.error(`Error in function checkConsent:\n${err}`);
+		}
 	}
 };
 
@@ -80,4 +85,4 @@ const alphabetizeScrapedListings = (arrAllScrapedListings) =>
 		return strTitleKey < strUrlKey ? -1 : strTitleKey > strUrlKey ? 1 : 0;
 	});
 
-export default scrapeListings;
+export default findListings;
