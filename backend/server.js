@@ -120,14 +120,15 @@ app.post('/api/listings', (req, res) => {
 
 app.post('/api/user-configs', async (req, res) => {
 	try {
+		const { arrIds } = req.body;
 		const user = req.user;
-		let arrIds;
 
-		if (user) {
-			arrIds = user._doc.sites;
-		} else {
-			({ arrIds } = req.body);
-		}
+		if (!arrIds) {
+      const arrStoredIds = user._doc.sites;
+			const objStoredConfig = await getSelectedConfigs(arrStoredIds);
+			res.json(objStoredConfig);
+			return;
+    }
 
 		const objConfig = await getSelectedConfigs(arrIds);
 		res.json(objConfig);
