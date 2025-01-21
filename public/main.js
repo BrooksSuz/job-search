@@ -312,8 +312,11 @@ const changeSelectElement = (arrSites) => {
 		changeButtonState(btnGetJobs, selectUser);
 	});
 
+	// Alphabetize configs
+	const arrAlphabetizedConfigs = alphabetizeConfigs(arrSites);
+
 	// Populate select element with user-created configs
-	arrSites.forEach((objConfig) => {
+	arrAlphabetizedConfigs.forEach((objConfig) => {
 		const newOption = document.createElement('option');
 		newOption.value = objConfig._id;
 		newOption.textContent = objConfig.siteName;
