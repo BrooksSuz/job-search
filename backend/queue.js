@@ -4,7 +4,7 @@ import logger from './logger-backend.js';
 
 const myQueue = new Queue('myQueue', {
 	redis: {
-		host: process.env.REDIS_HOST || '127.0.0.1',
+		url: process.env.REDIS_URL,
 	},
 });
 
