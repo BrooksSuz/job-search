@@ -24,10 +24,10 @@ async function connectToDb() {
 
 async function getPremadeConfigs() {
 	const arrPremade = [
-    '6757a5bfe3bdb76056b5beae',
-    '678e55b17462695271c1a2bb',
-    '6757a5bfe3bdb76056b5bead',
-  ];
+		'6757a5bfe3bdb76056b5beae',
+		'678e55b17462695271c1a2bb',
+		'6757a5bfe3bdb76056b5bead',
+	];
 	try {
 		const arrConfigs = await Site.find({ _id: { $in: arrPremade } }).sort({
 			siteName: 1,
@@ -81,7 +81,7 @@ mongoose.connection.on('disconnected', () => {
 });
 
 process.on('SIGINT', () => {
-	mongoose.connection.close(() => {
+	mongoose.connection.close().then(() => {
 		logger.info('\nMongoose disconnected through app termination');
 		process.exit(0);
 	});

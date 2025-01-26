@@ -62,7 +62,6 @@ const createNewConfig = (arrConfigKeys, inputsAdvanced) => {
 
 const consumeAPI = async (inputKeywordsValue, objConfig) => {
 	try {
-		// Fetch listings
 		const response = await fetch('api/listings', {
 			method: 'POST',
 			headers: {
@@ -74,12 +73,30 @@ const consumeAPI = async (inputKeywordsValue, objConfig) => {
 			}),
 		});
 
-		// Parse the response
-		const strHtml = await response.json();
-		const parser = new DOMParser();
-		const htmlDoc = parser.parseFromString(strHtml, 'text/html');
+		if (!response.ok) throw new Error('Failed to add job to the queue');
 
-		// Create/get divListings; populate
+		const { jobId } = await response.json(); // Get the job ID
+
+		let jobCompleted = false;
+		let jobResult = null;
+		while (!jobCompleted) {
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
+			const statusResponse = await fetch(`/api/listings/status/${jobId}`);
+			if (!statusResponse.ok) throw new Error('Failed to retrieve job status');
+
+			const jobStatus = await statusResponse.json();
+
+			if (jobStatus.status === 'completed') {
+				jobCompleted = true;
+				jobResult = jobStatus.result;
+			} else if (jobStatus.status === 'failed')
+				throw new Error(`Job failed: ${jobStatus.error}`);
+		}
+
+		const parser = new DOMParser();
+		const htmlDoc = parser.parseFromString(jobResult, 'text/html');
+
 		let divListings = document.querySelector('.listings');
 		if (!divListings) {
 			const divMain = document.querySelector('.main-container');

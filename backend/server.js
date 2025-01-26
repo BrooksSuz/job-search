@@ -19,6 +19,7 @@ import Site from './schemas/Site.js';
 import User from './schemas/User.js';
 import logger from './logger-backend.js';
 import cors from 'cors';
+import myQueue from './queue.js';
 
 dotenv.config();
 
@@ -108,13 +109,40 @@ app.get('/api/premade-configs', async (req, res) => {
 	}
 });
 
-app.post('/api/listings', (req, res) => {
+app.post('/api/listings', async (req, res) => {
 	try {
 		const { keywords, objConfig } = req.body;
-		scrapeListings(keywords, objConfig).then((listings) => res.json(listings));
+		const job = await myQueue.add({ keywords, objConfig });
+		res.status(202).json({ jobId: job.id });
 	} catch (err) {
 		logger.error(`Error in request /api/listings:\n${err}`);
-		res.status(500).json({ error: 'Failed to fetch site listings.' });
+		res.status(500).json({ error: 'Failed to add job to the queue.' });
+	}
+});
+
+app.get('/api/listings/status/:jobId', async (req, res) => {
+	const { jobId } = req.params;
+
+	try {
+		const job = await myQueue.getJob(jobId);
+
+		if (!job) return res.status(404).json({ error: 'Job not found' });
+
+		const jobStatus = {
+			id: job.id,
+			status: job.finished()
+				? 'completed'
+				: job.isFailed
+				? 'failed'
+				: 'waiting',
+			result: job.finished() ? await job.finished() : null,
+			error: job.isFailed ? job.failedReason : null,
+		};
+
+		res.json(jobStatus);
+	} catch (err) {
+		logger.error(`Error in request /api/listings/status/${jobId}:\n${err}`);
+		res.status(500).json({ error: 'Failed to retrieve job status.' });
 	}
 });
 
@@ -124,11 +152,11 @@ app.post('/api/user-configs', async (req, res) => {
 		const user = req.user;
 
 		if (!arrIds) {
-      const arrStoredIds = user._doc.sites;
+			const arrStoredIds = user._doc.sites;
 			const objStoredConfig = await getSelectedConfigs(arrStoredIds);
 			res.json(objStoredConfig);
 			return;
-    }
+		}
 
 		const objConfig = await getSelectedConfigs(arrIds);
 		res.json(objConfig);
