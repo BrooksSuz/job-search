@@ -18,7 +18,6 @@ async function connectToDb() {
 		await mongoose.connect(uri, options);
 	} catch (err) {
 		logger.error(`Error connecting to MongoDB: ${err}`);
-		process.exit(1);
 	}
 }
 
@@ -80,10 +79,29 @@ mongoose.connection.on('disconnected', () => {
 	logger.info('\nMongoose disconnected');
 });
 
-process.on('SIGINT', () => {
-	mongoose.connection.close().then(() => {
+process.on('SIGINT', async () => {
+	try {
+		await mongoose.connection.close();
 		logger.info('\nMongoose disconnected through app termination');
 		process.exit(0);
+	} catch (err) {
+		logger.error(`Error closing MongoDB connection: ${err}`);
+		process.exit(1);
+	}
+});
+
+process.on('SIGTERM', async () => {
+	logger.info('SIGTERM received. Closing server...');
+	app.close(async () => {
+		logger.info('Server closed.');
+		try {
+			await mongoose.connection.close();
+			logger.info('\nMongoDB connection closed.');
+			process.exit(0);
+		} catch (err) {
+			logger.error(`Error closing MongoDB connection: ${err}`);
+			process.exit(1);
+		}
 	});
 });
 
