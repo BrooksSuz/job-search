@@ -130,12 +130,12 @@ app.get('/api/listings/status/:jobId', async (req, res) => {
 
 		const jobStatus = {
 			id: job.id,
-			status: job.finished()
+			status: (await job.finished())
 				? 'completed'
 				: job.isFailed
 				? 'failed'
 				: 'waiting',
-			result: job.finished() ? await job.finished() : null,
+			result: (await job.finished()) ? await job.finished() : null,
 			error: job.isFailed ? job.failedReason : null,
 		};
 
