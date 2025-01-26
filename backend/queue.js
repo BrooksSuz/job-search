@@ -1,12 +1,21 @@
 import Queue from 'bull';
 import scrapeListings from './scrape-listings/scrape-listings.js';
 import logger from './logger-backend.js';
+import dotenv from 'dotenv';
 
-const myQueue = new Queue('myQueue', {
+dotenv.config();
+
+const url = process.env.REDIS_URL;
+const queueOptions = {
 	redis: {
-		url: process.env.REDIS_URL,
+		socket: {
+			tls: true,
+			rejectUnauthorized: false,
+		},
 	},
-});
+};
+
+const myQueue = new Queue('myQueue', url, queueOptions);
 
 myQueue.process(async (job) => {
 	const { keywords, objConfig } = job.data;
