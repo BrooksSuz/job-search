@@ -113,7 +113,7 @@ app.post('/api/listings', async (req, res) => {
 	try {
 		const { keywords, objConfig } = req.body;
 		const job = await myQueue.add({ keywords, objConfig });
-		res.status(202).json({ jobId: job.id });
+		res.json({ jobId: job.id });
 	} catch (err) {
 		logger.error(`Error in request /api/listings:\n${err}`);
 		res.status(500).json({ error: 'Failed to add job to the queue.' });

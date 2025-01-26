@@ -75,7 +75,7 @@ const consumeAPI = async (inputKeywordsValue, objConfig) => {
 
 		if (!response.ok) throw new Error('Failed to add job to the queue');
 
-		const { jobId } = await response.json(); // Get the job ID
+		const { jobId } = await response.json();
 
 		let jobCompleted = false;
 		let jobResult = null;
