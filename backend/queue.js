@@ -11,9 +11,8 @@ const myQueue = new Queue('myQueue', {
 		port: redis.options.port,
 		password: redis.options.password,
 	},
-	socket: {
-		tls: true,
-		rejectUnauthorized: false,
+	tls: {
+		rejectAuthorized: false,
 	},
 });
 
