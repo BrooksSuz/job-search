@@ -31,7 +31,8 @@
     "puppeteer-core": "^23.11.1",
     "recast": "^0.23.9",
     "redis": "^4.7.0",
-    "socks-proxy-agent": "^8.0.5"
+    "socks-proxy-agent": "^8.0.5",
+    "ws": "^8.18.0"
   },
   "type": "module",
   "devDependencies": {

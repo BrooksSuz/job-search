@@ -19,6 +19,9 @@ import User from './schemas/User.js';
 import logger from './logger-backend.js';
 import cors from 'cors';
 import myQueue from './queue.js';
+import http from 'http';
+import { WebSocketServer, WebSocket } from 'ws';
+import scrapeListings from './scrape-listings/scrape-listings.js';
 
 dotenv.config();
 
@@ -27,6 +30,32 @@ const port = process.env.PORT || 3000;
 const fileName = fileURLToPath(import.meta.url);
 const dirName = path.dirname(fileName);
 const secret = process.env.SECRET;
+const server = http.createServer((req, res) => {
+	res.writeHead(200, { 'Content-Type': 'text/plain' });
+	res.end('Hello, World!\n');
+});
+const clients = [];
+const wss = new WebSocketServer({ server })
+
+wss.on('connection', (ws) => {
+	logger.info('New client connected');
+	clients.push(ws);
+
+	ws.on('message', (message) => {
+		logger.info(`Received: ${message}`);
+		ws.send(`You said: ${message}`);
+	});
+
+	ws.on('close', () => {
+		logger.info('Client disconnected');
+		const index = clients.indexOf(ws);
+		if (index !== -1) clients.splice(index, 1);
+	});
+});
+
+server.listen(3001, () => {
+	logger.info('Server is listening on https://localhost:3001');
+});
 
 // Connect to the database
 connectToDb();
@@ -112,6 +141,7 @@ app.post('/api/listings', async (req, res) => {
 	try {
 		const { keywords, objConfig } = req.body;
 		const job = await myQueue.add({ keywords, objConfig });
+		logger.info(`Job added to queue: ${job.id}`);
 		res.json({ jobId: job.id });
 	} catch (err) {
 		logger.error(`Error in request /api/listings:\n${err}`);
@@ -253,4 +283,44 @@ process.on('SIGTERM', () => {
 
 app.listen(port, () => {
 	logger.info(`\nServer running at: http://localhost:${port}`);
+});
+
+myQueue.process(async (job) => {
+  const { keywords, objConfig } = job.data;
+
+  try {
+		const listings = await scrapeListings(keywords, objConfig);
+		logger.info(`Processing job ${job.id} with keywords: ${keywords}`);
+    return listings;
+  } catch (err) {
+    logger.error(`Error processing job ${job.id}:\n${err}`);
+    throw new Error('Job processing failed');
+  }
+});
+
+myQueue.on('completed', (job, result) => {
+  logger.info(`Job ${job.id} completed successfully with result: ${result}`);
+  clients.forEach((client) => {
+		if (client.readyState === WebSocket.OPEN) {
+			logger.info(`Sending completion message to client for job ${job.id}`);
+      client.send(
+        JSON.stringify({ jobId: job.id, status: 'completed', result })
+      );
+    }
+  });
+});
+
+myQueue.on('failed', (job, err) => {
+  logger.error(`Job ${job.id} failed with error: ${err.message}`);
+  clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(
+        JSON.stringify({ jobId: job.id, status: 'failed', error: err.message })
+      );
+    }
+  });
+});
+
+myQueue.on('progress', (job, progress) => {
+  logger.info(`Job ${job.id} is ${progress}% complete`);
 });
