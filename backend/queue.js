@@ -1,21 +1,17 @@
 import Queue from 'bull';
+import Redis from 'ioredis';
 import scrapeListings from './scrape-listings/scrape-listings.js';
 import logger from './logger-backend.js';
-import dotenv from 'dotenv';
 
-dotenv.config();
+const redis = new Redis(process.env.REDIS_URL);
 
-const url = process.env.REDIS_URL;
-const queueOptions = {
+const myQueue = new Queue('myQueue', {
 	redis: {
-		socket: {
-			tls: true,
-			rejectUnauthorized: false,
-		},
+		host: redis.options.host,
+		port: redis.options.port,
+		password: redis.options.password,
 	},
-};
-
-const myQueue = new Queue('myQueue', url, queueOptions);
+});
 
 myQueue.process(async (job) => {
 	const { keywords, objConfig } = job.data;
@@ -42,3 +38,12 @@ myQueue.on('progress', (job, progress) => {
 });
 
 export default myQueue;
+
+const queueOptions = {
+	redis: {
+		socket: {
+			tls: true,
+			rejectUnauthorized: false,
+		},
+	},
+};
