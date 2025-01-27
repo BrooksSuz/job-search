@@ -38,12 +38,3 @@ myQueue.on('progress', (job, progress) => {
 });
 
 export default myQueue;
-
-const queueOptions = {
-	redis: {
-		socket: {
-			tls: true,
-			rejectUnauthorized: false,
-		},
-	},
-};
