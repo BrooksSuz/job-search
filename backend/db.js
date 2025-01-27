@@ -7,7 +7,6 @@ dotenv.config();
 
 const uri = process.env.MONGO_URI;
 const db = process.env.DB;
-const environment = process.env.NODE_ENV;
 
 async function connectToDb() {
 	try {

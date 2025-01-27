@@ -82,7 +82,6 @@ const consumeAPI = async (inputKeywordsValue, objConfig) => {
 		while (!jobCompleted) {
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 
-			console.log(jobId);
 			const statusResponse = await fetch(`/api/listings/status/${jobId}`);
 			if (!statusResponse.ok) throw new Error('Failed to retrieve job status');
 
