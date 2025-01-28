@@ -21,13 +21,11 @@ import cors from 'cors';
 import myQueue from './queue.js';
 import http from 'http';
 import { WebSocketServer } from 'ws';
-import scrapeListings from './scrape-listings/scrape-listings.js';
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
-const wsPort = process.env.PORT || 3001;
 const fileName = fileURLToPath(import.meta.url);
 const dirName = path.dirname(fileName);
 const secret = process.env.SECRET;
@@ -35,13 +33,13 @@ const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
 const clients = [];
 
-server.listen(wsPort, () => {
-  logger.info(`Server is listening on port ${wsPort}`);
+server.listen(port, () => {
+  logger.info(`Server is listening on port ${port}`);
 });
 
 wss.on('connection', (ws) => {
 	clients.push(ws);
-	logger.info(`New client connected. wsPort: ${wsPort}`);
+	logger.info(`New client connected. port: ${port}`);
 
 	ws.on('message', async (message) => {
     logger.info(`Received: ${message}`);
@@ -252,44 +250,4 @@ process.on('SIGTERM', () => {
 			process.exit(0);
 		});
 	});
-});
-
-myQueue.process(async (job) => {
-	const { keywords, objConfig } = job.data;
-
-	try {
-		logger.info(`Processing job ${job.id} with keywords: ${keywords}`);
-		const listings = await scrapeListings(keywords, objConfig);
-		return listings;
-	} catch (err) {
-		logger.error(`Error processing job ${job.id}:\n${err}`);
-		throw new Error('Job processing failed');
-	}
-});
-
-myQueue.on('completed', (job, result) => {
-	logger.info(`Job ${job.id} completed successfully.`);
-	clients.forEach((client) => {
-		if (client.readyState === 1) {
-			logger.info(`Sending completion message to client for job ${job.id}`);
-			client.send(
-				JSON.stringify({ jobId: job.id, status: 'completed', result })
-			);
-		}
-	});
-});
-
-myQueue.on('failed', (job, err) => {
-	logger.error(`Job ${job.id} failed with error: ${err.message}`);
-	clients.forEach((client) => {
-		if (client.readyState === 1) {
-			client.send(
-				JSON.stringify({ jobId: job.id, status: 'failed', error: err.message })
-			);
-		}
-	});
-});
-
-myQueue.on('progress', (job, progress) => {
-	logger.info(`Job ${job.id} is ${progress}% complete`);
 });
