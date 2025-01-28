@@ -1,8 +1,10 @@
-import { logMessage } from '../main.js';
+import { cleanUp, logMessage } from '../main.js';
+
+let activeJobs = 0;
 
 async function executeJobSearch(arrConfigs) {
 	// Loop through each config
-	for (const objConfig of arrConfigs) {
+	for (const [index, objConfig] of arrConfigs.entries()) {
 		const inputsAdvanced = document.querySelectorAll(
 			'.advanced-container > label input'
 		);
@@ -60,20 +62,37 @@ const createNewConfig = (arrConfigKeys, inputsAdvanced) => {
 	return newConfig;
 };
 
-const socket = new WebSocket(process.env.HEROKU_URL);
+const ws = new WebSocket('ws://localhost:3001');
 
-socket.addEventListener('message', async (e) => {
+ws.addEventListener('message', async (e) => {
 	const data = JSON.parse(e.data);
-	if (data.status === 'failed')
+	if (data.status === 'failed') {
 		await logMessage(
 			'error',
 			`Job ${data.jobId} failed with error: ${data.error}`
 		);
+	} else if (data.status === 'completed') {
+			const parser = new DOMParser();
+			const htmlDoc = parser.parseFromString(data.result, 'text/html');
+
+			let divListings = document.querySelector('.listings');
+			if (!divListings) {
+				const divMain = document.querySelector('.main-container');
+				const footer = document.querySelector('footer');
+				divListings = document.createElement('div');
+				divListings.classList.add('listings', 'flex');
+				divMain.insertBefore(divListings, footer);
+			}
+
+		divListings.appendChild(htmlDoc.body.firstChild);
+		activeJobs--;
+		if (activeJobs === 0) cleanUp();
+	}
 });
 
 const consumeAPI = async (inputKeywordsValue, objConfig) => {
 	try {
-		const response = await fetch('api/listings', {
+		await fetch('api/listings', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -82,42 +101,9 @@ const consumeAPI = async (inputKeywordsValue, objConfig) => {
 				keywords: inputKeywordsValue,
 				objConfig,
 			}),
+		}).then(() => {
+			activeJobs++;
 		});
-
-		if (!response.ok) throw new Error('Failed to add job to the queue');
-
-		const { jobId } = await response.json();
-
-		let jobCompleted = false;
-		let jobResult = null;
-		while (!jobCompleted) {
-			await new Promise((resolve) => setTimeout(resolve, 1000));
-
-			const statusResponse = await fetch(`/api/listings/status/${jobId}`);
-			if (!statusResponse.ok) throw new Error('Failed to retrieve job status');
-
-			const jobStatus = await statusResponse.json();
-
-			if (jobStatus.status === 'completed') {
-				jobCompleted = true;
-				jobResult = jobStatus.result;
-			} else if (jobStatus.status === 'failed')
-				throw new Error(`Job failed: ${jobStatus.error}`);
-		}
-
-		const parser = new DOMParser();
-		const htmlDoc = parser.parseFromString(jobResult, 'text/html');
-
-		let divListings = document.querySelector('.listings');
-		if (!divListings) {
-			const divMain = document.querySelector('.main-container');
-			const footer = document.querySelector('footer');
-			divListings = document.createElement('div');
-			divListings.classList.add('listings', 'flex');
-			divMain.insertBefore(divListings, footer);
-		}
-
-		divListings.appendChild(htmlDoc.body.firstChild);
 	} catch (err) {
 		await logMessage('error', err.message);
 	}

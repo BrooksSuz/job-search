@@ -27,6 +27,7 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
+const wsPort = process.env.PORT || 3001;
 const fileName = fileURLToPath(import.meta.url);
 const dirName = path.dirname(fileName);
 const secret = process.env.SECRET;
@@ -36,11 +37,13 @@ const clients = [];
 
 wss.on('connection', (ws) => {
 	clients.push(ws);
-	logger.info('New client connected');
+	logger.info(`New client connected. wsPort: ${wsPort}`);
 
-	ws.on('message', (message) => {
-		logger.info(`Received: ${message}`);
-	});
+	ws.on('message', async (message) => {
+    logger.info(`Received: ${message}`);
+		const job = await myQueue.add({ apiCallData: message });
+		ws.send(`Job added with ID: ${job.id}`);
+  });
 
 	ws.on('close', () => {
 		logger.info('Client disconnected');
@@ -49,8 +52,8 @@ wss.on('connection', (ws) => {
 	});
 });
 
-server.listen(port, () => {
-	logger.info(`Server is listening on port ${port}`);
+server.listen(wsPort, () => {
+	logger.info(`Server is listening on port ${wsPort}`);
 });
 
 // Connect to the database
@@ -142,32 +145,6 @@ app.post('/api/listings', async (req, res) => {
 	} catch (err) {
 		logger.error(`Error in request /api/listings:\n${err}`);
 		res.status(500).json({ error: 'Failed to add job to the queue.' });
-	}
-});
-
-app.get('/api/listings/status/:jobId', async (req, res) => {
-	const { jobId } = req.params;
-
-	try {
-		const job = await myQueue.getJob(jobId);
-
-		if (!job) return res.status(404).json({ error: 'Job not found' });
-
-		const jobStatus = {
-			id: job.id,
-			status: (await job.finished())
-				? 'completed'
-				: job.isFailed
-				? 'failed'
-				: 'waiting',
-			result: (await job.finished()) ? await job.finished() : null,
-			error: job.isFailed ? job.failedReason : null,
-		};
-
-		res.json(jobStatus);
-	} catch (err) {
-		logger.error(`Error in request /api/listings/status/${jobId}:\n${err}`);
-		res.status(500).json({ error: 'Failed to retrieve job status.' });
 	}
 });
 
@@ -278,15 +255,17 @@ process.on('SIGTERM', () => {
 });
 
 app.listen(port, () => {
-	logger.info(`\nServer running at: http://localhost:${port}`);
+	logger.info(
+    `\nServer running at: http://localhost:${port}`
+  );
 });
 
 myQueue.process(async (job) => {
 	const { keywords, objConfig } = job.data;
 
 	try {
-		const listings = await scrapeListings(keywords, objConfig);
 		logger.info(`Processing job ${job.id} with keywords: ${keywords}`);
+		const listings = await scrapeListings(keywords, objConfig);
 		return listings;
 	} catch (err) {
 		logger.error(`Error processing job ${job.id}:\n${err}`);
@@ -295,9 +274,9 @@ myQueue.process(async (job) => {
 });
 
 myQueue.on('completed', (job, result) => {
-	logger.info(`Job ${job.id} completed successfully with result: ${result}`);
+	logger.info(`Job ${job.id} completed successfully.`);
 	clients.forEach((client) => {
-		if (client.readyState === WebSocket.OPEN) {
+		if (client.readyState === 1) {
 			logger.info(`Sending completion message to client for job ${job.id}`);
 			client.send(
 				JSON.stringify({ jobId: job.id, status: 'completed', result })
@@ -309,7 +288,7 @@ myQueue.on('completed', (job, result) => {
 myQueue.on('failed', (job, err) => {
 	logger.error(`Job ${job.id} failed with error: ${err.message}`);
 	clients.forEach((client) => {
-		if (client.readyState === WebSocket.OPEN) {
+		if (client.readyState === 1) {
 			client.send(
 				JSON.stringify({ jobId: job.id, status: 'failed', error: err.message })
 			);

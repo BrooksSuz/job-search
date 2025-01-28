@@ -1,6 +1,4 @@
 import Queue from 'bull';
-import scrapeListings from './scrape-listings/scrape-listings.js';
-import logger from './logger-backend.js';
 import dotenv from 'dotenv';
 
 dotenv.config();

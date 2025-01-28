@@ -44,8 +44,8 @@ const formatArguments = (strSearchTerms) =>
 
 const createBrowser = () =>
 	puppeteer
-		.launch({
-			args: ['--no-sandbox', '--disable-setuid-sandbox', '--incognito'],
+		.launch({ headless: false
+			/* args: ['--no-sandbox', '--disable-setuid-sandbox', '--incognito'] */,
 		})
 		.catch((err) => {
 			throwErrorAndHalt(err, 'createBrowser');

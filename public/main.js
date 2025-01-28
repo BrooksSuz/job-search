@@ -94,19 +94,11 @@ async function handleListingsClick() {
 
 		// Alphabetize and run job search
 		const arrAlphabetizedConfigs = alphabetizeConfigs(arrConfigs);
-		await executeJobSearch(arrAlphabetizedConfigs).finally(() => {
-			cleanUpDOM(
-				spanSpinner,
-				stopSpinner,
-				spanBtnListingsText,
-				btnGetListings,
-				inputsAdvanced
-			);
+		await executeJobSearch(arrAlphabetizedConfigs);
 
-			// Send mail
-			// TODO: Figure out what to do with this (it works)
-			// sendListingsHTML();
-		});
+		// Send mail
+		// TODO: Figure out what to do with this (it works)
+		// sendListingsHTML();
 	} catch (err) {
 		await logMessage('error', err.message);
 	}
@@ -347,6 +339,18 @@ const cleanUpDOM = (
 	});
 };
 
+const cleanUp = () => {
+	const spanSpinner = document.querySelector('.spinner');
+	const stopSpinner = startSpinner(spanSpinner);
+	const spanBtnListingsText = document.querySelector('.get-listings-text');
+	const btnGetListings = document.querySelector('.get-listings');
+	const inputsAdvanced = document.querySelectorAll(
+    '.advanced-container > label input'
+	);
+	
+	cleanUpDOM(spanSpinner, stopSpinner, spanBtnListingsText, btnGetListings, inputsAdvanced);
+};
+
 const fetchPremade = async () => {
 	try {
 		const response = await fetch('/api/premade-configs');
@@ -412,4 +416,4 @@ const startSpinner = (spanSpinner) => {
 	return () => clearInterval(spinnerInterval);
 };
 
-export { btnLogin, btnRegister, logMessage };
+export { btnLogin, btnRegister, cleanUp, logMessage };
