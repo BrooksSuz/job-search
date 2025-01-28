@@ -62,7 +62,8 @@ const createNewConfig = (arrConfigKeys, inputsAdvanced) => {
 	return newConfig;
 };
 
-const ws = new WebSocket('ws://localhost:3001');
+const HOST = location.origin.replace(/^http/, 'ws') || 'ws://localhost:3001';
+const ws = new WebSocket(HOST);
 
 ws.addEventListener('message', async (e) => {
 	const data = JSON.parse(e.data);
