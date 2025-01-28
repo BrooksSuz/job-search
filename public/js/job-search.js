@@ -60,10 +60,7 @@ const createNewConfig = (arrConfigKeys, inputsAdvanced) => {
 	return newConfig;
 };
 
-const socket = new WebSocket(
-	'ws://localhost:3001'
-	/* process.env.HEROKU_URL */
-);
+const socket = new WebSocket(process.env.HEROKU_URL);
 
 socket.addEventListener('message', async (e) => {
 	const data = JSON.parse(e.data);
