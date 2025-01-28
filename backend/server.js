@@ -35,6 +35,10 @@ const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
 const clients = [];
 
+server.listen(wsPort, () => {
+  logger.info(`Server is listening on port ${wsPort}`);
+});
+
 wss.on('connection', (ws) => {
 	clients.push(ws);
 	logger.info(`New client connected. wsPort: ${wsPort}`);
@@ -50,10 +54,6 @@ wss.on('connection', (ws) => {
 		const index = clients.indexOf(ws);
 		if (index !== -1) clients.splice(index, 1);
 	});
-});
-
-server.listen(wsPort, () => {
-	logger.info(`Server is listening on port ${wsPort}`);
 });
 
 // Connect to the database
@@ -252,12 +252,6 @@ process.on('SIGTERM', () => {
 			process.exit(0);
 		});
 	});
-});
-
-app.listen(port, () => {
-	logger.info(
-    `\nServer running at: http://localhost:${port}`
-  );
 });
 
 myQueue.process(async (job) => {
