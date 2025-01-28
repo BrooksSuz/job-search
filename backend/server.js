@@ -20,28 +20,27 @@ import logger from './logger-backend.js';
 import cors from 'cors';
 import myQueue from './queue.js';
 import http from 'http';
-import { WebSocketServer, WebSocket } from 'ws';
+import { Server } from 'ws';
 import scrapeListings from './scrape-listings/scrape-listings.js';
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
-// const wsPort = process.env.PORT || 3001;
+const wsPort = process.env.PORT || 3001;
 const fileName = fileURLToPath(import.meta.url);
 const dirName = path.dirname(fileName);
 const secret = process.env.SECRET;
 const server = http.createServer(app);
+const wss = new Server({ server });
 const clients = [];
-const wss = new WebSocketServer({ server });
 
 wss.on('connection', (ws) => {
-	logger.info('New client connected');
 	clients.push(ws);
+	logger.info('New client connected');
 
 	ws.on('message', (message) => {
 		logger.info(`Received: ${message}`);
-		ws.send(`You said: ${message}`);
 	});
 
 	ws.on('close', () => {
@@ -51,9 +50,9 @@ wss.on('connection', (ws) => {
 	});
 });
 
-/* server.listen(wsPort, () => {
+server.listen(wsPort, () => {
 	logger.info(`Server is listening on port ${wsPort}`);
-}); */
+});
 
 // Connect to the database
 connectToDb();
