@@ -20,7 +20,7 @@ import logger from './logger-backend.js';
 import cors from 'cors';
 import myQueue from './queue.js';
 import http from 'http';
-import { Server } from 'ws';
+import { WebSocketServer } from 'ws';
 import scrapeListings from './scrape-listings/scrape-listings.js';
 
 dotenv.config();
@@ -32,7 +32,7 @@ const fileName = fileURLToPath(import.meta.url);
 const dirName = path.dirname(fileName);
 const secret = process.env.SECRET;
 const server = http.createServer(app);
-const wss = new Server({ server });
+const wss = new WebSocketServer({ server });
 const clients = [];
 
 wss.on('connection', (ws) => {
