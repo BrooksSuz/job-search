@@ -27,7 +27,6 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
-const wsPort = process.env.PORT || 3001;
 const fileName = fileURLToPath(import.meta.url);
 const dirName = path.dirname(fileName);
 const secret = process.env.SECRET;
@@ -50,8 +49,8 @@ wss.on('connection', (ws) => {
 	});
 });
 
-server.listen(wsPort, () => {
-	logger.info(`Server is listening on port ${wsPort}`);
+server.listen(port, () => {
+	logger.info(`Server is listening on port ${port}`);
 });
 
 // Connect to the database
