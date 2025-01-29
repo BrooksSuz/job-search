@@ -7,7 +7,11 @@ import logger from './logger-backend.js';
 dotenv.config();
 
 const redisUrl = `redis://${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`;
-const userQueue = new Queue('myQueue1', redisUrl);
+const userQueue = new Queue('userQueue', redisUrl, {
+  defaultJobOptions: {
+    timeout: 300000,
+  },
+});
 
 userQueue.process(async (job) => {
 	const { keywords, objConfig } = job.data;
