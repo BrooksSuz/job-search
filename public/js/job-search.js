@@ -62,11 +62,17 @@ const createNewConfig = (arrConfigKeys, inputsAdvanced) => {
 	return newConfig;
 };
 
-const HOST = location.origin.replace(/^http/, 'ws') || 'ws://localhost:3001';
+const HOST =
+	/* location.origin.replace(/^http/, 'ws') || */ 'ws://localhost:3001';
 const ws = new WebSocket(HOST);
+
+ws.addEventListener('open', () => {
+	console.log('WebSocket connection established');
+});
 
 ws.addEventListener('message', async (e) => {
 	const data = JSON.parse(e.data);
+	console.log(data);
 	if (data.status === 'failed') {
 		await logMessage(
 			'error',

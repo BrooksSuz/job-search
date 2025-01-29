@@ -33,25 +33,23 @@ const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
 const clients = [];
 
-server.listen(port, () => {
-  logger.info(`Server is listening on port ${port}`);
-});
-
 wss.on('connection', (ws) => {
 	clients.push(ws);
-	logger.info(`New client connected. port: ${port}`);
+	logger.info('New client connected');
 
-	ws.on('message', async (message) => {
-    logger.info(`Received: ${message}`);
-		const job = await myQueue.add({ apiCallData: message });
-		ws.send(`Job added with ID: ${job.id}`);
-  });
+	ws.on('message', (message) => {
+		logger.info(`Received: ${message}`);
+	});
 
 	ws.on('close', () => {
 		logger.info('Client disconnected');
 		const index = clients.indexOf(ws);
 		if (index !== -1) clients.splice(index, 1);
 	});
+});
+
+server.listen(3001, () => {
+	logger.info(`Server is listening on port ${port}`);
 });
 
 // Connect to the database
@@ -251,3 +249,9 @@ process.on('SIGTERM', () => {
 		});
 	});
 });
+
+app.listen(port, () => {
+	logger.info(`\nServer running at: http://localhost:${port}`);
+});
+
+export { clients };
