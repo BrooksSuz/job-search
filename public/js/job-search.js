@@ -62,7 +62,7 @@ const createNewConfig = (arrConfigKeys, inputsAdvanced) => {
 	return newConfig;
 };
 
-const HOST = location.origin.replace(/^http/, 'ws') || 'ws://localhost:3001';
+const HOST = location.origin.replace(/^http/, 'wss') || 'ws://localhost:3001';
 const ws = new WebSocket(HOST);
 
 ws.addEventListener('message', async (e) => {
@@ -73,17 +73,17 @@ ws.addEventListener('message', async (e) => {
 			`Job ${data.jobId} failed with error: ${data.error}`
 		);
 	} else if (data.status === 'completed') {
-			const parser = new DOMParser();
-			const htmlDoc = parser.parseFromString(data.result, 'text/html');
+		const parser = new DOMParser();
+		const htmlDoc = parser.parseFromString(data.result, 'text/html');
 
-			let divListings = document.querySelector('.listings');
-			if (!divListings) {
-				const divMain = document.querySelector('.main-container');
-				const footer = document.querySelector('footer');
-				divListings = document.createElement('div');
-				divListings.classList.add('listings', 'flex');
-				divMain.insertBefore(divListings, footer);
-			}
+		let divListings = document.querySelector('.listings');
+		if (!divListings) {
+			const divMain = document.querySelector('.main-container');
+			const footer = document.querySelector('footer');
+			divListings = document.createElement('div');
+			divListings.classList.add('listings', 'flex');
+			divMain.insertBefore(divListings, footer);
+		}
 
 		divListings.appendChild(htmlDoc.body.firstChild);
 		activeJobs--;
