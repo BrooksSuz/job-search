@@ -18,39 +18,20 @@ import Site from './schemas/Site.js';
 import User from './schemas/User.js';
 import logger from './logger-backend.js';
 import cors from 'cors';
-import myQueue from './queue.js';
-import http from 'http';
+import userQueue from './queue.js';
 import { WebSocketServer } from 'ws';
+import http from 'http';
 
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
+const SECRET = process.env.SECRET;
 const fileName = fileURLToPath(import.meta.url);
 const dirName = path.dirname(fileName);
-const secret = process.env.SECRET;
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
 const clients = [];
-
-wss.on('connection', (ws) => {
-	clients.push(ws);
-	logger.info('New client connected');
-
-	ws.on('message', (message) => {
-		logger.info(`Received: ${message}`);
-	});
-
-	ws.on('close', () => {
-		logger.info('Client disconnected');
-		const index = clients.indexOf(ws);
-		if (index !== -1) clients.splice(index, 1);
-	});
-});
-
-server.listen(3001, () => {
-	logger.info(`Server is listening on port ${port}`);
-});
 
 // Connect to the database
 connectToDb();
@@ -64,7 +45,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
 	session({
-		secret: secret,
+		secret: SECRET,
 		resave: false,
 		saveUninitialized: false,
 		cookie: {
@@ -134,8 +115,8 @@ app.get('/api/premade-configs', async (req, res) => {
 
 app.post('/api/listings', async (req, res) => {
 	try {
-		const { keywords, objConfig } = req.body;
-		const job = await myQueue.add({ keywords, objConfig });
+		const { keywords, objConfig, userIp } = req.body;
+		const job = await userQueue.add({ keywords, objConfig, userIp });
 		logger.info(`Job added to queue: ${job.id}`);
 		res.json({ jobId: job.id });
 	} catch (err) {
@@ -239,19 +220,34 @@ app.delete('/api/delete-user', async (req, res) => {
 	}
 });
 
-process.on('SIGTERM', () => {
-	logger.info('SIGTERM received. Closing server...');
-	app.close(() => {
-		logger.info('Server closed.');
-		mongoose.connection.close(() => {
-			logger.info('MongoDB connection closed.');
-			process.exit(0);
-		});
-	});
+server.listen(PORT, () => {
+  logger.info(`\nServer running at: http://localhost:${PORT}`);
 });
 
-app.listen(port, () => {
-	logger.info(`\nServer running at: http://localhost:${port}`);
+wss.on('connection', (ws) => {
+  clients.push(ws);
+  logger.info('New client connected');
+
+  ws.on('message', (message) => {
+    logger.info(`Received: ${message}`);
+  });
+
+  ws.on('close', () => {
+    logger.info('Client disconnected');
+    const index = clients.indexOf(ws);
+    if (index !== -1) clients.splice(index, 1);
+  });
+});
+
+process.on('SIGTERM', () => {
+  logger.info('SIGTERM received. Closing server...');
+  app.close(() => {
+    logger.info('Server closed.');
+    mongoose.connection.close(() => {
+      logger.info('MongoDB connection closed.');
+      process.exit(0);
+    });
+  });
 });
 
 export { clients };

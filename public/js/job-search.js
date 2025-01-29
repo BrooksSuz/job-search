@@ -4,7 +4,7 @@ let activeJobs = 0;
 
 async function executeJobSearch(arrConfigs) {
 	// Loop through each config
-	for (const [index, objConfig] of arrConfigs.entries()) {
+	for (const objConfig of arrConfigs) {
 		const inputsAdvanced = document.querySelectorAll(
 			'.advanced-container > label input'
 		);
@@ -62,43 +62,9 @@ const createNewConfig = (arrConfigKeys, inputsAdvanced) => {
 	return newConfig;
 };
 
-const HOST =
-	/* location.origin.replace(/^http/, 'ws') || */ 'ws://localhost:3001';
-const ws = new WebSocket(HOST);
-
-ws.addEventListener('open', () => {
-	console.log('WebSocket connection established');
-});
-
-ws.addEventListener('message', async (e) => {
-	const data = JSON.parse(e.data);
-	if (data.status === 'failed') {
-		await logMessage(
-			'error',
-			`Job ${data.jobId} failed with error: ${data.error}`
-		);
-	} else if (data.status === 'completed') {
-		const parser = new DOMParser();
-		const htmlDoc = parser.parseFromString(data.result, 'text/html');
-
-		let divListings = document.querySelector('.listings');
-		if (!divListings) {
-			const divMain = document.querySelector('.main-container');
-			const footer = document.querySelector('footer');
-			divListings = document.createElement('div');
-			divListings.classList.add('listings', 'flex');
-			divMain.insertBefore(divListings, footer);
-		}
-
-		divListings.appendChild(htmlDoc.body.firstChild);
-		activeJobs--;
-		if (activeJobs === 0) cleanUp();
-	}
-});
-
 const consumeAPI = async (inputKeywordsValue, objConfig) => {
 	try {
-		await fetch('api/listings', {
+		const response = await fetch('api/listings', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -107,12 +73,42 @@ const consumeAPI = async (inputKeywordsValue, objConfig) => {
 				keywords: inputKeywordsValue,
 				objConfig,
 			}),
-		}).then(() => {
-			activeJobs++;
 		});
+
+		const { jobId } = await response.json();
+		activeJobs++;
 	} catch (err) {
 		await logMessage('error', err.message);
 	}
 };
+
+const HOST = location.origin.replace(/^http/, 'ws');
+const ws = new WebSocket(HOST);
+
+ws.addEventListener('message', async (e) => {
+  const data = JSON.parse(e.data);
+  if (data.status === 'failed') {
+    await logMessage(
+      'error',
+      `Job ${data.jobId} failed with error: ${data.error}`
+    );
+  } else if (data.status === 'completed') {
+    const parser = new DOMParser();
+    const htmlDoc = parser.parseFromString(data.result, 'text/html');
+
+    let divListings = document.querySelector('.listings');
+    if (!divListings) {
+      const divMain = document.querySelector('.main-container');
+      const footer = document.querySelector('footer');
+      divListings = document.createElement('div');
+      divListings.classList.add('listings', 'flex');
+      divMain.insertBefore(divListings, footer);
+    }
+
+    divListings.appendChild(htmlDoc.body.firstChild);
+    activeJobs--;
+		if (activeJobs === 0) cleanUp();
+  }
+});
 
 export default executeJobSearch;

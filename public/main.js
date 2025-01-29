@@ -70,25 +70,13 @@ async function handleListingsClick() {
 		input.disabled = true;
 	});
 
-	// Replace button text with spinner animation
-	const spanBtnListingsText = document.querySelector('.get-listings-text');
-	spanBtnListingsText.style.display = 'none';
-	const spanSpinner = document.querySelector('.spinner');
-	const stopSpinner = startSpinner(spanSpinner);
-
 	try {
 		// Get configs from database
 		const arrConfigs = await fetchUserCreated();
 
 		// Guard clause: No provided configs
 		if (!arrConfigs.length) {
-			cleanUpDOM(
-				spanSpinner,
-				stopSpinner,
-				spanBtnListingsText,
-				btnGetListings,
-				inputsAdvanced
-			);
+			cleanUp();
 			return;
 		}
 
@@ -321,15 +309,11 @@ const changeSelectElement = (arrSites) => {
 };
 
 const cleanUpDOM = (
-	spanSpinner,
-	stopSpinner,
 	spanBtnListingsText,
 	btnGetListings,
 	inputsAdvanced
 ) => {
-	// Remove/stop the spinner and display original text
-	spanSpinner.classList.remove('show');
-	stopSpinner();
+	// Display original text
 	spanBtnListingsText.style.display = 'inline';
 
 	// Re-enable search elements
@@ -340,15 +324,13 @@ const cleanUpDOM = (
 };
 
 const cleanUp = () => {
-	const spanSpinner = document.querySelector('.spinner');
-	const stopSpinner = startSpinner(spanSpinner);
 	const spanBtnListingsText = document.querySelector('.get-listings-text');
 	const btnGetListings = document.querySelector('.get-listings');
 	const inputsAdvanced = document.querySelectorAll(
     '.advanced-container > label input'
 	);
 	
-	cleanUpDOM(spanSpinner, stopSpinner, spanBtnListingsText, btnGetListings, inputsAdvanced);
+	cleanUpDOM(spanBtnListingsText, btnGetListings, inputsAdvanced);
 };
 
 const fetchPremade = async () => {
@@ -383,22 +365,6 @@ const fetchUserCreated = async () => {
 	}
 };
 
-const sendListingsHTML = async () => {
-	const divListings = document.querySelector('.listings');
-	const divToString = divListings.outerHTML;
-	try {
-		const response = await fetch(`/api/listings-mail`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({ html: divToString }),
-		});
-	} catch (err) {
-		await logMessage('error', err.message);
-	}
-};
-
 const setLocalItem = (strKey, strValue) => {
 	localStorage.setItem(strKey, JSON.stringify(strValue));
 };
@@ -414,6 +380,22 @@ const startSpinner = (spanSpinner) => {
 	}, 90);
 
 	return () => clearInterval(spinnerInterval);
+};
+
+const sendListingsHTML = async () => {
+  const divListings = document.querySelector('.listings');
+  const divToString = divListings.outerHTML;
+  try {
+    const response = await fetch(`/api/listings-mail`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ html: divToString }),
+    });
+  } catch (err) {
+    await logMessage('error', err.message);
+  }
 };
 
 export { btnLogin, btnRegister, cleanUp, logMessage };

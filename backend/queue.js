@@ -1,18 +1,18 @@
 import Queue from 'bull';
 import dotenv from 'dotenv';
 import scrapeListings from './scrape-listings/scrape-listings.js';
-import logger from './logger-backend.js';
 import { clients } from './server.js';
+import logger from './logger-backend.js';
+
 dotenv.config();
 
 const redisUrl = `redis://${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`;
-const myQueue = new Queue('myQueue', redisUrl);
+const userQueue = new Queue('myQueue1', redisUrl);
 
-myQueue.process(async (job) => {
+userQueue.process(async (job) => {
 	const { keywords, objConfig } = job.data;
 
 	try {
-		logger.info(`Processing job ${job.id} with keywords: ${keywords}`);
 		const listings = await scrapeListings(keywords, objConfig);
 		return listings;
 	} catch (err) {
@@ -21,11 +21,9 @@ myQueue.process(async (job) => {
 	}
 });
 
-myQueue.on('completed', (job, result) => {
-	logger.info(`Job ${job.id} completed successfully.`);
+userQueue.on('completed', (job, result) => {
 	clients.forEach((client) => {
 		if (client.readyState === 1) {
-			logger.info(`Sending completion message to client for job ${job.id}`);
 			client.send(
 				JSON.stringify({ jobId: job.id, status: 'completed', result })
 			);
@@ -33,8 +31,7 @@ myQueue.on('completed', (job, result) => {
 	});
 });
 
-myQueue.on('failed', (job, err) => {
-	logger.error(`Job ${job.id} failed with error: ${err.message}`);
+userQueue.on('failed', (job, err) => {
 	clients.forEach((client) => {
 		if (client.readyState === 1) {
 			client.send(
@@ -44,8 +41,4 @@ myQueue.on('failed', (job, err) => {
 	});
 });
 
-myQueue.on('progress', (job, progress) => {
-	logger.info(`Job ${job.id} is ${progress}% complete`);
-});
-
-export default myQueue;
+export default userQueue;
