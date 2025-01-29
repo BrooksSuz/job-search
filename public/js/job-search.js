@@ -62,7 +62,7 @@ const createNewConfig = (arrConfigKeys, inputsAdvanced) => {
 	return newConfig;
 };
 
-const HOST = location.origin.replace(/^http/, 'wss') || 'ws://localhost:3001';
+const HOST = location.origin.replace(/^http/, 'ws') || 'ws://localhost:3001';
 const ws = new WebSocket(HOST);
 
 ws.addEventListener('message', async (e) => {
