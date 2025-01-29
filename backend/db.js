@@ -22,7 +22,6 @@ async function connectToDb() {
 
 async function getPremadeConfigs() {
 	const arrPremade = [
-		'6757a5bfe3bdb76056b5beae',
 		'678e55b17462695271c1a2bb',
 		'6757a5bfe3bdb76056b5bead',
 	];
