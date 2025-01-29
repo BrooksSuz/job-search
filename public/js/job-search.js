@@ -72,7 +72,6 @@ ws.addEventListener('open', () => {
 
 ws.addEventListener('message', async (e) => {
 	const data = JSON.parse(e.data);
-	console.log(data);
 	if (data.status === 'failed') {
 		await logMessage(
 			'error',
