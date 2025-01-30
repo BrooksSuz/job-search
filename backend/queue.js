@@ -15,13 +15,6 @@ const userQueue = new Queue('userQueue', redisUrl, {
 
 userQueue.process(async (job) => {
 	const { keywords, objConfig } = job.data;
-	const heartbeatInterval = setInterval(async () => {
-		try {
-			await job.update({ progress: { status: 'running' } });
-		} catch (err) {
-			logger.error(`Error updating job ${job.id} progress: \n${err}`);
-		}
-	}, 10000);
 
 	try {
 		const listings = await scrapeListings(keywords, objConfig);
@@ -29,8 +22,6 @@ userQueue.process(async (job) => {
 	} catch (err) {
 		logger.error(`Error processing job ${job.id}:\n${err}`);
 		throw new Error('Job processing failed');
-	} finally {
-		clearInterval(heartbeatInterval);
 	}
 });
 
