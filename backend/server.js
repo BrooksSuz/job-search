@@ -116,7 +116,10 @@ app.get('/api/premade-configs', async (req, res) => {
 app.post('/api/listings', async (req, res) => {
 	try {
 		const { keywords, objConfig, userIp } = req.body;
-		const job = await userQueue.add({ keywords, objConfig, userIp });
+		const job = await userQueue.add(
+			{ keywords, objConfig, userIp },
+			{ removeOnComplete: true, removeOnFail: true },
+		);
 		logger.info(`Job added to queue: ${job.id}`);
 		res.json({ jobId: job.id });
 	} catch (err) {
