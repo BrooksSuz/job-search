@@ -76,6 +76,7 @@ const consumeAPI = async (inputKeywordsValue, objConfig) => {
 		});
 
 		const { jobId } = await response.json();
+		console.log(`Job ${jobId} received.`)
 		activeJobs++;
 	} catch (err) {
 		await logMessage('error', err.message);
@@ -86,8 +87,10 @@ const HOST = location.origin.replace(/^http/, 'ws');
 const ws = new WebSocket(HOST);
 
 ws.addEventListener('message', async (e) => {
-  const data = JSON.parse(e.data);
-  if (data.status === 'failed') {
+	const data = JSON.parse(e.data);
+	if (data.status === 'in progress') {
+		console.log(`Job ${data.jobId} is in progress...`);
+	} else if (data.status === 'failed') {
     await logMessage(
       'error',
       `Job ${data.jobId} failed with error: ${data.error}`

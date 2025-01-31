@@ -7,7 +7,7 @@ import logger from './logger-backend.js';
 dotenv.config();
 
 const redisUrl = `redis://${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`;
-const userQueue = new Queue('userQueue', redisUrl, {
+const userQueue = new Queue('clientQueue', redisUrl, {
   defaultJobOptions: {
     timeout: 300000,
   },
@@ -15,11 +15,23 @@ const userQueue = new Queue('userQueue', redisUrl, {
 
 userQueue.process(async (job) => {
 	const { keywords, objConfig } = job.data;
+	const jobId = job.id;
+	const interval = setInterval(() => {
+		clients.forEach((client) => {
+			if (client.readyState === 1) {
+				client.send(
+					JSON.stringify({ jobId, status: 'in progress' })
+				);
+			}
+		});
+	}, 5000);
 
 	try {
 		const listings = await scrapeListings(keywords, objConfig);
+		clearInterval(interval);
 		return listings;
 	} catch (err) {
+		clearInterval(interval);
 		logger.error(`Error processing job ${job.id}:\n${err}`);
 		throw new Error('Job processing failed');
 	}
