@@ -110,7 +110,10 @@ ws.addEventListener('message', async (e) => {
 
     divListings.appendChild(htmlDoc.body.firstChild);
     activeJobs--;
-		if (activeJobs === 0) cleanUp();
+		if (activeJobs === 0) {
+			cleanUp();
+			console.log('All done!');
+		}
   }
 });
 
