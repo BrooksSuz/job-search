@@ -54,42 +54,50 @@ selectPremade.addEventListener('click', () => {
 	changeButtonState(btnGetJobs, selectPremade);
 });
 
+let spinnerInterval;
 async function handleListingsClick() {
-	// Remove listings container from previous search
-	const divMain = document.querySelector('.main-container');
-	const divListings = document.querySelector('.listings');
-	if (divListings) divMain.removeChild(divListings);
+  // Remove listings container from previous search
+  const divMain = document.querySelector('.main-container');
+  const divListings = document.querySelector('.listings');
+  if (divListings) divMain.removeChild(divListings);
 
-	// Disable search elements
-	const btnGetListings = document.querySelector('.get-listings');
-	const inputsAdvanced = document.querySelectorAll(
-		'.advanced-container > label input'
-	);
-	btnGetListings.disabled = true;
-	inputsAdvanced.forEach((input) => {
-		input.disabled = true;
-	});
+  // Disable search elements
+  const btnGetListings = document.querySelector('.get-listings');
+  const inputsAdvanced = document.querySelectorAll(
+    '.advanced-container > label input'
+  );
+  btnGetListings.disabled = true;
+  inputsAdvanced.forEach((input) => {
+    input.disabled = true;
+  });
 
-	try {
-		// Get configs from database
-		const arrConfigs = await fetchUserCreated();
+  // Replace button text with spinner animation
+	const spanBtnListingsText = document.querySelector('.get-listings-text');
+  if (spanBtnListingsText !== 'none') {
+    spanBtnListingsText.style.display = 'none';
+    startSpinner();
+  }
 
-		// Guard clause: No provided configs
-		if (!arrConfigs.length) {
-			cleanUp();
-			return;
-		}
+  try {
+    // Get configs from database
+    const arrConfigs = await fetchUserCreated();
 
-		// Alphabetize and run job search
-		const arrAlphabetizedConfigs = alphabetizeConfigs(arrConfigs);
-		await executeJobSearch(arrAlphabetizedConfigs);
+    // Guard clause: No provided configs
+    if (!arrConfigs.length) {
+      cleanUp(stopSpinner);
+      return;
+    }
 
-		// Send mail
-		// TODO: Figure out what to do with this (it works)
-		// sendListingsHTML();
-	} catch (err) {
-		await logMessage('error', err.message);
-	}
+    // Alphabetize and run job search
+    const arrAlphabetizedConfigs = alphabetizeConfigs(arrConfigs);
+    await executeJobSearch(arrAlphabetizedConfigs);
+
+    // Send mail
+    // TODO: Figure out what to do with this (it works)
+    // sendListingsHTML();
+  } catch (err) {
+    await logMessage('error', err.message);
+  }
 }
 
 const dealWithLogIn = async (email, password, arrSites = []) => {
@@ -323,6 +331,12 @@ const cleanUpDOM = (
 	});
 };
 
+const stopSpinner = () => {
+  clearInterval(spinnerInterval);
+  const spanSpinner = document.querySelector('.spinner');
+  spanSpinner.classList.remove('show');
+};
+
 const cleanUp = () => {
 	const spanBtnListingsText = document.querySelector('.get-listings-text');
 	const btnGetListings = document.querySelector('.get-listings');
@@ -331,6 +345,7 @@ const cleanUp = () => {
 	);
 	
 	cleanUpDOM(spanBtnListingsText, btnGetListings, inputsAdvanced);
+	stopSpinner();
 };
 
 const fetchPremade = async () => {
@@ -369,12 +384,13 @@ const setLocalItem = (strKey, strValue) => {
 	localStorage.setItem(strKey, JSON.stringify(strValue));
 };
 
-const startSpinner = (spanSpinner) => {
+const startSpinner = () => {
 	const spinnerChars = ['|', '/', '-', '\\'];
+	const spanSpinner = document.querySelector('.spinner');
 	spanSpinner.classList.add('show');
 
 	let i = 0;
-	const spinnerInterval = setInterval(() => {
+	spinnerInterval = setInterval(() => {
 		spanSpinner.textContent = spinnerChars[i];
 		i = (i + 1) % spinnerChars.length;
 	}, 90);
