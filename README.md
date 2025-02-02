@@ -1,5 +1,9 @@
 # Job Search: A Web Scraping Application
 
+## IMPORTANT
+
+VPNs may cause issues. It's encouraged to disable them while using the application.
+
 ## Overview
 
 This project began as a way to simplify the job search process and make it more accessible. The result is a web application that uses Puppeteer, a powerful JavaScript library, to scrape job listings from career pages.
