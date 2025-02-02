@@ -18,7 +18,7 @@ import Site from './schemas/Site.js';
 import User from './schemas/User.js';
 import logger from './logger-backend.js';
 import cors from 'cors';
-import userQueue from './queue.js';
+import createUserQueue from './queue.js';
 import { WebSocketServer } from 'ws';
 import http from 'http';
 
@@ -113,12 +113,14 @@ app.get('/api/premade-configs', async (req, res) => {
 	}
 });
 
+let userQueue = null;
 app.post('/api/listings', async (req, res) => {
 	try {
-		const { keywords, objConfig, userIp } = req.body;
+		const { keywords, objConfig } = req.body;
+		if (!userQueue) userQueue = createUserQueue();
 		const job = await userQueue.add(
-			{ keywords, objConfig, userIp },
-			{ removeOnComplete: true, removeOnFail: true },
+			{ keywords, objConfig },
+			{ removeOnComplete: true, removeOnFail: true }
 		);
 		logger.info(`Job added to queue: ${job.id}`);
 		res.json({ jobId: job.id });
@@ -224,33 +226,33 @@ app.delete('/api/delete-user', async (req, res) => {
 });
 
 server.listen(PORT, () => {
-  logger.info(`\nServer running at: http://localhost:${PORT}`);
+	logger.info(`\nServer running at: http://localhost:${PORT}`);
 });
 
 wss.on('connection', (ws) => {
-  clients.push(ws);
-  logger.info('New client connected');
+	clients.push(ws);
+	logger.info('New client connected');
 
-  ws.on('message', (message) => {
-    logger.info(`Received: ${message}`);
-  });
+	ws.on('message', (message) => {
+		logger.info(`Received: ${message}`);
+	});
 
-  ws.on('close', () => {
-    logger.info('Client disconnected');
-    const index = clients.indexOf(ws);
-    if (index !== -1) clients.splice(index, 1);
-  });
+	ws.on('close', () => {
+		logger.info('Client disconnected');
+		const index = clients.indexOf(ws);
+		if (index !== -1) clients.splice(index, 1);
+	});
 });
 
 process.on('SIGTERM', () => {
-  logger.info('SIGTERM received. Closing server...');
-  app.close(() => {
-    logger.info('Server closed.');
-    mongoose.connection.close(() => {
-      logger.info('MongoDB connection closed.');
-      process.exit(0);
-    });
-  });
+	logger.info('SIGTERM received. Closing server...');
+	app.close(() => {
+		logger.info('Server closed.');
+		mongoose.connection.close(() => {
+			logger.info('MongoDB connection closed.');
+			process.exit(0);
+		});
+	});
 });
 
 export { clients };
