@@ -10,15 +10,16 @@ const redisUrl = `redis://${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST
 
 let lastQueueCreationTime = 0;
 let userQueue = null;
-const createUserQueue = () => {
+const createUserQueue = async () => {
 	const currentTime = Date.now();
 
 	if (!userQueue || currentTime - lastQueueCreationTime > 5000) {
-		const random = `${Math.floor(Math.random() * 1000)}`;
+		const uuid = await fetch('https://www.uuidtools.com/api/generate/v4').then(
+			(res) => res.json()
+		);
+		logger.info(uuid);
 		const queueName =
-			process.env.NODE_ENV === 'production'
-				? `prod-${random}`
-				: `dev-${random}`;
+			process.env.NODE_ENV === 'production' ? `prod-${uuid}` : `dev-${uuid}`;
 
 		userQueue = new Queue(queueName, redisUrl, {
 			defaultJobOptions: {

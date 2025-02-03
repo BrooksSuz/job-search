@@ -117,7 +117,7 @@ let userQueue = null;
 app.post('/api/listings', async (req, res) => {
 	try {
 		const { keywords, objConfig } = req.body;
-		if (!userQueue) userQueue = createUserQueue();
+		if (!userQueue) userQueue = await createUserQueue();
 		const job = await userQueue.add(
 			{ keywords, objConfig },
 			{ removeOnComplete: true, removeOnFail: true }
