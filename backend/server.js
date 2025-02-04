@@ -122,7 +122,7 @@ app.post('/api/listings', async (req, res) => {
 			{ keywords, objConfig },
 			{ removeOnComplete: true, removeOnFail: true }
 		);
-		logger.info(`Job added to queue: ${job.id}`);
+		logger.info(`\nJob added to queue: ${job.id}`);
 		res.json({ jobId: job.id });
 	} catch (err) {
 		logger.error(`Error in request /api/listings:\n${err}`);
