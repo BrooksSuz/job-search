@@ -86,11 +86,23 @@ const consumeAPI = async (inputKeywordsValue, objConfig) => {
 const HOST = location.origin.replace(/^http/, 'ws');
 const ws = new WebSocket(HOST);
 
+ws.addEventListener('open', () => {
+	setInterval(() => {
+		if (ws.readyState === WebSocket.OPEN) ws.send('ping');
+	}, 50000);
+});
+
 ws.addEventListener('message', async (e) => {
+	if (typeof (e.data) === 'string' && e.data === 'pong') {
+		console.log('ping');
+		return;
+	}
+
 	const data = JSON.parse(e.data);
+
 	if (data.status === 'in progress') {
-		console.log(`Job ${data.jobId} is in progress...`);
-	} else if (data.status === 'failed') {
+    console.log(`Job ${data.jobId} is in progress...`);
+  } else if (data.status === 'failed') {
     await logMessage(
       'error',
       `Job ${data.jobId} failed with error: ${data.error}`
@@ -110,10 +122,12 @@ ws.addEventListener('message', async (e) => {
 
     divListings.appendChild(htmlDoc.body.firstChild);
     activeJobs--;
-		if (activeJobs === 0) {
-			cleanUp();
-			console.log('All done!');
-		}
+    if (activeJobs === 0) {
+      cleanUp();
+      console.log('All done!');
+    }
+  } else {
+    console.log(`Received ${data}`);
   }
 });
 

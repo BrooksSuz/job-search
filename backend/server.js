@@ -234,7 +234,11 @@ wss.on('connection', (ws) => {
 	logger.info('New client connected');
 
 	ws.on('message', (message) => {
-		logger.info(`Received: ${message}`);
+		const strMessage = message.toString();
+		if (strMessage === 'ping') {
+			logger.info('pong');
+			ws.send('pong');
+		}
 	});
 
 	ws.on('close', () => {
