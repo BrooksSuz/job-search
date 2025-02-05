@@ -93,11 +93,8 @@ ws.addEventListener('open', () => {
 });
 
 ws.addEventListener('message', async (e) => {
-	if (typeof (e.data) === 'string' && e.data === 'pong') {
-		console.log('ping');
-		return;
-	}
-
+	if (typeof (e.data) === 'string' && e.data === 'pong') return;
+	
 	const data = JSON.parse(e.data);
 
 	if (data.status === 'in progress') {
@@ -126,8 +123,6 @@ ws.addEventListener('message', async (e) => {
       cleanUp();
       console.log('All done!');
     }
-  } else {
-    console.log(`Received ${data}`);
   }
 });
 
