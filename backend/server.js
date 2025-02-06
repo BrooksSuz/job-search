@@ -18,7 +18,7 @@ import Site from './schemas/Site.js';
 import User from './schemas/User.js';
 import logger from './logger-backend.js';
 import cors from 'cors';
-import createUserQueue from './queue.js';
+import userQueue from './worker.js';
 import { WebSocketServer } from 'ws';
 import http from 'http';
 
@@ -113,11 +113,9 @@ app.get('/api/premade-configs', async (req, res) => {
 	}
 });
 
-let userQueue = null;
 app.post('/api/listings', async (req, res) => {
 	try {
 		const { keywords, objConfig } = req.body;
-		if (!userQueue) userQueue = await createUserQueue();
 		const job = await userQueue.add(
 			{ keywords, objConfig },
 			{ removeOnComplete: true, removeOnFail: true }
@@ -248,15 +246,34 @@ wss.on('connection', (ws) => {
 	});
 });
 
-process.on('SIGTERM', () => {
-	logger.info('SIGTERM received. Closing server...');
-	app.close(() => {
-		logger.info('Server closed.');
-		mongoose.connection.close(() => {
-			logger.info('MongoDB connection closed.');
-			process.exit(0);
-		});
-	});
+process.on('SIGINT', async () => {
+  try {
+    await mongoose.connection.close();
+    logger.info('\nMongoose disconnected through app termination');
+    process.exit(0);
+  } catch (err) {
+    logger.error(`\nError closing MongoDB connection: ${err}`);
+    process.exit(1);
+  }
+});
+
+process.on('SIGTERM', async () => {
+  logger.info('\nSIGTERM received. Closing server...');
+  try {
+    app.close();
+    logger.info('\nExpress server set to stop accepting new connections.');
+  } catch (err) {
+    logger.error(`\nError with "close" MongoDB method: ${err}`);
+  }
+
+  try {
+    await mongoose.connection.close();
+    logger.info('\nMongoDB connection closed.');
+    process.exit(0);
+  } catch (err) {
+    logger.error(`\nError closing MongoDB connection: ${err}`);
+    process.exit(1);
+  }
 });
 
 export { clients };

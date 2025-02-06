@@ -78,29 +78,14 @@ mongoose.connection.on('disconnected', () => {
 });
 
 process.on('SIGINT', async () => {
-	try {
-		await mongoose.connection.close();
-		logger.info('\nMongoose disconnected through app termination');
-		process.exit(0);
-	} catch (err) {
-		logger.error(`Error closing MongoDB connection: ${err}`);
-		process.exit(1);
-	}
-});
-
-process.on('SIGTERM', async () => {
-	logger.info('SIGTERM received. Closing server...');
-	app.close(async () => {
-		logger.info('Server closed.');
-		try {
-			await mongoose.connection.close();
-			logger.info('\nMongoDB connection closed.');
-			process.exit(0);
-		} catch (err) {
-			logger.error(`Error closing MongoDB connection: ${err}`);
-			process.exit(1);
-		}
-	});
+  try {
+    await mongoose.connection.close();
+    logger.info('\nMongoose disconnected through app termination');
+    process.exit(0);
+  } catch (err) {
+    logger.error(`\nError closing MongoDB connection: ${err}`);
+    process.exit(1);
+  }
 });
 
 export {
