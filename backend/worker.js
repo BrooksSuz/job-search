@@ -1,7 +1,19 @@
-import userQueue from './queue.js';
+import Queue from 'bull';
+import dotenv from 'dotenv';
 import scrapeListings from './scrape-listings/scrape-listings.js';
 import { clients } from './server.js';
 import logger from './logger-backend.js';
+
+dotenv.config();
+
+const redisUrl = `redis://${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`;
+const queueName =
+  process.env.NODE_ENV === 'production' ? 'prodUserQueue' : 'devUserQueue';
+const userQueue = new Queue(queueName, redisUrl, {
+  defaultJobOptions: {
+    timeout: 300000,
+  },
+});
 
 userQueue.process(20, async (job) => {
   const { keywords, objConfig } = job.data;
@@ -48,5 +60,3 @@ userQueue.on('failed', (job, err) => {
     }
   });
 });
-
-export default userQueue;

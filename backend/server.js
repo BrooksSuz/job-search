@@ -18,7 +18,7 @@ import Site from './schemas/Site.js';
 import User from './schemas/User.js';
 import logger from './logger-backend.js';
 import cors from 'cors';
-import userQueue from './worker.js';
+import Queue from 'bull';
 import { WebSocketServer } from 'ws';
 import http from 'http';
 
@@ -32,6 +32,10 @@ const dirName = path.dirname(fileName);
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
 const clients = [];
+const redisUrl = `redis://${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`;
+const queueName =
+	process.env.NODE_ENV === 'production' ? 'prodUserQueue' : 'devUserQueue';
+const userQueue = new Queue(queueName, redisUrl);
 
 // Connect to the database
 connectToDb();
@@ -113,21 +117,6 @@ app.get('/api/premade-configs', async (req, res) => {
 	}
 });
 
-app.post('/api/listings', async (req, res) => {
-	try {
-		const { keywords, objConfig } = req.body;
-		const job = await userQueue.add(
-			{ keywords, objConfig },
-			{ removeOnComplete: true, removeOnFail: true }
-		);
-		logger.info(`\nJob added to queue: ${job.id}`);
-		res.json({ jobId: job.id });
-	} catch (err) {
-		logger.error(`Error in request /api/listings:\n${err}`);
-		res.status(500).json({ error: 'Failed to add job to the queue.' });
-	}
-});
-
 app.post('/api/user-configs', async (req, res) => {
 	try {
 		const { arrIds } = req.body;
@@ -193,6 +182,21 @@ app.post('/api/remove-config', async (req, res) => {
 	} finally {
 		await session.endSession();
 	}
+});
+
+app.post('/api/listings', async (req, res) => {
+  try {
+    const { keywords, objConfig } = req.body;
+    const job = await userQueue.add(
+      { keywords, objConfig },
+      { removeOnComplete: true, removeOnFail: true }
+    );
+    logger.info(`\nJob added to queue: ${job.id}`);
+    res.json({ jobId: job.id });
+  } catch (err) {
+    logger.error(`Error in request /api/listings:\n${err}`);
+    res.status(500).json({ error: 'Failed to add job to the queue.' });
+  }
 });
 
 app.post('/api/listings-mail', async (req, res) => {
