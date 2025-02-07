@@ -21,7 +21,6 @@ import cors from 'cors';
 import Queue from 'bull';
 import { WebSocketServer } from 'ws';
 import http from 'http';
-import { createClient } from 'redis';
 import Redis from 'ioredis';
 
 dotenv.config();
@@ -33,23 +32,18 @@ const fileName = fileURLToPath(import.meta.url);
 const dirName = path.dirname(fileName);
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
-
 const redisUrl = process.env.REDIS_URL;
 const channelName = process.env.CHANNEL_NAME;
 const pubClient = new Redis(redisUrl);
 const subClient = new Redis(redisUrl);
-
-connectRedis();
-
 const queueName =
   process.env.NODE_ENV === 'production' ? 'prodUserQueue' : 'devUserQueue';
 const userQueue = new Queue(queueName, redisUrl);
 
-// Connect to the database
+// Connect to mongodb
 connectToDb();
 
 wss.on('connection', (ws) => {
-  ws = ws;
   logger.info('New client connected.');
 
   ws.on('open', () => {
@@ -79,7 +73,7 @@ wss.on('connection', (ws) => {
 
   subClient.on('message', (channel, message) => {
     if (channel === channelName) {
-      if (ws && ws.readyState === ws.OPEN) {
+      if (ws.readyState === ws.OPEN) {
         ws.send(message);
       } else {
         logger.error('WebSocket is not open. Cannot send message.');
@@ -305,12 +299,3 @@ process.on('SIGTERM', async () => {
 		process.exit(1);
 	}
 });
-
-async function connectRedis() {
-  try {
-    await pubClient.ping().then(res => logger.info(res));
-    await subClient.ping().then((res) => logger.info(res));
-  } catch (err) {
-    logger.error(`Error connecting to Redis: ${err}`);
-  }
-}
