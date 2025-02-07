@@ -40,8 +40,7 @@ const pubClient = createClient({
 });
 const subClient = pubClient.duplicate();
 
-pubClient.connect().catch(console.error);
-subClient.connect().catch(console.error);
+connectRedis();
 
 const queueName =
   process.env.NODE_ENV === 'production' ? 'prodUserQueue' : 'devUserQueue';
@@ -61,9 +60,16 @@ wss.on('connection', (ws) => {
     }
   });
 
-  subClient.subscribe(channelName, (err) => {
-    if (err) logger.error(`Failed to subscribe: ${err}`);
-	});
+  subClient.on('message', (channel, message) => {
+    if (channel === channelName) {
+      if (ws.readyState === ws.OPEN) {
+        ws.send(message);
+      } else {
+        logger.error('WebSocket is not open. Cannot send message.');
+      }
+    }
+  });
+
 
   subClient.on('message', (channel, message) => {
     if (channel === channelName) ws.send(message);
@@ -226,7 +232,7 @@ app.post('/api/listings', async (req, res) => {
       { removeOnComplete: true, removeOnFail: true }
     );
     const jobId = job.id;
-    logger.info(`\nJob added to queue: ${job.id}`);
+    logger.info(`Job added to queue: ${job.id}`);
     pubClient.publish(
       channelName,
       JSON.stringify({ jobId, status: 'added' })
@@ -291,3 +297,32 @@ process.on('SIGTERM', async () => {
 		process.exit(1);
 	}
 });
+async function connectRedis() {
+  try {
+    await pubClient.connect();
+    logger.info('Publisher client connected to Redis');
+
+    await subClient.connect();
+    logger.info('Subscriber client connected to Redis');
+
+    subClient.subscribe(channelName, (err) => {
+      if (err) {
+        logger.error(`Failed to subscribe: ${err}`);
+      } else {
+        logger.info(`Successfully subscribed to channel: ${channelName}`);
+      }
+    });
+
+    subClient.on('message', (channel, message) => {
+      if (channel === channelName) {
+        if (ws.readyState === ws.OPEN) {
+          ws.send(message);
+        } else {
+          logger.error('WebSocket is not open. Cannot send message.');
+        }
+      }
+    });
+  } catch (error) {
+    logger.error(`Error connecting to Redis: ${error}`);
+  }
+}

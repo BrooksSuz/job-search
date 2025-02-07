@@ -34,7 +34,7 @@ userQueue.process(20, async (job) => {
     return listings;
   } catch (err) {
     clearInterval(interval);
-    logger.error(`Error processing job ${job.id}:\n${err}`);
+    logger.error(`Error processing job ${jobId}:\n${err}`);
     pubClient.publish(
       channelName,
       JSON.stringify({ jobId, status: 'failed', error: err.message })
