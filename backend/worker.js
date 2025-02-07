@@ -16,19 +16,11 @@ const userQueue = new Queue(queueName, redisUrl);
 userQueue.process(20, async (job) => {
   const { keywords, objConfig } = job.data;
   const jobId = job.id;
-  const interval = setInterval(() => {
-    pubClient.publish(
-      channelName,
-      JSON.stringify({ jobId, status: 'in progress' })
-    );
-  }, 5000);
 
   try {
     const listings = await scrapeListings(keywords, objConfig);
-    clearInterval(interval);
     return listings;
   } catch (err) {
-    clearInterval(interval);
     logger.error(`Error processing job ${jobId}:\n${err}`);
     pubClient.publish(
       channelName,
