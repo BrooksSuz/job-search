@@ -21,6 +21,7 @@ import cors from 'cors';
 import Queue from 'bull';
 import { WebSocketServer } from 'ws';
 import http from 'http';
+import { createClient } from 'redis';
 
 dotenv.config();
 
@@ -31,14 +32,49 @@ const fileName = fileURLToPath(import.meta.url);
 const dirName = path.dirname(fileName);
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
-const clients = [];
-const redisUrl = `redis://${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`;
+const redisClient = createClient({
+	username: 'default',
+	password: process.env.REDIS_PASSWORD,
+	socket: {
+		host: process.env.REDIS_HOST,
+		port: process.env.REDIS_PORT,
+	},
+});
+const redisSubscriber = redisClient.duplicate();
 const queueName =
 	process.env.NODE_ENV === 'production' ? 'prodUserQueue' : 'devUserQueue';
-const userQueue = new Queue(queueName, redisUrl);
+const userQueue = new Queue(queueName, redisClient);
 
 // Connect to the database
 connectToDb();
+
+redisClient.connect().catch(console.error);
+redisSubscriber.connect().catch(console.error);
+
+const CHANNEL_NAME = 'job_updates';
+
+wss.on('connection', (ws) => {
+	logger.info('New client connected');
+
+	redisSubscriber.subscribe(CHANNEL_NAME, (err) => {
+		if (err) logger.error(`Failed to subscribe: ${err}`);
+	});
+
+	redisSubscriber.on('message', (channel, message) => {
+		const strMessage = message.toString();
+		if (strMessage === 'ping') {
+			logger.info('pong');
+			ws.send('pong');
+		}
+
+		if (channel === CHANNEL_NAME) ws.send(message);
+	});
+
+	ws.on('close', () => {
+		logger.info('Client disconnected');
+		redisSubscriber.unsubscribe(CHANNEL_NAME);
+	});
+});
 
 // Trust all proxies
 app.set('trust proxy', true);
@@ -84,7 +120,6 @@ app.use((err, req, res, next) => {
 
 app.post('/api/log', (req, res) => {
 	const { level, message } = req.body;
-
 	logger[level](message);
 	res.status(200).send('Log received');
 });
@@ -185,18 +220,23 @@ app.post('/api/remove-config', async (req, res) => {
 });
 
 app.post('/api/listings', async (req, res) => {
-  try {
-    const { keywords, objConfig } = req.body;
-    const job = await userQueue.add(
-      { keywords, objConfig },
-      { removeOnComplete: true, removeOnFail: true }
-    );
-    logger.info(`\nJob added to queue: ${job.id}`);
-    res.json({ jobId: job.id });
-  } catch (err) {
-    logger.error(`Error in request /api/listings:\n${err}`);
-    res.status(500).json({ error: 'Failed to add job to the queue.' });
-  }
+	try {
+		const { keywords, objConfig } = req.body;
+		const job = await userQueue.add(
+			{ keywords, objConfig },
+			{ removeOnComplete: true, removeOnFail: true }
+		);
+		const jobId = job.id;
+		logger.info(`\nJob added to queue: ${job.id}`);
+		redisClient.publish(
+			CHANNEL_NAME,
+			JSON.stringify({ jobId, status: 'added' })
+		);
+		res.json({ jobId });
+	} catch (err) {
+		logger.error(`Error in request /api/listings:\n${err}`);
+		res.status(500).json({ error: 'Failed to add job to the queue.' });
+	}
 });
 
 app.post('/api/listings-mail', async (req, res) => {
@@ -231,53 +271,32 @@ server.listen(PORT, () => {
 	logger.info(`\nServer running at: http://localhost:${PORT}`);
 });
 
-wss.on('connection', (ws) => {
-	clients.push(ws);
-	logger.info('New client connected');
-
-	ws.on('message', (message) => {
-		const strMessage = message.toString();
-		if (strMessage === 'ping') {
-			logger.info('pong');
-			ws.send('pong');
-		}
-	});
-
-	ws.on('close', () => {
-		logger.info('Client disconnected');
-		const index = clients.indexOf(ws);
-		if (index !== -1) clients.splice(index, 1);
-	});
-});
-
 process.on('SIGINT', async () => {
-  try {
-    await mongoose.connection.close();
-    logger.info('\nMongoose disconnected through app termination');
-    process.exit(0);
-  } catch (err) {
-    logger.error(`\nError closing MongoDB connection: ${err}`);
-    process.exit(1);
-  }
+	try {
+		await mongoose.connection.close();
+		logger.info('\nMongoose disconnected through app termination');
+		process.exit(0);
+	} catch (err) {
+		logger.error(`\nError closing MongoDB connection: ${err}`);
+		process.exit(1);
+	}
 });
 
 process.on('SIGTERM', async () => {
-  logger.info('\nSIGTERM received. Closing server...');
-  try {
-    app.close();
-    logger.info('\nExpress server set to stop accepting new connections.');
-  } catch (err) {
-    logger.error(`\nError with "close" MongoDB method: ${err}`);
-  }
+	logger.info('\nSIGTERM received. Closing server...');
+	try {
+		app.close();
+		logger.info('\nExpress server set to stop accepting new connections.');
+	} catch (err) {
+		logger.error(`\nError with "close" MongoDB method: ${err}`);
+	}
 
-  try {
-    await mongoose.connection.close();
-    logger.info('\nMongoDB connection closed.');
-    process.exit(0);
-  } catch (err) {
-    logger.error(`\nError closing MongoDB connection: ${err}`);
-    process.exit(1);
-  }
+	try {
+		await mongoose.connection.close();
+		logger.info('\nMongoDB connection closed.');
+		process.exit(0);
+	} catch (err) {
+		logger.error(`\nError closing MongoDB connection: ${err}`);
+		process.exit(1);
+	}
 });
-
-export { clients };
