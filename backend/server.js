@@ -22,7 +22,6 @@ import Queue from 'bull';
 import { WebSocketServer } from 'ws';
 import http from 'http';
 import { createClient } from 'redis';
-import { createClient } from 'redis';
 
 dotenv.config();
 
