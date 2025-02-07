@@ -6,30 +6,24 @@ import { createClient } from 'redis';
 
 dotenv.config();
 
-const redisClient = createClient({
-  username: 'default',
-  password: process.env.REDIS_PASSWORD,
-  socket: {
-    host: process.env.REDIS_HOST,
-    port: process.env.REDIS_PORT,
-  },
-  defaultJobOptions: {
-    timeout: 300000,
-  },
+const redisUrl = process.env.REDIS_URL;
+const channelName = process.env.CHANNEL_NAME;
+const pubClient = createClient({
+  url: redisUrl,
 });
-const CHANNEL_NAME = 'job_updates';
 const queueName =
   process.env.NODE_ENV === 'production' ? 'prodUserQueue' : 'devUserQueue';
-const userQueue = new Queue(queueName, redisClient);
-
-redisClient.connect().catch(console.error);
+  
+pubClient.connect().catch(console.error);
+  
+const userQueue = new Queue(queueName, redisUrl);
 
 userQueue.process(20, async (job) => {
   const { keywords, objConfig } = job.data;
   const jobId = job.id;
   const interval = setInterval(() => {
-    redisClient.publish(
-      CHANNEL_NAME,
+    pubClient.publish(
+      channelName,
       JSON.stringify({ jobId, status: 'in progress' })
     );
   }, 5000);
@@ -41,8 +35,8 @@ userQueue.process(20, async (job) => {
   } catch (err) {
     clearInterval(interval);
     logger.error(`Error processing job ${job.id}:\n${err}`);
-    redisClient.publish(
-      CHANNEL_NAME,
+    pubClient.publish(
+      channelName,
       JSON.stringify({ jobId, status: 'failed', error: err.message })
     );
     throw new Error('Job processing failed');
@@ -51,16 +45,16 @@ userQueue.process(20, async (job) => {
 
 userQueue.on('completed', async (job, result) => {
   const jobId = job.id;
-  redisClient.publish(
-    CHANNEL_NAME,
+  pubClient.publish(
+    channelName,
     JSON.stringify({ jobId, status: 'completed', result })
   );
 });
 
 userQueue.on('failed', (job, err) => {
   const jobId = job.id;
-  redisClient.publish(
-    CHANNEL_NAME,
+  pubClient.publish(
+    channelName,
     JSON.stringify({ jobId, status: 'failed', error: err.message })
   );
 });

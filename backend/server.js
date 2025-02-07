@@ -32,47 +32,46 @@ const fileName = fileURLToPath(import.meta.url);
 const dirName = path.dirname(fileName);
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
-const redisClient = createClient({
-  username: 'default',
-  password: process.env.REDIS_PASSWORD,
-  socket: {
-    host: process.env.REDIS_HOST,
-    port: process.env.REDIS_PORT,
-  },
+
+const redisUrl = process.env.REDIS_URL;
+const channelName = process.env.CHANNEL_NAME;
+const pubClient = createClient({
+	url: redisUrl,
 });
-const redisSubscriber = redisClient.duplicate();
+const subClient = pubClient.duplicate();
+
+pubClient.connect().catch(console.error);
+subClient.connect().catch(console.error);
+
 const queueName =
   process.env.NODE_ENV === 'production' ? 'prodUserQueue' : 'devUserQueue';
-const userQueue = new Queue(queueName, redisClient);
+const userQueue = new Queue(queueName, redisUrl);
 
 // Connect to the database
 connectToDb();
 
-redisClient.connect().catch(console.error);
-redisSubscriber.connect().catch(console.error);
-
-const CHANNEL_NAME = 'job_updates';
-
 wss.on('connection', (ws) => {
   logger.info('New client connected');
 
-  redisSubscriber.subscribe(CHANNEL_NAME, (err) => {
-    if (err) logger.error(`Failed to subscribe: ${err}`);
-  });
-
-  redisSubscriber.on('message', (channel, message) => {
+  ws.on('message', (message) => {
     const strMessage = message.toString();
     if (strMessage === 'ping') {
       logger.info('pong');
       ws.send('pong');
     }
+  });
 
-    if (channel === CHANNEL_NAME) ws.send(message);
+  subClient.subscribe(channelName, (err) => {
+    if (err) logger.error(`Failed to subscribe: ${err}`);
+	});
+
+  subClient.on('message', (channel, message) => {
+    if (channel === channelName) ws.send(message);
   });
 
   ws.on('close', () => {
     logger.info('Client disconnected');
-    redisSubscriber.unsubscribe(CHANNEL_NAME);
+    subClient.unsubscribe(channelName);
   });
 });
 
@@ -228,8 +227,8 @@ app.post('/api/listings', async (req, res) => {
     );
     const jobId = job.id;
     logger.info(`\nJob added to queue: ${job.id}`);
-    redisClient.publish(
-      CHANNEL_NAME,
+    pubClient.publish(
+      channelName,
       JSON.stringify({ jobId, status: 'added' })
     );
     res.json({ jobId });
@@ -285,7 +284,7 @@ process.on('SIGINT', async () => {
 process.on('SIGTERM', async () => {
   logger.info('\nSIGTERM received. Closing server...');
   try {
-    app.close();
+    server.close();
     logger.info('\nExpress server set to stop accepting new connections.');
   } catch (err) {
     logger.error(`\nError with "close" MongoDB method: ${err}`);

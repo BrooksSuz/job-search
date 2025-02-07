@@ -4,8 +4,8 @@
   "description": "",
   "main": "./backend/server.js",
   "scripts": {
-    "start": "node ./backend/server.js",
-    "dev": "nodemon ./backend/server.js",
+    "start": "node ./backend/server.js && node ./backend/worker.js",
+    "dev": "nodemon ./backend/server.js && node ./backend/worker.js",
     "heroku-postbuild": "mkdir ./.cache && mv /app/.cache/puppeteer ./.cache"
   },
   "keywords": [],
