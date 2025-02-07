@@ -4,8 +4,9 @@
   "description": "",
   "main": "./backend/server.js",
   "scripts": {
-    "start": "node ./backend/server.js && node ./backend/worker.js",
-    "dev": "nodemon ./backend/server.js && node ./backend/worker.js",
+    "start": "node ./backend/server.js",
+    "worker": "nodemon ./backend/worker.js",
+    "dev": "concurrently \"nodemon ./backend/server.js\" \"nodemon ./backend/worker.js\"",
     "heroku-postbuild": "mkdir ./.cache && mv /app/.cache/puppeteer ./.cache"
   },
   "keywords": [],
@@ -33,12 +34,12 @@
     "puppeteer-core": "^23.11.1",
     "recast": "^0.23.9",
     "redis": "^4.7.0",
-    "socks-proxy-agent": "^8.0.5",
     "utf-8-validate": "^6.0.5",
     "ws": "^8.18.0"
   },
   "type": "module",
   "devDependencies": {
+    "concurrently": "^9.1.2",
     "nodemon": "^3.1.7",
     "pino-pretty": "^13.0.0"
   }

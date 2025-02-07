@@ -26,18 +26,19 @@ import Redis from 'ioredis';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-const SECRET = process.env.SECRET;
+const port = process.env.PORT || 3000;
+const secret = process.env.SECRET;
 const fileName = fileURLToPath(import.meta.url);
 const dirName = path.dirname(fileName);
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
 const redisUrl = process.env.REDIS_URL;
 const channelName = process.env.CHANNEL_NAME;
+const nodeEnvironment = process.env.NODE_ENV;
 const pubClient = new Redis(redisUrl);
 const subClient = new Redis(redisUrl);
 const queueName =
-  process.env.NODE_ENV === 'production' ? 'prodUserQueue' : 'devUserQueue';
+  nodeEnvironment === 'production' ? 'prodUserQueue' : 'devUserQueue';
 const userQueue = new Queue(queueName, redisUrl);
 
 // Connect to mongodb
@@ -45,10 +46,6 @@ connectToDb();
 
 wss.on('connection', (ws) => {
   logger.info('New client connected.');
-
-  ws.on('open', () => {
-    logger.info('Websocket connection opened.');
-  })
 
   ws.on('message', (message) => {
     const strMessage = message.toString();
@@ -67,7 +64,7 @@ wss.on('connection', (ws) => {
     if (err) {
       logger.error(`Failed to subscribe: ${err}`);
     } else {
-      logger.info(`Successfully subscribed to channel: ${channelName}`);
+      logger.info('Subscription succeeded.');
     }
   });
 
@@ -91,7 +88,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
   session({
-    secret: SECRET,
+    secret,
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -230,11 +227,15 @@ app.post('/api/listings', async (req, res) => {
     const { keywords, objConfig } = req.body;
     const job = await userQueue.add(
       { keywords, objConfig },
-      { removeOnComplete: true, removeOnFail: true }
+      {
+        removeOnComplete: true,
+        removeOnFail: true,
+        attempts: 3,
+        timeout: 300000
+      }
     );
     const jobId = job.id;
     logger.info(`Job added to queue: ${job.id}`);
-    logger.info(channelName);
     pubClient.publish(
       channelName,
       JSON.stringify({ jobId, status: 'added' })
@@ -274,8 +275,8 @@ app.delete('/api/delete-user', async (req, res) => {
   }
 });
 
-server.listen(PORT, () => {
-  logger.info(`\nServer running at: http://localhost:${PORT}`);
+server.listen(port, () => {
+  logger.info(`\nServer running at: http://localhost:${port}`);
 });
 
 process.on('SIGINT', async () => {
