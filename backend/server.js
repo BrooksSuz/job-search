@@ -22,6 +22,7 @@ import Queue from 'bull';
 import { WebSocketServer } from 'ws';
 import http from 'http';
 import { createClient } from 'redis';
+import Redis from 'ioredis';
 
 dotenv.config();
 
@@ -35,10 +36,8 @@ const wss = new WebSocketServer({ server });
 
 const redisUrl = process.env.REDIS_URL;
 const channelName = process.env.CHANNEL_NAME;
-const pubClient = createClient({
-	url: redisUrl,
-});
-const subClient = pubClient.duplicate();
+const pubClient = new Redis(redisUrl);
+const subClient = new Redis(redisUrl);
 
 connectRedis();
 
@@ -50,7 +49,12 @@ const userQueue = new Queue(queueName, redisUrl);
 connectToDb();
 
 wss.on('connection', (ws) => {
-  logger.info('New client connected');
+  ws = ws;
+  logger.info('New client connected.');
+
+  ws.on('open', () => {
+    logger.info('Websocket connection opened.');
+  })
 
   ws.on('message', (message) => {
     const strMessage = message.toString();
@@ -60,24 +64,27 @@ wss.on('connection', (ws) => {
     }
   });
 
+  ws.on('close', () => {
+    logger.info('Client disconnected');
+    subClient.unsubscribe(channelName);
+  });
+
+  subClient.subscribe(channelName, (err) => {
+    if (err) {
+      logger.error(`Failed to subscribe: ${err}`);
+    } else {
+      logger.info(`Successfully subscribed to channel: ${channelName}`);
+    }
+  });
+
   subClient.on('message', (channel, message) => {
     if (channel === channelName) {
-      if (ws.readyState === ws.OPEN) {
+      if (ws && ws.readyState === ws.OPEN) {
         ws.send(message);
       } else {
         logger.error('WebSocket is not open. Cannot send message.');
       }
     }
-  });
-
-
-  subClient.on('message', (channel, message) => {
-    if (channel === channelName) ws.send(message);
-  });
-
-  ws.on('close', () => {
-    logger.info('Client disconnected');
-    subClient.unsubscribe(channelName);
   });
 });
 
@@ -233,6 +240,7 @@ app.post('/api/listings', async (req, res) => {
     );
     const jobId = job.id;
     logger.info(`Job added to queue: ${job.id}`);
+    logger.info(channelName);
     pubClient.publish(
       channelName,
       JSON.stringify({ jobId, status: 'added' })
@@ -297,32 +305,12 @@ process.on('SIGTERM', async () => {
 		process.exit(1);
 	}
 });
+
 async function connectRedis() {
   try {
-    await pubClient.connect();
-    logger.info('Publisher client connected to Redis');
-
-    await subClient.connect();
-    logger.info('Subscriber client connected to Redis');
-
-    subClient.subscribe(channelName, (err) => {
-      if (err) {
-        logger.error(`Failed to subscribe: ${err}`);
-      } else {
-        logger.info(`Successfully subscribed to channel: ${channelName}`);
-      }
-    });
-
-    subClient.on('message', (channel, message) => {
-      if (channel === channelName) {
-        if (ws.readyState === ws.OPEN) {
-          ws.send(message);
-        } else {
-          logger.error('WebSocket is not open. Cannot send message.');
-        }
-      }
-    });
-  } catch (error) {
-    logger.error(`Error connecting to Redis: ${error}`);
+    await pubClient.ping().then(res => logger.info(res));
+    await subClient.ping().then((res) => logger.info(res));
+  } catch (err) {
+    logger.error(`Error connecting to Redis: ${err}`);
   }
 }

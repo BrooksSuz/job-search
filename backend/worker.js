@@ -2,20 +2,15 @@ import Queue from 'bull';
 import dotenv from 'dotenv';
 import scrapeListings from './scrape-listings/scrape-listings.js';
 import logger from './logger-backend.js';
-import { createClient } from 'redis';
+import Redis from 'ioredis';
 
 dotenv.config();
 
 const redisUrl = process.env.REDIS_URL;
 const channelName = process.env.CHANNEL_NAME;
-const pubClient = createClient({
-  url: redisUrl,
-});
+const pubClient = new Redis(redisUrl);
 const queueName =
   process.env.NODE_ENV === 'production' ? 'prodUserQueue' : 'devUserQueue';
-  
-pubClient.connect().catch(console.error);
-  
 const userQueue = new Queue(queueName, redisUrl);
 
 userQueue.process(20, async (job) => {
