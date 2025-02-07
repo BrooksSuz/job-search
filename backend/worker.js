@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import scrapeListings from './scrape-listings/scrape-listings.js';
 import logger from './logger-backend.js';
 import { createClient } from 'redis';
+import { createClient } from 'redis';
 
 dotenv.config();
 
