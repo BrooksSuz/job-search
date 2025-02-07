@@ -282,14 +282,6 @@ process.on('SIGINT', async () => {
 });
 
 process.on('SIGTERM', async () => {
-  logger.info('\nSIGTERM received. Closing server...');
-  try {
-    server.close();
-    logger.info('\nExpress server set to stop accepting new connections.');
-  } catch (err) {
-    logger.error(`\nError with "close" MongoDB method: ${err}`);
-  }
-
 	try {
 		await mongoose.connection.close();
 		logger.info('\nMongoDB connection closed.');
