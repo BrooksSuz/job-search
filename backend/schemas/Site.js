@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const siteSchema = new mongoose.Schema({
   siteName: { type: String, required: true },
@@ -12,4 +12,4 @@ const siteSchema = new mongoose.Schema({
   url: { type: String },
 });
 
-export default mongoose.model('Site', siteSchema, 'sites');
+export default mongoose.model("Site", siteSchema, "sites");

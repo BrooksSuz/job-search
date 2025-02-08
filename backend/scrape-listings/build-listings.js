@@ -1,12 +1,12 @@
-import { throwErrorAndHalt } from './error.js';
-import findListings from './find-listings.js';
+import { throwErrorAndHalt } from "./error.js";
+import findListings from "./find-listings.js";
 
 const buildListings = async (
   browser,
   arrSearchTerms,
   objConfig,
   incrementCount,
-  getCount
+  getCount,
 ) => {
   const page = await browser.newPage();
 
@@ -16,7 +16,7 @@ const buildListings = async (
   const { url, siteName, ...configPairs } = objConfig;
   try {
     // Go to the provided site
-    await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 });
+    await page.goto(url, { waitUntil: "networkidle0", timeout: 60000 });
 
     // Find those listings!
     const arrFoundListings = await findListings(
@@ -24,7 +24,7 @@ const buildListings = async (
       arrSearchTerms,
       configPairs,
       incrementCount,
-      getCount
+      getCount,
     );
 
     // Return only one of each listing into a new array
@@ -32,7 +32,7 @@ const buildListings = async (
 
     return arrNoDuplicates;
   } catch (err) {
-    throwErrorAndHalt(err, 'buildListings');
+    throwErrorAndHalt(err, "buildListings");
   } finally {
     await page.close();
   }

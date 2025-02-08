@@ -1,208 +1,144 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta
-			name="viewport"
-			content="width=device-width, initial-scale=1.0"
-		/>
-		<link
-			rel="stylesheet"
-			href="./style/swal.css"
-		/>
-		<link
-			rel="shortcut icon"
-			href="./images/koala.png"
-		/>
-		<link
-			rel="stylesheet"
-			href="./style/reset.css"
-		/>
-		<link
-			rel="stylesheet"
-			href="./style/type.css"
-		/>
-		<link
-			rel="stylesheet"
-			href="./style/class.css"
-		/>
-		<link
-			rel="stylesheet"
-			href="./style/media.css"
-		/>
-		<title>Job Search</title>
-	</head>
-	<body>
-		<div class="main-container flex">
-			<div class="form-container flex">
-				<h1>Find Those Jobs!</h1>
-				<div class="account-container">
-					<div class="input-container flex">
-						<label>
-							<span>Email:</span>
-							<input
-								class="email"
-								type="email"
-							/>
-						</label>
-						<label>
-							<span>Password:</span>
-							<input
-								class="password"
-								type="password"
-							/>
-						</label>
-					</div>
-					<div class="button-container flex">
-						<button
-							class="btn-login"
-							type="button"
-						>
-							Login
-						</button>
-						<button
-							class="btn-register"
-							type="button"
-						>
-							Register
-						</button>
-					</div>
-				</div>
-				<div class="configs-container">
-					<label
-						><span>Configs:</span>
-						<select
-							name="premade-configs"
-							id="premade-configs"
-							multiple
-						></select>
-					</label>
-				</div>
-				<div class="get-listings-container">
-					<div class="input-container flex">
-						<label
-							><span>Keywords:</span>
-							<input
-								id="keywords"
-								class="keywords"
-								type="text"
-								placeholder="Nurse, Plumber, ..."
-							/>
-						</label>
-					</div>
-					<div class="button-container flex">
-						<button
-							class="get-listings"
-							type="button"
-							disabled
-						>
-							<span
-								class="get-listings-text"
-								aria-label="Get Job Listings"
-								>Get Jobs</span
-							>
-							<span
-								class="spinner"
-								aria-hidden="true"
-							></span>
-						</button>
-					</div>
-				</div>
-				<details class="advanced-container flex">
-					<summary>Advanced Settings</summary>
-					<label>
-						<span>Site Name:</span>
-						<input
-							id="siteName"
-							type="text"
-						/>
-					</label>
-					<label>
-						<span>Url:</span>
-						<input
-							id="url"
-							type="text"
-						/>
-					</label>
-					<label>
-						<span>Selector (1):</span>
-						<input
-							id="consent"
-							type="text"
-							placeholder="Consent Popup Element"
-						/>
-					</label>
-					<label>
-						<span>Selector (2):</span>
-						<input
-							id="listing"
-							type="text"
-							placeholder="Job Listing Element"
-						/>
-					</label>
-					<label>
-						<span>Selector (3):</span>
-						<input
-							id="nextPageDisabled"
-							type="text"
-							placeholder="Disabled Element"
-						/>
-					</label>
-					<label>
-						<span>Selector (4):</span>
-						<input
-							id="nextPageLink"
-							type="text"
-							placeholder="Next Page Element"
-						/>
-					</label>
-					<label>
-						<span>Selector (5):</span>
-						<input
-							id="nextPageParent"
-							type="text"
-							placeholder="Next Page Parent Element"
-						/>
-					</label>
-					<label>
-						<span>Error(s):</span>
-						<input
-							id="errorMessages"
-							type="text"
-							placeholder="Separate with commas"
-						/>
-					</label>
-					<label>
-						<span>Anchor:</span>
-						<input
-							id="isAnchor"
-							type="checkbox"
-						/>
-					</label>
-				</details>
-			</div>
-			<footer>
-				<p>
-					© <span id="footer-year"></span> Brooks Susor. All rights reserved.
-				</p>
-				<p>
-					<strong>Disclaimer:</strong> This project is designed to assist users
-					in finding job listings efficiently. Users are responsible for
-					ensuring their use of this tool complies with the terms of service of
-					the websites being scraped. The developer is not liable for any misuse
-					of the tool or potential policy violations.
-				</p>
-				<a
-					href="https://www.flaticon.com/free-icons/koala"
-					title="koala icons"
-					>Koala icons created by Hery Mery - Flaticon</a
-				>
-			</footer>
-		</div>
-		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-		<script
-			type="module"
-			src="main.js"
-		></script>
-	</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./style/swal.css" />
+    <link rel="shortcut icon" href="./images/koala.png" />
+    <link rel="stylesheet" href="./style/reset.css" />
+    <link rel="stylesheet" href="./style/type.css" />
+    <link rel="stylesheet" href="./style/class.css" />
+    <link rel="stylesheet" href="./style/media.css" />
+    <title>Job Search</title>
+  </head>
+  <body>
+    <div class="main-container flex">
+      <div class="form-container flex">
+        <h1>Find Those Jobs!</h1>
+        <div class="account-container">
+          <div class="input-container flex">
+            <label>
+              <span>Email:</span>
+              <input class="email" type="email" />
+            </label>
+            <label>
+              <span>Password:</span>
+              <input class="password" type="password" />
+            </label>
+          </div>
+          <div class="button-container flex">
+            <button class="btn-login" type="button">Login</button>
+            <button class="btn-register" type="button">Register</button>
+          </div>
+        </div>
+        <div class="configs-container">
+          <label
+            ><span>Configs:</span>
+            <select
+              name="premade-configs"
+              id="premade-configs"
+              multiple
+            ></select>
+          </label>
+        </div>
+        <div class="get-listings-container">
+          <div class="input-container flex">
+            <label
+              ><span>Keywords:</span>
+              <input
+                id="keywords"
+                class="keywords"
+                type="text"
+                placeholder="Nurse, Plumber, ..."
+              />
+            </label>
+          </div>
+          <div class="button-container flex">
+            <button class="get-listings" type="button" disabled>
+              <span class="get-listings-text" aria-label="Get Job Listings"
+                >Get Jobs</span
+              >
+              <span class="spinner" aria-hidden="true"></span>
+            </button>
+          </div>
+        </div>
+        <details class="advanced-container flex">
+          <summary>Advanced Settings</summary>
+          <label>
+            <span>Site Name:</span>
+            <input id="siteName" type="text" />
+          </label>
+          <label>
+            <span>Url:</span>
+            <input id="url" type="text" />
+          </label>
+          <label>
+            <span>Selector (1):</span>
+            <input
+              id="consent"
+              type="text"
+              placeholder="Consent Popup Element"
+            />
+          </label>
+          <label>
+            <span>Selector (2):</span>
+            <input id="listing" type="text" placeholder="Job Listing Element" />
+          </label>
+          <label>
+            <span>Selector (3):</span>
+            <input
+              id="nextPageDisabled"
+              type="text"
+              placeholder="Disabled Element"
+            />
+          </label>
+          <label>
+            <span>Selector (4):</span>
+            <input
+              id="nextPageLink"
+              type="text"
+              placeholder="Next Page Element"
+            />
+          </label>
+          <label>
+            <span>Selector (5):</span>
+            <input
+              id="nextPageParent"
+              type="text"
+              placeholder="Next Page Parent Element"
+            />
+          </label>
+          <label>
+            <span>Error(s):</span>
+            <input
+              id="errorMessages"
+              type="text"
+              placeholder="Separate with commas"
+            />
+          </label>
+          <label>
+            <span>Anchor:</span>
+            <input id="isAnchor" type="checkbox" />
+          </label>
+        </details>
+      </div>
+      <footer>
+        <p>
+          © <span id="footer-year"></span> Brooks Susor. All rights reserved.
+        </p>
+        <p>
+          <strong>Disclaimer:</strong> This project is designed to assist users
+          in finding job listings efficiently. Users are responsible for
+          ensuring their use of this tool complies with the terms of service of
+          the websites being scraped. The developer is not liable for any misuse
+          of the tool or potential policy violations.
+        </p>
+        <a href="https://www.flaticon.com/free-icons/koala" title="koala icons"
+          >Koala icons created by Hery Mery - Flaticon</a
+        >
+      </footer>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module" src="main.js"></script>
+  </body>
 </html>

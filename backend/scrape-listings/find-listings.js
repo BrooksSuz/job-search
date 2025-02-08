@@ -1,13 +1,13 @@
-import filterListings from './filter-listings.js';
-import navigateSite from './navigate-site.js';
-import logger from '../logger-backend.js';
+import filterListings from "./filter-listings.js";
+import navigateSite from "./navigate-site.js";
+import logger from "../logger-backend.js";
 
 async function findListings(
   page,
   arrSearchTerms,
   objConfigPairs,
   incrementCount,
-  getCount
+  getCount,
 ) {
   // Destructure configPairs and disperse
   const {
@@ -21,7 +21,7 @@ async function findListings(
   } = objConfigPairs;
 
   // Change errorMessages type
-  const arrErrorMessages = strErrorMessages.split(', ');
+  const arrErrorMessages = strErrorMessages.split(", ");
 
   // Check consent only on the first call
   const isFirstPage = !getCount();
@@ -37,7 +37,7 @@ async function findListings(
     const arrFilteredListings = await filterListings(
       page,
       arrSearchTerms,
-      strListing
+      strListing,
     );
     arrAllScrapedListings.push(...arrFilteredListings);
 
@@ -48,7 +48,7 @@ async function findListings(
       boolIsAnchor,
       strNextPageDisabled,
       strNextPageLink,
-      strNextPageParent
+      strNextPageParent,
     );
 
     // Increment page count
@@ -61,11 +61,11 @@ async function findListings(
 const checkConsent = async (page, strConsent) => {
   try {
     await page.waitForSelector(strConsent, { timeout: 5000 });
-    logger.info('\nConsent popup found.');
+    logger.info("\nConsent popup found.");
     await page.click(strConsent);
   } catch (err) {
-    if (err.name === 'TimeoutError') {
-      logger.info('\nConsent popup not found.');
+    if (err.name === "TimeoutError") {
+      logger.info("\nConsent popup not found.");
     } else {
       logger.error(`Error in function checkConsent:\n${err}`);
     }

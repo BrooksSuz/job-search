@@ -1,5 +1,5 @@
-import { handleError } from './error.js';
-import logger from '../logger-backend.js';
+import { handleError } from "./error.js";
+import logger from "../logger-backend.js";
 
 async function navigateSite(
   page,
@@ -7,13 +7,13 @@ async function navigateSite(
   boolIsAnchor,
   strNextPageDisabled,
   strNextPageLink,
-  strNextPageParent
+  strNextPageParent,
 ) {
   const urlPrevious = page.url();
   const elNextPage = await getNextPageElement(
     page,
     arrErrMessages,
-    strNextPageLink
+    strNextPageLink,
   );
 
   // Check if next page exists or is disabled
@@ -22,7 +22,7 @@ async function navigateSite(
     elNextPage,
     boolIsAnchor,
     strNextPageDisabled,
-    strNextPageParent
+    strNextPageParent,
   );
 
   // Guard clause: Can stop navigation
@@ -33,7 +33,7 @@ async function navigateSite(
     page,
     elNextPage,
     arrErrMessages,
-    urlPrevious
+    urlPrevious,
   );
 
   return boolIsSuccessfulNavigation;
@@ -41,13 +41,13 @@ async function navigateSite(
 
 const getNextPageElement = (page, arrErrMessages, strNextPageLink) =>
   page.waitForSelector(strNextPageLink).catch((err) => {
-    handleError(err, arrErrMessages, 'getNextPageElement');
+    handleError(err, arrErrMessages, "getNextPageElement");
     return null;
   });
 
 const checkHrefState = async (elNextPage) =>
   await elNextPage.evaluate((el) => {
-    if (!el.hasAttribute('href') || !el.getAttribute('href').trim()) {
+    if (!el.hasAttribute("href") || !el.getAttribute("href").trim()) {
       return true;
     }
     return false;
@@ -58,7 +58,7 @@ const checkDisabledState = async (element, strNextPageDisabled) => {
     if (strNextPageDisabled) {
       const boolHasDisabledSelector =
         el.classList.contains(strNextPageDisabled);
-      const boolHasDisabledAttribute = el.hasAttribute('disabled');
+      const boolHasDisabledAttribute = el.hasAttribute("disabled");
       return boolHasDisabledSelector || boolHasDisabledAttribute;
     }
   }, strNextPageDisabled);
@@ -68,12 +68,12 @@ const populateCheckDisabledState = async (
   page,
   elNextPage,
   strNextPageDisabled,
-  strNextPageParent
+  strNextPageParent,
 ) =>
   strNextPageParent
     ? await checkDisabledState(
         await page.waitForSelector(strNextPageParent),
-        strNextPageDisabled
+        strNextPageDisabled,
       )
     : await checkDisabledState(elNextPage, strNextPageDisabled);
 
@@ -82,7 +82,7 @@ const stopNavigation = async (
   elNextPage,
   boolIsAnchor,
   strNextPageDisabled,
-  strNextPageParent
+  strNextPageParent,
 ) => {
   const boolIsElNextPageNull = !elNextPage;
   if (boolIsElNextPageNull) return true;
@@ -91,17 +91,17 @@ const stopNavigation = async (
     page,
     elNextPage,
     strNextPageDisabled,
-    strNextPageParent
+    strNextPageParent,
   );
 
   if (boolIsDisabled) {
-    logger.info('\nNext page element is disabled. Assuming last page reached.');
+    logger.info("\nNext page element is disabled. Assuming last page reached.");
     return true;
   }
 
   const boolHasNoHref = await checkHrefState(elNextPage);
   if (boolIsAnchor && boolHasNoHref) {
-    logger.info('\nNext page anchor has no href. Assuming last page reached.');
+    logger.info("\nNext page anchor has no href. Assuming last page reached.");
     return true;
   }
 
@@ -115,7 +115,7 @@ const clickAndWait = async (page, elNextPage) => {
 const waitForNewUrl = async (page, urlPrevious) => {
   await page.waitForFunction(
     (urlPrevious) => window.location.href !== urlPrevious,
-    urlPrevious
+    urlPrevious,
   );
 };
 
@@ -123,14 +123,14 @@ const runNavigationActions = async (
   page,
   elNextPage,
   arrErrorMessages,
-  urlPrevious
+  urlPrevious,
 ) => {
   try {
     await clickAndWait(page, elNextPage, arrErrorMessages);
     await waitForNewUrl(page, urlPrevious);
     return true;
   } catch (err) {
-    handleError(err, arrErrorMessages, 'runNavigationActions');
+    handleError(err, arrErrorMessages, "runNavigationActions");
     return false;
   }
 };
