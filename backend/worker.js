@@ -11,8 +11,8 @@ const redisUrl = process.env.REDIS_URL;
 const channelName = process.env.CHANNEL_NAME;
 const pubClient = new Redis(redisUrl);
 const judoscale = new Judoscale({
-  redis: pubClient,
-});
+  redis_url: process.env.REDISCLOUD_URL,
+})
 const queueName =
   process.env.NODE_ENV === "production" ? "prodUserQueue" : "devUserQueue";
 const userQueue = new Queue(queueName, redisUrl);
