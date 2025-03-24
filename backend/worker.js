@@ -17,7 +17,7 @@ const queueName =
   process.env.NODE_ENV === "production" ? "prodUserQueue" : "devUserQueue";
 const userQueue = new Queue(queueName, redisUrl);
 
-userQueue.process(20, async (job) => {
+userQueue.process(1, async (job) => {
   const { keywords, objConfig } = job.data;
   const jobId = job.id;
 
