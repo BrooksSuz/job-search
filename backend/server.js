@@ -46,46 +46,11 @@ const queueName =
   nodeEnvironment === "production" ? "prodUserQueue" : "devUserQueue";
 const userQueue = new Queue(queueName, redisUrl);
 const judoscale = new Judoscale({
-  redis_url: process.env.REDISCLOUD_URL,
+  redis_url: redisUrl,
 });
 
 // Connect to mongodb
 connectToDb();
-
-wss.on("connection", (ws) => {
-  logger.info("New client connected.");
-
-  ws.on("message", (message) => {
-    const strMessage = message.toString();
-    if (strMessage === "ping") {
-      logger.info("pong");
-      ws.send("pong");
-    }
-  });
-
-  ws.on("close", () => {
-    logger.info("Client disconnected");
-    subClient.unsubscribe(channelName);
-  });
-
-  subClient.subscribe(channelName, (err) => {
-    if (err) {
-      logger.error(`Failed to subscribe: ${err}`);
-    } else {
-      logger.info("Subscription succeeded.");
-    }
-  });
-
-  subClient.on("message", (channel, message) => {
-    if (channel === channelName) {
-      if (ws.readyState === ws.OPEN) {
-        ws.send(message);
-      } else {
-        logger.error("WebSocket is not open. Cannot send message.");
-      }
-    }
-  });
-});
 
 // Trust all proxies
 app.set("trust proxy", true);
@@ -128,6 +93,41 @@ app.use((err, req, res, next) => {
   } else {
     next(err);
   }
+});
+
+wss.on("connection", (ws) => {
+  logger.info("New client connected.");
+
+  ws.on("message", (message) => {
+    const strMessage = message.toString();
+    if (strMessage === "ping") {
+      logger.info("pong");
+      ws.send("pong");
+    }
+  });
+
+  ws.on("close", () => {
+    logger.info("Client disconnected");
+    subClient.unsubscribe(channelName);
+  });
+
+  subClient.subscribe(channelName, (err) => {
+    if (err) {
+      logger.error(`Failed to subscribe: ${err}`);
+    } else {
+      logger.info("Subscription succeeded.");
+    }
+  });
+
+  subClient.on("message", (channel, message) => {
+    if (channel === channelName) {
+      if (ws.readyState === ws.OPEN) {
+        ws.send(message);
+      } else {
+        logger.error("WebSocket is not open. Cannot send message.");
+      }
+    }
+  });
 });
 
 app.post("/api/log", (req, res) => {
