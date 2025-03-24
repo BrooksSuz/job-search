@@ -46,7 +46,7 @@ const queueName =
   nodeEnvironment === "production" ? "prodUserQueue" : "devUserQueue";
 const userQueue = new Queue(queueName, redisUrl);
 const judoscale = new Judoscale({
-  redis_url: redisUrl,
+  redis_url: process.env.REDISCLOUD_URL,
 });
 
 // Connect to mongodb
