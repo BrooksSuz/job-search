@@ -26,7 +26,6 @@ import {
   Judoscale,
   middleware as judoscaleMiddleware,
 } from 'judoscale-express';
-import 'judoscale-bull';
 
 dotenv.config();
 
@@ -40,9 +39,9 @@ const wss = new WebSocketServer({ server });
 const redisUrl = process.env.REDIS_URL;
 const channelName = process.env.CHANNEL_NAME;
 const nodeEnvironment = process.env.NODE_ENV;
+const judoscale = new Judoscale();
 const pubClient = new Redis(redisUrl);
 const subClient = new Redis(redisUrl);
-const judoscale = new Judoscale();
 const queueName =
   nodeEnvironment === "production" ? "prodUserQueue" : "devUserQueue";
 const userQueue = new Queue(queueName, redisUrl);
