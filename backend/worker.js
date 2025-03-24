@@ -3,12 +3,16 @@ import dotenv from "dotenv";
 import scrapeListings from "./scrape-listings/scrape-listings.js";
 import logger from "./logger-backend.js";
 import Redis from "ioredis";
+import { Judoscale } from 'judoscale-bull';
 
 dotenv.config();
 
 const redisUrl = process.env.REDIS_URL;
 const channelName = process.env.CHANNEL_NAME;
 const pubClient = new Redis(redisUrl);
+const judoscale = new Judoscale({
+  redis: pubClient,
+});
 const queueName =
   process.env.NODE_ENV === "production" ? "prodUserQueue" : "devUserQueue";
 const userQueue = new Queue(queueName, redisUrl);
