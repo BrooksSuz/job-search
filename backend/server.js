@@ -26,7 +26,6 @@ import {
   Judoscale,
   middleware as judoscaleMiddleware,
 } from 'judoscale-express';
-import 'judoscale-bull';
 
 dotenv.config();
 
