@@ -14,7 +14,7 @@ const queueName =
   process.env.NODE_ENV === "production" ? "prodUserQueue" : "devUserQueue";
 const userQueue = new Queue(queueName, redisUrl);
 const judoscale = new Judoscale({
-  redis_url: process.env.REDISCLOUD_URL,
+  redis_url: redisUrl,
 });
 
 userQueue.process(20, async (job) => {
