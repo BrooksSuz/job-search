@@ -16,6 +16,7 @@ const userQueue = new Queue(queueName, redisUrl, {
   redis: { tls: true, enableTLSForSentinelMode: false },
 });
 const judoscale = new Judoscale({
+  redis_url: redisUrl,
   redis: pubClient,
 });
 
