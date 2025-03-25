@@ -13,9 +13,7 @@ const pubClient = new Redis(redisUrl);
 const queueName =
   process.env.NODE_ENV === "production" ? "prodUserQueue" : "devUserQueue";
 const userQueue = new Queue(queueName, redisUrl);
-const judoscale = new Judoscale({
-  redis_url: redisUrl,
-});
+const judoscale = new Judoscale();
 
 userQueue.process(20, async (job) => {
   const { keywords, objConfig } = job.data;
