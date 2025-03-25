@@ -15,9 +15,9 @@ const queueName =
 const userQueue = new Queue(queueName, redisUrl, {
   redis: { tls: true, enableTLSForSentinelMode: false },
 });
-const judoscale = new Judoscale({
+/* const judoscale = new Judoscale({
   redis_url: redisUrl,
-});
+}); */
 
 userQueue.process(20, async (job) => {
   const { keywords, objConfig } = job.data;
