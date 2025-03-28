@@ -24,7 +24,6 @@ import http from "http";
 import Redis from "ioredis";
 import 'judoscale-bull';
 import {
-  Judoscale,
   middleware as judoscaleMiddleware,
 } from 'judoscale-express';
 import { judoscale } from "./worker.js";
