@@ -22,11 +22,11 @@ import Queue from "bull";
 import { WebSocketServer } from "ws";
 import http from "http";
 import Redis from "ioredis";
-import 'judoscale-bull';
 import {
+  Judoscale,
   middleware as judoscaleMiddleware,
 } from 'judoscale-express';
-import { judoscale } from "./worker.js";
+import 'judoscale-bull';
 
 dotenv.config();
 
@@ -40,7 +40,10 @@ const wss = new WebSocketServer({ server });
 const redisUrl = process.env.REDIS_URL;
 const channelName = process.env.CHANNEL_NAME;
 const nodeEnvironment = process.env.NODE_ENV;
-const pubClient = new Redis(redisUrl);
+const pubClient = new Redis(redisUrl, {
+  maxRetriesPerRequest: null,
+  enableReadyCheck: false,
+});
 const subClient = new Redis(redisUrl);
 const queueName =
   nodeEnvironment === "production" ? "prodUserQueue" : "devUserQueue";
@@ -86,6 +89,11 @@ wss.on('connection', (ws) => {
 
 // Trust all proxies
 app.set("trust proxy", true);
+
+const judoscale = new Judoscale({
+  api_base_url: process.env.JUDOSCALE_URL,
+  redis: pubClient,
+});
 
 // Middleware
 app.use(judoscaleMiddleware(judoscale));

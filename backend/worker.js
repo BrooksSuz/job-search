@@ -9,14 +9,16 @@ dotenv.config();
 
 const redisUrl = process.env.REDIS_URL;
 const channelName = process.env.CHANNEL_NAME;
-const pubClient = new Redis(redisUrl);
+const pubClient = new Redis(redisUrl, {
+  maxRetriesPerRequest: null,
+  enableReadyCheck: false,
+});
 const queueName =
   process.env.NODE_ENV === "production" ? "prodUserQueue" : "devUserQueue";
-const userQueue = new Queue(queueName, redisUrl, {
-  redis: { tls: true, enableTLSForSentinelMode: false },
-});
-const judoscale = new Judoscale({
-  redis_url: redisUrl,
+const userQueue = new Queue(queueName, redisUrl);
+
+new Judoscale({
+  api_base_url: process.env.JUDOSCALE_URL,
   redis: pubClient,
 });
 
@@ -52,5 +54,3 @@ userQueue.on("failed", (job, err) => {
     JSON.stringify({ jobId, status: "failed", error: err.message }),
   );
 });
-
-export { judoscale };
