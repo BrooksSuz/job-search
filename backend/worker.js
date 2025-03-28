@@ -19,7 +19,7 @@ const userQueue = new Queue(queueName, redisUrl);
 
 new Judoscale({
   api_base_url: process.env.JUDOSCALE_URL,
-  redis: pubClient,
+  redis_url: redisUrl,
 });
 
 userQueue.process(20, async (job) => {

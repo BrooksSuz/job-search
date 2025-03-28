@@ -92,7 +92,7 @@ app.set("trust proxy", true);
 
 const judoscale = new Judoscale({
   api_base_url: process.env.JUDOSCALE_URL,
-  redis: pubClient,
+  redis_url: redisUrl,
 });
 
 // Middleware
