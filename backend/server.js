@@ -22,10 +22,12 @@ import Queue from "bull";
 import { WebSocketServer } from "ws";
 import http from "http";
 import Redis from "ioredis";
+import 'judoscale-bull';
 import {
   Judoscale,
   middleware as judoscaleMiddleware,
 } from 'judoscale-express';
+import { judoscale } from "./worker.js";
 
 dotenv.config();
 
@@ -44,7 +46,6 @@ const subClient = new Redis(redisUrl);
 const queueName =
   nodeEnvironment === "production" ? "prodUserQueue" : "devUserQueue";
 const userQueue = new Queue(queueName, redisUrl);
-const judoscale = new Judoscale();
 
 // Connect to mongodb
 connectToDb();
