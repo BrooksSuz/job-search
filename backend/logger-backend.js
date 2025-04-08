@@ -14,4 +14,16 @@ const logger = pino({
   },
 });
 
-export default logger;
+const loggerFlexLogs = pino({
+  level: process.env.NODE_ENV === 'production' ? 'warn' : 'debug',
+  transport: {
+    target: 'pino-pretty',
+    options: {
+      colorize: true,
+      translateTime: 'SYS:standard',
+      ignore: 'pid,hostname',
+    },
+  },
+});
+
+export { logger, loggerFlexLogs };
