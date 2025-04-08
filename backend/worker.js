@@ -13,15 +13,18 @@ const queueName =
   process.env.NODE_ENV === "production" ? "prodUserQueue" : "devUserQueue";
 const userQueue = new Queue(queueName, redisUrl);
 
-logger.info(`flexlogs{metric: 'queue.length', value: ${userQueue.count()}, type: 'gauge'}`);
-
 userQueue.process(20, async (job) => {
   const { keywords, objConfig } = job.data;
   const jobId = job.id;
 
-
+  
   try {
     const listings = await scrapeListings(keywords, objConfig);
+    
+    logger.info(
+      `flexlogs{metric: 'queue.length', value: ${userQueue.count()}, type: 'gauge'}`
+    );
+
     return listings;
   } catch (err) {
     logger.error(`Error processing job ${jobId}:\n${err}`);
