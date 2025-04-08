@@ -3,28 +3,22 @@ import dotenv from "dotenv";
 import scrapeListings from "./scrape-listings/scrape-listings.js";
 import logger from "./logger-backend.js";
 import Redis from "ioredis";
-import { Judoscale } from 'judoscale-bull';
 
 dotenv.config();
 
 const redisUrl = process.env.REDIS_URL;
 const channelName = process.env.CHANNEL_NAME;
-const pubClient = new Redis(redisUrl, {
-  maxRetriesPerRequest: null,
-  enableReadyCheck: false,
-});
+const pubClient = new Redis(redisUrl);
 const queueName =
   process.env.NODE_ENV === "production" ? "prodUserQueue" : "devUserQueue";
 const userQueue = new Queue(queueName, redisUrl);
 
-new Judoscale({
-  api_base_url: process.env.JUDOSCALE_URL,
-  redis_url: redisUrl,
-});
+logger.info(`flexlogs{metric: 'queue.length', value: ${userQueue.count()}, type: 'gauge'}`);
 
 userQueue.process(20, async (job) => {
   const { keywords, objConfig } = job.data;
   const jobId = job.id;
+
 
   try {
     const listings = await scrapeListings(keywords, objConfig);
