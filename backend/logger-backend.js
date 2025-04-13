@@ -29,12 +29,7 @@ const loggerFlexLogs = pino({
 						ignore: 'pid,hostname',
 					},
 			  }
-			: {
-					target: 'pino/transport',
-					options: {
-						level: process.env.NODE_ENV === 'production' ? 'warn' : 'debug',
-					},
-			  },
+			: undefined,
 });
 
 export { logger, loggerFlexLogs };
