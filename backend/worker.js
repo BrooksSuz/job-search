@@ -2,7 +2,7 @@ import Queue from 'bull';
 import dotenv from 'dotenv';
 import scrapeListings from './scrape-listings/scrape-listings.js';
 import Redis from 'ioredis';
-// import { logger, loggerFlexLogs } from './logger-backend.js';
+import { logger, loggerFlexLogs } from './logger-backend.js';
 
 dotenv.config();
 
@@ -20,13 +20,13 @@ userQueue.process(20, async (job) => {
 	try {
 		const listings = await scrapeListings(keywords, objConfig);
 
-		/* loggerFlexLogs.info(
+		loggerFlexLogs.info(
 			`flexlogs{metric: 'queue.length', value: ${userQueue.count()}, type: 'gauge'}`
-		); */
+		);
 
 		return listings;
 	} catch (err) {
-		/* logger.error(`Error processing job ${jobId}:\n${err}`); */
+		logger.error(`Error processing job ${jobId}:\n${err}`);
 		pubClient.publish(
 			channelName,
 			JSON.stringify({ jobId, status: 'failed', error: err.message })
