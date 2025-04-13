@@ -20,7 +20,7 @@ const logger = pino({
 const loggerFlexLogs = pino({
 	level: process.env.NODE_ENV === 'production' ? 'warn' : 'debug',
 	transport:
-		process.env.NODE_ENV !== 'production'
+		process.env.NODE_ENV === 'production'
 			? {
 					target: 'pino-pretty',
 					options: {
