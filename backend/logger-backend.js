@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import pino from 'pino';
+
 dotenv.config();
 
 const logger = pino({
@@ -18,7 +19,7 @@ const logger = pino({
 });
 
 const loggerFlexLogs = pino({
-	level: process.env.NODE_ENV === 'production' ? 'warn' : 'debug',
+	level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
 	transport:
 		process.env.NODE_ENV !== 'production'
 			? {
