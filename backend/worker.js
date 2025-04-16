@@ -18,10 +18,11 @@ userQueue.process(20, async (job) => {
 	const jobId = job.id;
 
 	try {
-		const listings = await scrapeListings(keywords, objConfig);
+    const listings = await scrapeListings(keywords, objConfig);
+    const queueCount = await userQueue.count();
 
 		loggerFlexLogs.info(
-			`flexlogs{metric: 'queue.length', value: ${userQueue.count()}, type: 'gauge'}`
+			`flexlogs{metric: 'queue.length', value: ${queueCount}, type: 'gauge'}`
 		);
 
 		return listings;
