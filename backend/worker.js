@@ -19,11 +19,6 @@ userQueue.process(20, async (job) => {
 
 	try {
     const listings = await scrapeListings(keywords, objConfig);
-    const queueCount = await userQueue.count();
-
-		loggerFlexLogs.info(
-			`flexlogs{metric: 'queue.length', value: ${queueCount}, type: 'gauge'}`
-		);
 
 		return listings;
 	} catch (err) {
@@ -36,18 +31,36 @@ userQueue.process(20, async (job) => {
 	}
 });
 
+const logQueueLength = async () => {
+  const jobCount = await userQueue.getJobCounts();
+
+  loggerFlexLogs.info(
+    `flexlogs{metric: 'queue.length', value: ${jobCount}, type: 'gauge'}`
+  );
+};
+
+userQueue.on('waiting', () => {
+  logQueueLength();
+})
+
 userQueue.on('completed', async (job, result) => {
-	const jobId = job.id;
+  const jobId = job.id;
+  
 	pubClient.publish(
 		channelName,
 		JSON.stringify({ jobId, status: 'completed', result })
-	);
+  );
+  
+  logQueueLength();
 });
 
 userQueue.on('failed', (job, err) => {
-	const jobId = job.id;
+  const jobId = job.id;
+  
 	pubClient.publish(
 		channelName,
 		JSON.stringify({ jobId, status: 'failed', error: err.message })
-	);
+  );
+  
+  logQueueLength();
 });
