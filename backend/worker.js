@@ -31,16 +31,15 @@ userQueue.process(20, async (job) => {
 	}
 });
 
-const logQueueLength = async () => {
-  const jobCount = await userQueue.count();
-
+const logQueueLength = (jobCount) => {
   loggerFlexLogs.info(
     `flexlogs{metric: 'queue.length', value: ${jobCount}, type: 'gauge'}`
   );
 };
 
 userQueue.on('active', async () => {
-  await logQueueLength();
+	const jobCount = await userQueue.getActiveCount();
+  logQueueLength(jobCount);
 })
 
 userQueue.on('completed', async (job, result) => {
@@ -51,7 +50,8 @@ userQueue.on('completed', async (job, result) => {
 		JSON.stringify({ jobId, status: 'completed', result })
   );
 
-  await logQueueLength();
+	const jobCount = await userQueue.getCompletedCount();
+  logQueueLength(jobCount);
 });
 
 userQueue.on('failed', async (job, err) => {
@@ -62,5 +62,6 @@ userQueue.on('failed', async (job, err) => {
 		JSON.stringify({ jobId, status: 'failed', error: err.message })
   );
   
-  await logQueueLength();
+	const jobCount = await userQueue.getFailedCount();
+  logQueueLength(jobCount);
 });
