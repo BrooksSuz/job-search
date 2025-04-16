@@ -39,8 +39,8 @@ const logQueueLength = async () => {
   );
 };
 
-userQueue.on('waiting', () => {
-  logQueueLength();
+userQueue.on('waiting', async () => {
+  await logQueueLength();
 })
 
 userQueue.on('completed', async (job, result) => {
@@ -50,11 +50,11 @@ userQueue.on('completed', async (job, result) => {
 		channelName,
 		JSON.stringify({ jobId, status: 'completed', result })
   );
-  
-  logQueueLength();
+
+  await logQueueLength();
 });
 
-userQueue.on('failed', (job, err) => {
+userQueue.on('failed', async (job, err) => {
   const jobId = job.id;
   
 	pubClient.publish(
@@ -62,5 +62,5 @@ userQueue.on('failed', (job, err) => {
 		JSON.stringify({ jobId, status: 'failed', error: err.message })
   );
   
-  logQueueLength();
+  await logQueueLength();
 });
