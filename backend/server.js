@@ -16,7 +16,7 @@ import {
 import passport from "./passport-config.js";
 import Site from "./schemas/Site.js";
 import User from "./schemas/User.js";
-import logger from "./logger-backend.js";
+import logger, { loggerFlexLogs } from "./logger-backend.js";
 import cors from "cors";
 import Queue from "bull";
 import { WebSocketServer } from "ws";
@@ -53,6 +53,10 @@ wss.on('connection', (ws) => {
       logger.info('pong');
       ws.send('pong');
     }
+
+    loggerFlexLogs.info(
+      `flexlogs{metric: 'queue.length', value: ${userQueue.count()}, type: 'gauge'}`
+    );
   });
 
   ws.on('close', () => {
