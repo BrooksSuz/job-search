@@ -32,7 +32,7 @@ userQueue.process(20, async (job) => {
 });
 
 const logQueueLength = async () => {
-  const jobCount = await userQueue.getJobCounts();
+  const jobCount = await userQueue.count();
 
   loggerFlexLogs.info(
     `flexlogs{metric: 'queue.length', value: ${jobCount}, type: 'gauge'}`
