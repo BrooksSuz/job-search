@@ -39,7 +39,7 @@ const logQueueLength = async () => {
   );
 };
 
-userQueue.on('waiting', async () => {
+userQueue.on('active', async () => {
   await logQueueLength();
 })
 
