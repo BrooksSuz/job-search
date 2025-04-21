@@ -21,7 +21,7 @@ async function connectToDb() {
 }
 
 async function getPremadeConfigs() {
-	const arrPremade = ['678e55b17462695271c1a2bb', '6757a5bfe3bdb76056b5bead'];
+	const arrPremade = ['6757a5bfe3bdb76056b5bead'];
 	try {
 		const arrConfigs = await Site.find({ _id: { $in: arrPremade } }).sort({
 			siteName: 1,
