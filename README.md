@@ -34,6 +34,7 @@ Now live! Users can customize the scraper by entering CSS selectors for any webs
 
 Preconfigured support is available for:
 
+- University of Toledo
 - University of Michigan
 
 To select multiple configurations, hold the "control" key and click as many configurations as you like. Control + click also deselects a configuration.
