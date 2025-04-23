@@ -16,7 +16,7 @@ const buildListings = async (
   const { url, siteName, ...configPairs } = objConfig;
   try {
     // Go to the provided site
-    await page.goto(url, { waitUntil: "networkidle0", timeout: 60000 });
+    await page.goto(url, { /* waitUntil: "networkidle0", */ timeout: 60000 });
 
     // Find those listings!
     const arrFoundListings = await findListings(
