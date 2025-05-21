@@ -7,7 +7,10 @@
   --burnt-salmon: hsla(12, 100%, 72%, 0.8);
   --disabled: hsla(12, 100%, 72%, 0.4);
 
-  font-family: "Courier New", monospace;
+  font-family: "Fira Code", monospace;
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-style: normal;
   font-size: 16px;
   line-height: 1.5;
 }
